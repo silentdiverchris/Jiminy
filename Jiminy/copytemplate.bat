@@ -1,0 +1,1 @@
+xcopy "c:\Dev\Jiminy\Jiminy\HtmlTemplate.html" "C:\Personal\Jiminy\HtmlTemplate.html" /Y

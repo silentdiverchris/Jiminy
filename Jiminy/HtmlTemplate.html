@@ -1,0 +1,382 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Jiminy</title>
+
+    <!--<script type="text/javascript" language="javascript">
+        function RunFile() {
+            WshShell = new ActiveXObject("WScript.Shell");
+            WshShell.Run("c:/windows/system32/notepad.exe", 1, false);
+        }
+    </script>-->
+    <style>
+        body {
+            font-family: Calibri;
+            background-color: lightsteelblue;
+        }
+
+        h1, h2, h3 {
+            margin: 5px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5em;
+        }
+
+        h2 {
+            font-size: 1.3em;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        p:last-child {
+            margin-bottom: 0px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0px 5px 5px 5px;
+        }
+
+            table td,
+            table th {
+                border: 1px solid lightgrey;
+                padding: 5px;
+                font-size: 1.0em;
+            }
+
+            table th {
+                font-weight: 400;
+                color: darkgrey;
+            }
+
+        .table-group {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .table-item {
+            display: flex;
+            flex-direction: column;
+            padding: 5px;
+            margin: 5px;
+            width: 97%;
+            align-items: center;
+        }
+
+        @media screen and (min-width: 700px) {
+            .table-item {
+                width: 47%;
+            }
+        }
+
+        @media screen and (min-width: 1200px) {
+            .table-item {
+                width: 32%;
+            }
+        }
+
+        .small {
+            font-size: 0.8em;
+        }
+
+        .very-small {
+            font-size: 0.6em;
+        }
+
+        .cell-priority {
+            text-align: center;
+            width: 50px;
+        }
+
+        .cell-links {
+            text-align: center;
+            width: 40px;
+        }
+
+        td.cell-priority,
+        td.cell-links {
+            font-size: 0.8em;
+        }
+
+        .cell-timing {
+            text-align: center;
+            width: 60px;
+        }
+
+        .cell-file-name {
+            text-align: left;
+        }
+
+        .cell-text {
+            text-align: left;
+            margin: 0px;
+        }
+
+        .warning {
+            color: red;
+            font-size: 0.8em;
+        }
+
+        .tag-warning {
+            color: red;
+            font-size: 0.8em;
+            margin: 0px;
+        }
+
+        a.tab-header {
+            text-decoration: none;
+            font-weight: normal;
+        }
+
+        .project-header,
+        .tab-header {
+            display: flex;
+            justify-content: center;
+        }
+
+        .project-header {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: baseline;
+            margin: 5px 0;
+        }
+
+        .tab-header {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 0 5px 0;
+        }
+
+            .project-header .prefix,
+            .tab-header .prefix {
+                font-size: 0.8em;
+                margin-right: 5px;
+            }
+
+            .project-header .prefix {
+                margin-right: 5px;
+            }
+
+            .project-header .name,
+            .tab-header .name {
+                font-size: 1.3em;
+            }
+
+        .cell-project-name {
+            margin: 0px;
+            font-size: 0.8em;
+            color: green;
+        }
+
+        .no-bottom-margin {
+            margin-bottom: 0px;
+        }
+
+        .no-top-margin {
+            margin-top: 0px;
+        }
+
+        .reminder-date-future,
+        .reminder-date-soon,
+        .reminder-date-past,
+        .reminder-date-today,
+        .due-date-future,
+        .due-date-soon,
+        .due-date-past,
+        .due-date-today {
+            margin: 0px;
+            font-size: 0.8em;
+        }
+
+        .reminder-date-future,
+        .due-date-future {
+            color: green;
+        }
+
+        .reminder-date-soon,
+        .due-date-soon {
+            color: purple;
+        }
+
+        .reminder-date-past,
+        .due-date-past {
+            color: red;
+        }
+
+        .reminder-date-today,
+        .due-date-today {
+            color: red;
+        }
+
+        .table-title {
+            font-size: 1.4em;
+            margin-bottom: 5px;
+        }
+
+        .event-log-table td,
+        .event-log-table th {
+            text-align: left;
+        }
+
+            .event-log-table td:first-child {
+                width: 80px;
+            }
+
+        .nav-tabs .nav-link:first-child {
+            margin-left: 10px;
+        }
+
+        /* CSS Tabs */
+
+        .tabs {
+            position: relative;
+            clear: both;
+        }
+
+            .tabs .tab {
+                float: left;
+                margin-right: 10px;
+                border: 1px solid #999;
+                background: #EEE;
+                padding: 4px 12px 8px 12px;
+                border-radius: 4px 4px 0 0;
+            }
+
+        .content {
+            position: absolute;
+            background: #EEE;
+            width: 100%;
+            left: 0px;
+        }
+
+        .tabs .tab:nth-of-type(1) .content {
+            z-index: 1;
+        }
+
+        .tab:target a {
+            font-weight: bold;
+        }
+
+        .tab:target .content {
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!--<a href="md://C:\dev\jiminy\jiminy\notes.md">MD</a>
+    <a href="md:///C/dev/jiminy/jiminy/notes.md">MD</a>
+    <a href="md:///C:\dev\jiminy\jiminy\notes.md">MD</a>
+    <a href="md://C:\dev\jiminy\jiminy\notes.md">MD</a>
+    <a href="md://C:\dev\jiminy\jiminy\notes.md">MD</a>-->
+    <!--<input type="button" value="Run Notepad" onclick="RunFile();" />-->
+
+    <h1>Jiminy Dashboard</h1>
+
+    <div class="tabs">
+
+        [ProjectsTabs]
+        [PrioritiesTab]
+        [BucketsTab]
+
+        <!--<div class="tab" id="tab1">
+        <a href="#tab1">Tab 1</a>
+        <div class="content">
+            <div class="table-group">
+                [InBucket]
+                [NextBucket]
+                [WaitBucket]
+                [SomedayBucket]
+            </div>
+        </div>
+    </div>
+
+    <div class="tab" id="tab2">
+        <a href="#tab2">Tab 2</a>
+        <div class="content">
+            <div class="table-group">
+                [ProjectGroups]
+            </div>
+        </div>
+    </div>
+
+    <div class="tab" id="tab3">
+        <a href="#tab3">Tab 3</a>
+        <div class="content">
+            <div class="table-group">
+                [Priority1]
+                [Priority2]
+                [Priority3]
+            </div>
+        </div>
+    </div>-->
+
+
+    </div>
+
+    <!--<nav>
+        <div class="nav nav-tabs justify-content-center" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="nav-buckets-tab" data-bs-toggle="tab" data-bs-target="#nav-buckets" type="button" role="tab" aria-controls="nav-buckets" aria-selected="true">Buckets</button>
+            [ProjectTabHeaders]
+            <button class="nav-link" id="nav-projects-tab" data-bs-toggle="tab" data-bs-target="#nav-projects" type="button" role="tab" aria-controls="nav-projects" aria-selected="false">All<br />Projects</button>
+            <button class="nav-link" id="nav-priorities-tab" data-bs-toggle="tab" data-bs-target="#nav-priorities" type="button" role="tab" aria-controls="nav-priorities" aria-selected="false">Priorities</button>
+            <button class="nav-link" id="nav-repeating-tab" data-bs-toggle="tab" data-bs-target="#nav-repeating" type="button" role="tab" aria-controls="nav-repeating" aria-selected="true">Repeaters</button>
+            <button class="nav-link" id="nav-completed-tab" data-bs-toggle="tab" data-bs-target="#nav-completed" type="button" role="tab" aria-controls="nav-completed" aria-selected="false">Completed</button>
+            <button class="nav-link" id="nav-log-tab" data-bs-toggle="tab" data-bs-target="#nav-log" type="button" role="tab" aria-controls="nav-log" aria-selected="false">Log</button>
+        </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-buckets" role="tabpanel" aria-labelledby="nav-buckets-tab">
+            <div class="table-group">
+                [InBucket]
+                [NextBucket]
+                [WaitBucket]
+                [SomedayBucket]
+            </div>
+        </div>
+        [ProjectTabContents]
+        <div class="tab-pane fade" id="nav-projects" role="tabpanel" aria-labelledby="nav-projects-tab">
+            <div class="table-group">
+                [ProjectGroups]
+            </div>
+        </div>
+        <div class="tab-pane fade" id="nav-priorities" role="tabpanel" aria-labelledby="nav-priorities-tab">
+            <div class="table-group">
+                [Priority1]
+                [Priority2]
+                [Priority3]
+            </div>
+        </div>
+        <div class="tab-pane fade" id="nav-repeating" role="tabpanel" aria-labelledby="nav-repeating-tab">
+            <div class="table-group">
+                [DailyList]
+                [WeeklyList]
+                [MonthlyList]
+            </div>
+        </div>
+        <div class="tab-pane fade" id="nav-completed" role="tabpanel" aria-labelledby="nav-completed-tab">
+            <div class="table-group">
+                [CompletedList]
+            </div>
+        </div>
+        <div class="tab-pane fade" id="nav-log" role="tabpanel" aria-labelledby="nav-log-tab">
+            <div style="margin:10px;">
+                [EventLog]
+            </div>
+        </div>
+    </div>-->
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\appurl]
+@="URL:GhostWriter AppURL protocol"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\appurl\DefaultIcon]
+@="ghostwriter.exe,1"
+
+[HKEY_CLASSES_ROOT\appurl\shell]
+
+[HKEY_CLASSES_ROOT\appurl\shell\open]
+
+[HKEY_CLASSES_ROOT\appurl\shell\open\command]
+@="\"C:\\Program Files\GhostWriter_x64\\ghostwriter.exe\" \"%1\""
