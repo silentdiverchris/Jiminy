@@ -4,6 +4,10 @@
     {
         public int LatencySeconds { get; set; } = 10;
 
+        public string MediaDirectoryPath { get; set; } = "";
+
+        public TagSettings TagSettings { get; set; } = new TagSettings();
+
         public LogSettings LogSettings { get; set; } = new LogSettings();
 
         public List<string> IgnoreFileSpecifications { get; set; } = new();

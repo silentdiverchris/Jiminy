@@ -224,10 +224,10 @@ namespace Jiminy.Utilities
             string headerHtml = ""; // GenerateTabBodyHeader(projectName, project is null ? null : "Project", "tab-content-header");
 
             sb.Append($"<div class=\"tab__content\">{headerHtml}<div class=\"table-group\">");
-            sb.Append(GenerateListTable("Incoming", projectItems, onlyBucket: enBucket.In, showText: true, showPriority: true, showLinks: true, suppressProjectName: true));
-            sb.Append(GenerateListTable("Next", projectItems, onlyBucket: enBucket.Next, showText: true, showPriority: true, showLinks: true, suppressProjectName: true));
-            sb.Append(GenerateListTable("Waiting", projectItems, onlyBucket: enBucket.Waiting, showText: true, showPriority: true, showLinks: true, suppressProjectName: true));
-            sb.Append(GenerateListTable("Someday/maybe", projectItems, onlyBucket: enBucket.Someday, showText: true, showPriority: true, showLinks: true, suppressProjectName: true));
+            sb.Append(GenerateListTable("Incoming", projectItems, onlyBucket: enBucket.In, showText: true, showPriority: true, showLinks: true, suppressProjectName: project is not null));
+            sb.Append(GenerateListTable("Next", projectItems, onlyBucket: enBucket.Next, showText: true, showPriority: true, showLinks: true, suppressProjectName: project is not null));
+            sb.Append(GenerateListTable("Waiting", projectItems, onlyBucket: enBucket.Waiting, showText: true, showPriority: true, showLinks: true, suppressProjectName: project is not null));
+            sb.Append(GenerateListTable("Someday/maybe", projectItems, onlyBucket: enBucket.Someday, showText: true, showPriority: true, showLinks: true, suppressProjectName: project is not null));
             sb.Append("</div></div>");
 
             return sb.ToString();
@@ -313,10 +313,18 @@ namespace Jiminy.Utilities
             return sb.ToString();
         }
 
-        private static HtmlTableCell GeneratePriorityCell(Item tagSet)
-        {
-            return new HtmlTableCell(tagSet.Priority.ToString(), classes: "cell-priority");
-        }
+        //private static HtmlTableCell GeneratePriorityCell(Item item)
+        //{
+        //    string iconHtml = item.Priority switch
+        //    {
+        //        enPriority.High => TagSetUtilities.GetPriorityHighIconHtml(fillColour: "orangered"),
+        //        enPriority.Medium => TagSetUtilities.GetPriorityMediumIconHtml(fillColour: "purple"),
+        //        enPriority.Low => TagSetUtilities.GetPriorityLowIconHtml(fillColour: "darkgrey"),
+        //        _ => ""
+        //    };
+
+        //    return new HtmlTableCell(iconHtml, classes: "cell-priority");
+        //}
 
         private static HtmlTableCell GenerateBucketCell(Item tagSet)
         {
@@ -330,7 +338,9 @@ namespace Jiminy.Utilities
 
         private static HtmlTableCell GenerateTextCell(Item ts, bool suppressProjectName = false)
         {
-            string? diags = string.Join(", ", ts.Diagnostics);
+            StringBuilder sbIcons = new(2000);
+
+            string? diags = "Diagnostics: " + string.Join(", ", ts.Diagnostics);
 
             string? warnings = string.IsNullOrEmpty(ts.Warnings)
                 ? null
@@ -340,13 +350,30 @@ namespace Jiminy.Utilities
                 ? null
                 : $"<p class='cell-project-name'>Project: {ts.ProjectName}</p>";
 
-            string? reminder = ts.IsCompleted
-                ? null
-                : GenerateDateString(ts.ReminderDateTime, "Reminder");
+            string reminder = "";
+            string due = "";
 
-            string? due = ts.IsCompleted
-                ? null
-                : GenerateDateString(ts.DueDateTime, "Due");
+            if (ts.IsCompleted == false)
+            {
+                enDateStatus reminderStatus = ts.GetReminderStatus(out string reminderColour);
+                if (reminderStatus != enDateStatus.None)
+                {
+                    sbIcons.Append(TagSetUtilities.CustomiseIcon(TagSetUtilities.GetReminderIconHtml(24, 24, reminderColour), tipText: $"Reminder: {reminderStatus}"));
+                    reminder = GenerateDateString(ts.ReminderDateTime, "Reminder");
+                }
+
+                enDateStatus dueStatus = ts.GetDueStatus(out string dueColour);
+                if (dueStatus != enDateStatus.None)
+                {
+                    sbIcons.Append(TagSetUtilities.CustomiseIcon(TagSetUtilities.GetDueIconHtml(24, 24, dueColour), tipText: $"Due: {dueStatus}"));
+                    due = GenerateDateString(ts.DueDateTime, "Due");
+                }
+            }
+
+            if (ts.IsBug)
+            {
+                sbIcons.Append(TagSetUtilities.CustomiseIcon(TagSetUtilities.GetBugIconHtml(24, 24), tipText: "This represents a bug"));
+            }
 
             string? text = string.IsNullOrEmpty(ts.AssociatedText)
                 ? ts.IsContext
@@ -354,14 +381,38 @@ namespace Jiminy.Utilities
                     : null
                 : $"<p class='cell-text'>{ts.AssociatedText}</p>";
 
+            if (ts.Bucket != enBucket.None)
+            {
+                string bucketIcon = ts.Bucket switch
+                {
+                    enBucket.In => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetInBucketHtml(fillColour: "orangered"), tipText: $"Bucket: {ts.Bucket}"),
+                    enBucket.Next => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetNextBucketHtml(fillColour: "orangered"), tipText: $"Bucket: {ts.Bucket}"),
+                    enBucket.Waiting => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetWaitingBucketHtml(fillColour: "orangered"), $"Bucket: {ts.Bucket}"),
+                    enBucket.Someday => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetSomedayBucketHtml(fillColour: "orangered"), tipText: $"Bucket: {ts.Bucket}"),
+                    _ => ""
+                };
+
+                sbIcons.Append(bucketIcon);
+            }
+
+            string priorityIcon = ts.Priority switch
+            {
+                enPriority.High => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetPriorityHighIconHtml(fillColour: "orangered"), tipText: $"Priority: {ts.Priority}"),
+                enPriority.Medium => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetPriorityMediumIconHtml(fillColour: "purple"), tipText:  $"Priority: {ts.Priority}"),
+                enPriority.Low => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetPriorityLowIconHtml(fillColour: "darkgrey"), tipText: $"Priority: {ts.Priority}"),
+                _ => ""
+            };
+            sbIcons.Append(priorityIcon);
+
+            sbIcons.Append(TagSetUtilities.CustomiseIcon(TagSetUtilities.GetLinkIconHtml(), tipText: "Open the source MarkDown file", linkUrl: ts.FullFileName));
+
             return new HtmlTableCell(
-                $"{text}{reminder}{due}{project}{warnings}",
-                title: diags);
+                $"{project}{text}{reminder}{due}{warnings}<div class='item-icons'>{sbIcons}</div>"); // title: diags);
         }
 
-        private static string? GenerateDateString(DateTime? dateTime, string? prefix)
+        private static string GenerateDateString(DateTime? dateTime, string? prefix)
         {
-            string? dateStr = null;
+            string dateStr = "";
 
             if (prefix is not null)
             {
@@ -373,22 +424,23 @@ namespace Jiminy.Utilities
                 DateTime dt = (DateTime)dateTime;
 
                 string dtStr = FormatReminderDate(dt);
+                string colour = dateTime.DateColour();
 
                 if (dt.Date == DateTime.Now.Date)
                 {
-                    dateStr = $"<p class='reminder-date-today'>{prefix}Today</p>";
+                    dateStr = $"<p class='reminder-date-today' style='color:{colour}'>{prefix}Today</p>";
                 }
-                else if (dt > DateTime.Now.AddDays(3))
+                else if (dt > DateTime.Now.AddDays(2))
                 {
-                    dateStr = $"<p class='reminder-date-future'>{prefix}{dtStr}</p>";
+                    dateStr = $"<p class='reminder-date-future' style='color:{colour}'>{prefix}{dtStr}</p>";
                 }
                 else if (dt.Date > DateTime.Now.Date)
                 {
-                    dateStr = $"<p class='reminder-date-soon'>{prefix}{dtStr}</p>";
+                    dateStr = $"<p class='reminder-date-soon' style='color:{colour}'>{prefix}{dtStr}</p>";
                 }
                 else
                 {
-                    dateStr = $"<p class='reminder-date-past'>{prefix}{dtStr}</p>";
+                    dateStr = $"<p class='reminder-date-past' style='color:{colour}'>{prefix}{dtStr}</p>";
                 }
             }
 
@@ -445,13 +497,15 @@ namespace Jiminy.Utilities
             return dtStr;
         }
 
-        private static HtmlTableCell GenerateLinksCell(Item tagSet)
-        {
-            return new HtmlTableCell(
-                text: "View",
-                linkUrl: tagSet.FullFileName, styles: "text-align:center", title: $"{tagSet.FullFileName} line {tagSet.LineNumber} original {tagSet.RawTagSet}",
-                classes: "cell-links");
-        }
+        //private static HtmlTableCell GenerateLinksCell(Item tagSet)
+        //{
+        //    string iconHtml = TagSetUtilities.GetLinkIconHtml();
+
+        //    return new HtmlTableCell(
+        //        text: iconHtml,
+        //        linkUrl: tagSet.FullFileName, styles: "text-align:center", title: $"{tagSet.FullFileName} line {tagSet.LineNumber} original {tagSet.RawTagSet}",
+        //        classes: "cell-links");
+        //}
 
         private static string GenerateEventsTable(List<LogEntry> eventList)
         {
@@ -497,8 +551,8 @@ namespace Jiminy.Utilities
                 if (showText)
                     headerCells.Add(new HtmlTableCell("Text", classes: "cell-text", isHeader: true));
 
-                if (showPriority)
-                    headerCells.Add(new HtmlTableCell("Priority", classes: "cell-priority", isHeader: true));
+                //if (showPriority)
+                //    headerCells.Add(new HtmlTableCell("Priority", classes: "cell-priority", isHeader: true));
 
                 if (showBuckets)
                     headerCells.Add(new HtmlTableCell("Bucket", classes: "cell-bucket", isHeader: true));
@@ -506,8 +560,8 @@ namespace Jiminy.Utilities
                 if (showFileName)
                     headerCells.Add(new HtmlTableCell("File", classes: "cell-file-name", isHeader: true));
 
-                if (showLinks)
-                    headerCells.Add(new HtmlTableCell("Links", classes: "cell-links", isHeader: true));
+                //if (showLinks)
+                //    headerCells.Add(new HtmlTableCell("Links", classes: "cell-links", isHeader: true));
 
                 table.Rows.Add(new()
                 {
@@ -524,8 +578,8 @@ namespace Jiminy.Utilities
                         if (showText)
                             bodyCells.Add(GenerateTextCell(item, suppressProjectName));
 
-                        if (showPriority)
-                            bodyCells.Add(GeneratePriorityCell(item));
+                        //if (showPriority)
+                        //    bodyCells.Add(GeneratePriorityCell(item));
 
                         if (showBuckets)
                             bodyCells.Add(GenerateBucketCell(item));
@@ -533,8 +587,8 @@ namespace Jiminy.Utilities
                         if (showFileName)
                             bodyCells.Add(GenerateFileNameCell(item));
 
-                        if (showLinks)
-                            bodyCells.Add(GenerateLinksCell(item));
+                        //if (showLinks)
+                        //    bodyCells.Add(GenerateLinksCell(item));
 
                         HtmlTableRow row = new()
                         {

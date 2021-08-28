@@ -1,4 +1,5 @@
-﻿using static Jiminy.Classes.Enumerations;
+﻿using Jiminy.Helpers;
+using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Classes
 {
@@ -37,7 +38,8 @@ namespace Jiminy.Classes
         public bool IsMonthly { get; set; } = false;
         public bool IsCompleted { get; set; } = false;
         public bool IsContext { get; set; } = false;
-        public bool IsDue { get; set; } = false;
+        //public bool IsDue { get; set; } = false;
+        public bool IsBug { get; set; } = false;
 
         public string? FullFileName { get; set; }
         public List<string> Diagnostics { get; set; } = new();
@@ -67,6 +69,24 @@ namespace Jiminy.Classes
             str += " File:" + FullFileName;
 
             return str;
+        }
+
+        public enDateStatus ReminderStatus => ReminderDateTime.DateStatus(out _);
+
+        public enDateStatus GetReminderStatus(out string colour)
+        {
+            enDateStatus ds = ReminderDateTime.DateStatus(out colour);
+
+            return ds;
+        }
+
+        public enDateStatus DueStatus => DueDateTime.DateStatus(out _);
+
+        public enDateStatus GetDueStatus(out string colour)
+        {
+            enDateStatus ds = DueDateTime.DateStatus(out colour);
+
+            return ds;
         }
     }
 }

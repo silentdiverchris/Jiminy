@@ -19,9 +19,5 @@
         internal const string TAB_GROUP_PROJECT = "ProjectTabs";
         internal const string TAB_GROUP_OTHER = "OtherTabs";
 
-        //internal const string HTML_PLACEHOLDER_PROJECTS_TABS = "[ProjectsTabs]";
-        //internal const string HTML_PLACEHOLDER_ALL_PROJECTS_TAB = "[ProjectsTab]";
-        //internal const string HTML_PLACEHOLDER_ALL_BUCKETS_TAB = "[BucketsTab]";
-        //internal const string HTML_PLACEHOLDER_ALL_PRIORITIES_TAB = "[PrioritiesTab]";
     }
 }

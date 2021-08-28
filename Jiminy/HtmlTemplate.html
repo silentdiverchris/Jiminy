@@ -92,8 +92,8 @@
 
         .cell-count {
             text-align: center;
-            color:darkgrey;
-            font-size:0.8em;
+            color: darkgrey;
+            font-size: 0.8em;
         }
 
         .cell-priority {
@@ -123,6 +123,7 @@
         .cell-text {
             text-align: left;
             margin: 0px;
+            font-size: 1.2em;
         }
 
         .warning {
@@ -187,8 +188,12 @@
 
         .cell-project-name {
             margin: 0px;
-            font-size: 0.8em;
-            color: green;
+            font-size: 1.0em;
+            color: dodgerblue;
+        }
+
+        .cell-icon {
+            margin-left: 5px;
         }
 
         .no-bottom-margin {
@@ -208,27 +213,7 @@
         .due-date-past,
         .due-date-today {
             margin: 0px;
-            font-size: 0.8em;
-        }
-
-        .reminder-date-future,
-        .due-date-future {
-            color: green;
-        }
-
-        .reminder-date-soon,
-        .due-date-soon {
-            color: purple;
-        }
-
-        .reminder-date-past,
-        .due-date-past {
-            color: red;
-        }
-
-        .reminder-date-today,
-        .due-date-today {
-            color: red;
+            font-size: 0.9em;
         }
 
         .table-title {
@@ -250,10 +235,46 @@
         }
 
         .reminder-panel {
-            margin:5px;
-            padding:10px;
-
+            margin: 5px;
+            padding: 10px;
         }
+
+        .item-icons {
+            margin: 5px 0 0 5px;
+            display: flex;
+            flex-direction: row;
+            justify-content: end;
+        }
+
+        a.tip {
+            /*border-bottom: 1px dashed;*/
+            text-decoration: none
+        }
+
+            a.tip:hover {
+                cursor: help;
+                position: relative
+            }
+
+            a.tip span {
+                display: none
+            }
+
+            a.tip:hover span {
+                /*border: #c0c0c0 1px dotted;*/
+                padding: 5px 20px 5px 5px;
+                display: block;
+                z-index: 100;
+                background: purple;
+                left: 0px;
+                margin: 10px;
+                /*width: 250px;*/
+                position: absolute;
+                top: 10px;
+                text-decoration: none;
+                font-size: 1.2em;
+                color: white;
+            }
     </style>
 
     <!--Tabs CSS enthusiastically stolen from https://codeconvey.com/simple-css-tabs-without-javascript/ -->
@@ -282,7 +303,7 @@
 
             .tab:checked:nth-of-type(1) ~ .tab__content:nth-of-type(1) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -292,7 +313,7 @@
 
             .tab:checked:nth-of-type(2) ~ .tab__content:nth-of-type(2) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -302,7 +323,7 @@
 
             .tab:checked:nth-of-type(3) ~ .tab__content:nth-of-type(3) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -312,7 +333,7 @@
 
             .tab:checked:nth-of-type(4) ~ .tab__content:nth-of-type(4) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -322,7 +343,7 @@
 
             .tab:checked:nth-of-type(5) ~ .tab__content:nth-of-type(5) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -332,7 +353,7 @@
 
             .tab:checked:nth-of-type(6) ~ .tab__content:nth-of-type(6) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -342,7 +363,7 @@
 
             .tab:checked:nth-of-type(7) ~ .tab__content:nth-of-type(7) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -352,7 +373,7 @@
 
             .tab:checked:nth-of-type(8) ~ .tab__content:nth-of-type(8) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -362,7 +383,7 @@
 
             .tab:checked:nth-of-type(9) ~ .tab__content:nth-of-type(9) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -372,7 +393,7 @@
 
             .tab:checked:nth-of-type(10) ~ .tab__content:nth-of-type(10) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -382,7 +403,7 @@
 
             .tab:checked:nth-of-type(11) ~ .tab__content:nth-of-type(11) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -392,7 +413,7 @@
 
             .tab:checked:nth-of-type(12) ~ .tab__content:nth-of-type(12) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -402,7 +423,7 @@
 
             .tab:checked:nth-of-type(13) ~ .tab__content:nth-of-type(13) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -412,7 +433,7 @@
 
             .tab:checked:nth-of-type(14) ~ .tab__content:nth-of-type(14) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
@@ -422,7 +443,7 @@
 
             .tab:checked:nth-of-type(15) ~ .tab__content:nth-of-type(15) {
                 opacity: 1;
-                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                transition: 0.4s opacity ease-in, 0.6s transform ease;
                 position: relative;
                 top: 0;
                 z-index: 100;
