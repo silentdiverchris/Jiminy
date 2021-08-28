@@ -34,8 +34,15 @@ namespace Jiminy.Utilities
                     StringBuilder sbTabHeaders = new(1000);
                     StringBuilder sbTabContent = new(1000);
 
+                    if (itemRegistry.ReminderItems.Any)
+                    {
+                        // Reminders tab
+                        sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Reminders", true));
+                        sbTabContent.Append(GenerateRemindersTabContent(itemRegistry));
+                    }
+
                     // Projects tab wih sub-tabs for each project
-                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Projects", true));
+                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Projects"));
                     sbTabContent.Append(GenerateProjectTabCollectionContent(itemRegistry));
 
                     // All buckets tab
@@ -81,6 +88,41 @@ namespace Jiminy.Utilities
             return result;
         }
 
+        private static string GenerateRemindersTabContent(ItemRegistry itemRegistry)
+        {
+            StringBuilder sb = new(2000);
+
+            string headerHtml = ""; // GenerateTabBodyHeader("Priorities", null, "tab-content-header");
+
+            DateTime threshold = DateTime.UtcNow.AddDays(2);
+            var imminentItems = new ItemSubSet(itemRegistry.ReminderItems.Items.Where(_ => _.ReminderDateTime < threshold));
+            var futureItems = new ItemSubSet(itemRegistry.ReminderItems.Items.Where(_ => _.ReminderDateTime > threshold));
+
+            sb.Append($"<div class=\"tab__content\">{headerHtml}<div class=\"table-group\">");
+            sb.Append(GenerateListTable("Imminent", imminentItems, showBuckets: true, showPriority: true, showText: true, showLinks: true, suppressProjectName: false));
+            sb.Append(GenerateListTable("Future", futureItems, showBuckets: true, showPriority: true, showText: true, showLinks: true, suppressProjectName: false));
+            sb.Append("</div></div>");
+
+            return sb.ToString();
+        }
+
+        //private static string GenerateReminderPanel(ItemRegistry itemRegistry)
+        //{
+        //    StringBuilder sb = new(200);
+
+        //    var items = new ItemSubSet(itemRegistry.OpenItems.Items.Where(_ => _.ReminderDateTime != null).OrderBy(_ => _.ReminderDateTime));
+
+        //    if (items.Any)
+        //    {
+        //        sb.Append($"<div class='reminder-panel'>");
+
+        //        sb.Append(GenerateListTable("Reminders", items, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
+
+        //        sb.Append("<div>");
+        //    }
+
+        //    return sb.ToString();
+        //}
 
         private static string GenerateTabLeafHtml(string tabGroupName, string title, bool active = false)
         {
@@ -276,9 +318,9 @@ namespace Jiminy.Utilities
             return new HtmlTableCell(tagSet.Priority.ToString(), classes: "cell-priority");
         }
 
-        private static HtmlTableCell GenerateGTDCell(Item tagSet)
+        private static HtmlTableCell GenerateBucketCell(Item tagSet)
         {
-            return new HtmlTableCell(tagSet.Bucket.ToString(), classes: "cell-timing");
+            return new HtmlTableCell(tagSet.Bucket.ToString(), classes: "cell-bucket");
         }
 
         private static HtmlTableCell GenerateFileNameCell(Item tagSet)
@@ -292,7 +334,7 @@ namespace Jiminy.Utilities
 
             string? warnings = string.IsNullOrEmpty(ts.Warnings)
                 ? null
-                : $"<p class='tag-warning'>{ts.Warnings}</p>";
+                : $"<br><p class='tag-warning'>{string.Join("<br>", ts.Warnings)}</p>";
 
             string? project = suppressProjectName || string.IsNullOrEmpty(ts.ProjectName)
                 ? null
@@ -459,7 +501,7 @@ namespace Jiminy.Utilities
                     headerCells.Add(new HtmlTableCell("Priority", classes: "cell-priority", isHeader: true));
 
                 if (showBuckets)
-                    headerCells.Add(new HtmlTableCell("GTD", classes: "cell-timing", isHeader: true));
+                    headerCells.Add(new HtmlTableCell("Bucket", classes: "cell-bucket", isHeader: true));
 
                 if (showFileName)
                     headerCells.Add(new HtmlTableCell("File", classes: "cell-file-name", isHeader: true));
@@ -486,7 +528,7 @@ namespace Jiminy.Utilities
                             bodyCells.Add(GeneratePriorityCell(item));
 
                         if (showBuckets)
-                            bodyCells.Add(GenerateGTDCell(item));
+                            bodyCells.Add(GenerateBucketCell(item));
 
                         if (showFileName)
                             bodyCells.Add(GenerateFileNameCell(item));

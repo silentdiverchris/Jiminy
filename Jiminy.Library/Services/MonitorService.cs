@@ -233,7 +233,7 @@ namespace Jiminy.Services
                 {
                     _filesToScanQueue.Enqueue(fullFileName);
 
-                    var log = new LogEntry($"File '{fullFileName}' enqueued");
+                    var log = new LogEntry($"File '{fullFileName}' marked to be read");
 
                     _recentLogEntries.Add(log);
                     _logService.LogToConsole(log);

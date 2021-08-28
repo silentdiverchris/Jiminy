@@ -206,12 +206,15 @@ namespace Jiminy.Utilities
                                         else
                                         {
                                             // Less standard date/time, TODO
-                                            result.AddWarning($"TagPart '{tagPart}' cannot extract reminder date/time");
+                                            result.AddWarning($"TagPart '{tagPart}' cannot extract reminder date/time as the value cannot be parsed, assuming today");
+                                            ts.Diagnostics.Add($"Setting reminder for today as date not readable");
+                                            ts.ReminderDateTime = DateTime.Now;
                                         }
                                     }
                                     else
                                     {
-                                        ts.Diagnostics.Add($"Setting reminder today (default)");
+                                        result.AddWarning($"TagPart '{tagPart}' cannot extract reminder date/time as none supplied, assuming today");
+                                        ts.Diagnostics.Add($"Setting reminder for today as date not supplied");
                                         ts.ReminderDateTime = DateTime.Now;
                                     }
 

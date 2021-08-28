@@ -13,8 +13,23 @@ namespace Jiminy.Classes
 
         internal List<Item> Items => _items;
 
-        // Open and project items get read an awful lot when generating the
+        // Some items get read an awful lot when generating the
         // report, so we cache filtered lists for them
+
+        private ItemSubSet? _reminderItems = new ItemSubSet();
+
+        internal ItemSubSet ReminderItems
+        {
+            get
+            {
+                if (_reminderItems is null)
+                {
+                    _reminderItems = new(OpenItems.Items.Where(_ => _.ReminderDateTime != null).OrderBy(_ => _.ReminderDateTime).ThenBy(_ => _.Priority));
+                }
+
+                return _reminderItems;
+            }
+        }
 
         private ItemSubSet? _openItems = new ItemSubSet();
 
@@ -94,6 +109,7 @@ namespace Jiminy.Classes
 
                 _openItems = null;
                 _projectItems = null;
+                _reminderItems = null;
             }
         }
     }

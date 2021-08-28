@@ -85,7 +85,7 @@ namespace Jiminy.Services
 
                             if (ts.Bucket == enBucket.None)
                             {
-                                ts.Diagnostics.Add($"Applying context GTDList '{contextTagSet.Bucket}'");
+                                ts.Diagnostics.Add($"Applying bucket '{contextTagSet.Bucket}'");
                                 ts.Bucket = contextTagSet.Bucket;
                             }
 
