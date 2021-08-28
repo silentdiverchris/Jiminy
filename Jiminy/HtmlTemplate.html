@@ -11,23 +11,15 @@
             WshShell.Run("c:/windows/system32/notepad.exe", 1, false);
         }
     </script>-->
+
     <style>
         body {
             font-family: Calibri;
             background-color: lightsteelblue;
         }
 
-        h1, h2, h3 {
-            margin: 5px;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 1.5em;
-        }
-
-        h2 {
-            font-size: 1.3em;
+        .page {
+            padding: 5px;
         }
 
         a {
@@ -137,13 +129,13 @@
             font-weight: normal;
         }
 
-        .project-header,
+        .tab-content-header,
         .tab-header {
             display: flex;
             justify-content: center;
         }
 
-        .project-header {
+        .tab-content-header {
             display: flex;
             flex-direction: row;
             justify-content: center;
@@ -159,20 +151,27 @@
             margin: 0 0 5px 0;
         }
 
-            .project-header .prefix,
             .tab-header .prefix {
                 font-size: 0.8em;
                 margin-right: 5px;
             }
 
-            .project-header .prefix {
-                margin-right: 5px;
-            }
+        .tab-content-header .prefix {
+            font-size: 1.0em;
+            margin-right: 5px;
+        }
 
-            .project-header .name,
-            .tab-header .name {
-                font-size: 1.3em;
-            }
+        .tab-content-header .prefix {
+            margin-right: 5px;
+        }
+
+        .tab-content-header .name {
+            font-size: 1.5em;
+        }
+
+        .tab-header .name {
+            font-size: 1.2em;
+        }
 
         .cell-project-name {
             margin: 0px;
@@ -237,146 +236,263 @@
         .nav-tabs .nav-link:first-child {
             margin-left: 10px;
         }
+    </style>
 
-        /* CSS Tabs */
+    <!--Tabs CSS enthusiastically stolen from https://codeconvey.com/simple-css-tabs-without-javascript/ -->
+    <style>
 
-        .tabs {
+        .tab-wrap {
+            transition: 0.3s box-shadow ease;
+            border-radius: 6px;
+            max-width: 100%;
+            display: flex;
+            flex-wrap: wrap;
             position: relative;
-            clear: both;
+            list-style: none;
+            background-color: #fff;
+            margin: 10px 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
         }
 
-            .tabs .tab {
-                float: left;
-                margin-right: 10px;
-                border: 1px solid #999;
-                background: #EEE;
-                padding: 4px 12px 8px 12px;
-                border-radius: 4px 4px 0 0;
+            .tab-wrap:hover {
+                box-shadow: 0 12px 23px rgba(0, 0, 0, 0.23), 0 10px 10px rgba(0, 0, 0, 0.19);
             }
 
-        .content {
+        .tab {
+            display: none;
+        }
+
+            .tab:checked:nth-of-type(1) ~ .tab__content:nth-of-type(1) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(2) ~ .tab__content:nth-of-type(2) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(3) ~ .tab__content:nth-of-type(3) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(4) ~ .tab__content:nth-of-type(4) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(5) ~ .tab__content:nth-of-type(5) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(6) ~ .tab__content:nth-of-type(6) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(7) ~ .tab__content:nth-of-type(7) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(8) ~ .tab__content:nth-of-type(8) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(9) ~ .tab__content:nth-of-type(9) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(10) ~ .tab__content:nth-of-type(10) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(11) ~ .tab__content:nth-of-type(11) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(12) ~ .tab__content:nth-of-type(12) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(13) ~ .tab__content:nth-of-type(13) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(14) ~ .tab__content:nth-of-type(14) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:checked:nth-of-type(15) ~ .tab__content:nth-of-type(15) {
+                opacity: 1;
+                transition: 0.5s opacity ease-in, 0.8s transform ease;
+                position: relative;
+                top: 0;
+                z-index: 100;
+                transform: translateY(0px);
+                text-shadow: 0 0 0;
+            }
+
+            .tab:first-of-type:not(:last-of-type) + label {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+
+            .tab:not(:first-of-type):not(:last-of-type) + label {
+                border-radius: 0;
+            }
+
+            .tab:last-of-type:not(:first-of-type) + label {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+            }
+
+            /*.tab:checked + label {
+                background-color: #fff;
+                box-shadow: 0 -1px 0 #fff inset;
+                cursor: default;
+            }*/
+
+            .tab:checked + label {
+                background-color: #2c20b7;
+                box-shadow: 0 -1px 0 #fff inset;
+                cursor: default;
+                color: white;
+            }
+
+                .tab:checked + label:hover {
+                    box-shadow: 0 -1px 0 #fff inset;
+                    background-color: #2c20b7;
+                }
+
+            .tab + label {
+                box-shadow: 0 -1px 0 #eee inset;
+                border-radius: 6px 6px 0 0;
+                cursor: pointer;
+                display: block;
+                text-decoration: none;
+                color: #333;
+                flex-grow: 3;
+                text-align: center;
+                background-color: #f2f2f2;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                text-align: center;
+                transition: 0.3s background-color ease, 0.3s box-shadow ease;
+                height: 50px;
+                box-sizing: border-box;
+                padding: 15px;
+            }
+
+                .tab + label:hover {
+                    background-color: #f9f9f9;
+                    box-shadow: 0 1px 0 #f4f4f4 inset;
+                }
+
+        .tab__content {
+            padding: 10px 25px;
+            background-color: transparent;
             position: absolute;
-            background: #EEE;
             width: 100%;
-            left: 0px;
+            z-index: -1;
+            opacity: 0;
+            left: 0;
+            transform: translateY(-3px);
+            border-radius: 6px;
         }
 
-        .tabs .tab:nth-of-type(1) .content {
-            z-index: 1;
-        }
-
-        .tab:target a {
-            font-weight: bold;
-        }
-
-        .tab:target .content {
-            z-index: 1;
+        .container {
+            margin: 0 auto;
+            display: block;
+            /*max-width: 800px;*/
         }
     </style>
 </head>
 <body>
 
-    <!--<a href="md://C:\dev\jiminy\jiminy\notes.md">MD</a>
-    <a href="md:///C/dev/jiminy/jiminy/notes.md">MD</a>
-    <a href="md:///C:\dev\jiminy\jiminy\notes.md">MD</a>
-    <a href="md://C:\dev\jiminy\jiminy\notes.md">MD</a>
-    <a href="md://C:\dev\jiminy\jiminy\notes.md">MD</a>-->
-    <!--<input type="button" value="Run Notepad" onclick="RunFile();" />-->
-
-    <h1>Jiminy Dashboard</h1>
-
-    <div class="tabs">
-
-        [ProjectsTabs]
-        [PrioritiesTab]
-        [BucketsTab]
-
-        <!--<div class="tab" id="tab1">
-        <a href="#tab1">Tab 1</a>
-        <div class="content">
-            <div class="table-group">
-                [InBucket]
-                [NextBucket]
-                [WaitBucket]
-                [SomedayBucket]
-            </div>
-        </div>
-    </div>
-
-    <div class="tab" id="tab2">
-        <a href="#tab2">Tab 2</a>
-        <div class="content">
-            <div class="table-group">
-                [ProjectGroups]
-            </div>
-        </div>
-    </div>
-
-    <div class="tab" id="tab3">
-        <a href="#tab3">Tab 3</a>
-        <div class="content">
-            <div class="table-group">
-                [Priority1]
-                [Priority2]
-                [Priority3]
-            </div>
-        </div>
-    </div>-->
-
-
-    </div>
-
-    <!--<nav>
-        <div class="nav nav-tabs justify-content-center" id="nav-tab" role="tablist">
-            <button class="nav-link active" id="nav-buckets-tab" data-bs-toggle="tab" data-bs-target="#nav-buckets" type="button" role="tab" aria-controls="nav-buckets" aria-selected="true">Buckets</button>
-            [ProjectTabHeaders]
-            <button class="nav-link" id="nav-projects-tab" data-bs-toggle="tab" data-bs-target="#nav-projects" type="button" role="tab" aria-controls="nav-projects" aria-selected="false">All<br />Projects</button>
-            <button class="nav-link" id="nav-priorities-tab" data-bs-toggle="tab" data-bs-target="#nav-priorities" type="button" role="tab" aria-controls="nav-priorities" aria-selected="false">Priorities</button>
-            <button class="nav-link" id="nav-repeating-tab" data-bs-toggle="tab" data-bs-target="#nav-repeating" type="button" role="tab" aria-controls="nav-repeating" aria-selected="true">Repeaters</button>
-            <button class="nav-link" id="nav-completed-tab" data-bs-toggle="tab" data-bs-target="#nav-completed" type="button" role="tab" aria-controls="nav-completed" aria-selected="false">Completed</button>
-            <button class="nav-link" id="nav-log-tab" data-bs-toggle="tab" data-bs-target="#nav-log" type="button" role="tab" aria-controls="nav-log" aria-selected="false">Log</button>
-        </div>
-    </nav>
-    <div class="tab-content" id="nav-tabContent">
-        <div class="tab-pane fade show active" id="nav-buckets" role="tabpanel" aria-labelledby="nav-buckets-tab">
-            <div class="table-group">
-                [InBucket]
-                [NextBucket]
-                [WaitBucket]
-                [SomedayBucket]
-            </div>
-        </div>
-        [ProjectTabContents]
-        <div class="tab-pane fade" id="nav-projects" role="tabpanel" aria-labelledby="nav-projects-tab">
-            <div class="table-group">
-                [ProjectGroups]
-            </div>
-        </div>
-        <div class="tab-pane fade" id="nav-priorities" role="tabpanel" aria-labelledby="nav-priorities-tab">
-            <div class="table-group">
-                [Priority1]
-                [Priority2]
-                [Priority3]
-            </div>
-        </div>
-        <div class="tab-pane fade" id="nav-repeating" role="tabpanel" aria-labelledby="nav-repeating-tab">
-            <div class="table-group">
-                [DailyList]
-                [WeeklyList]
-                [MonthlyList]
-            </div>
-        </div>
-        <div class="tab-pane fade" id="nav-completed" role="tabpanel" aria-labelledby="nav-completed-tab">
-            <div class="table-group">
-                [CompletedList]
-            </div>
-        </div>
-        <div class="tab-pane fade" id="nav-log" role="tabpanel" aria-labelledby="nav-log-tab">
-            <div style="margin:10px;">
-                [EventLog]
-            </div>
-        </div>
-    </div>-->
+    <!--The placeholder below will be replaced by the content, feel free to add any custom content around it-->
+    [ContentPlaceholder]
 
 </body>
 </html>

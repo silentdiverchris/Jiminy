@@ -29,7 +29,7 @@ namespace Jiminy.Classes
         public DateTime CreatedUtc { get; private set; } = DateTime.UtcNow;
 
         public List<ResultMessage> Messages { get; set; } = new();
-        public string FunctionName { get; private set; }
+        public string? FunctionName { get; private set; }
 
         public List<ResultMessage> UnprocessedMessages => Messages.Where(_ => _.HasBeenWritten == false).ToList();
 
@@ -45,11 +45,16 @@ namespace Jiminy.Classes
         public bool HasErrors => Messages.Any(_ => _.Severity == enSeverity.Error);
         public bool HasWarnings => Messages.Any(_ => _.Severity == enSeverity.Warning);
 
-        public Result(string functionName, bool addStartingItem = false, string? appendText = null)
+        public Result()
+        {
+
+        }
+
+        public Result(string? functionName, bool addStartingItem = false, string? appendText = null)
         {
             FunctionName = functionName;
 
-            if (addStartingItem)
+            if (addStartingItem && functionName is not null)
                 AddInfo($"Running {functionName} {appendText}");
         }
 

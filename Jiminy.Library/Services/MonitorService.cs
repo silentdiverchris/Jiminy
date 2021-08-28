@@ -123,18 +123,31 @@ namespace Jiminy.Services
 
                 if (newScansDone)
                 {
-                    //_logService.LogToConsole(new LogEntry("Current TagSets;", severity: enSeverity.Success));
-                    //foreach (var tagSet in _tagSets)
-                    //{
-                    //    _logService.LogToConsole(tagSet.ToString());
-                    //}
-                    //_logService.LogToConsole("-------------------------------------------------------");
+                    string htmlTemplateFileName = _appSettings.HtmlSettings.HtmlTemplateFileName.Contains(Path.DirectorySeparatorChar)
+                        ? _appSettings.HtmlSettings.HtmlTemplateFileName
+                        : Path.Join(AppDomain.CurrentDomain.BaseDirectory, _appSettings.HtmlSettings.HtmlTemplateFileName);
 
-                    Result htmlBuildResult = await HtmlBuilderUtilities.BuildHtmlPage(_appSettings, _itemRegistry, _recentLogEntries);
+                    string htmlOutputFileName = _appSettings.HtmlSettings.HtmlOutputFileName.Contains(Path.DirectorySeparatorChar)
+                        ? _appSettings.HtmlSettings.HtmlOutputFileName
+                        : Path.Join(AppDomain.CurrentDomain.BaseDirectory, _appSettings.HtmlSettings.HtmlOutputFileName);
 
-                    if (htmlBuildResult.HasNoErrors)
+                    Result htmlBuildResult = new();
+
+                    if (File.Exists(htmlTemplateFileName))
                     {
-                        htmlBuildResult.AddSuccess($"{DateTime.Now.ToString(Constants.DATE_FORMAT_TIME_ONLY_SECONDS)} Refreshed output '{_appSettings.HtmlSettings.HtmlOutputFileName}'");
+                        htmlBuildResult.AddInfo($"Reading template from '{htmlTemplateFileName}'");
+                        await _logService.ProcessResult(htmlBuildResult);
+
+                        htmlBuildResult.SubsumeResult(await HtmlBuilderUtilities.BuildHtmlPage(_appSettings, _itemRegistry, _recentLogEntries, htmlTemplateFileName, htmlOutputFileName));
+
+                        if (htmlBuildResult.HasNoErrors)
+                        {
+                            htmlBuildResult.AddSuccess($"{DateTime.Now.ToString(Constants.DATE_FORMAT_TIME_ONLY_SECONDS)} Refreshed output '{_appSettings.HtmlSettings.HtmlOutputFileName}'");
+                        }
+                    }
+                    else
+                    {
+                        htmlBuildResult.AddError($"Template '{htmlTemplateFileName}' does not exist");
                     }
 
                     await _logService.ProcessResult(htmlBuildResult);

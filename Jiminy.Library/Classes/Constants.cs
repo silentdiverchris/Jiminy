@@ -13,31 +13,15 @@
 
         internal const int DB_TIMEOUT_SECONDS = 10;
 
-        //internal const string HTML_PLACEHOLDER_PROJECT_LIST = "[ProjectList]";
-        internal const string HTML_PLACEHOLDER_PRIORITY_1_LIST = "[Priority1]";
-        internal const string HTML_PLACEHOLDER_PRIORITY_2_LIST = "[Priority2]";
-        internal const string HTML_PLACEHOLDER_PRIORITY_3_LIST = "[Priority3]";
-        internal const string HTML_PLACEHOLDER_BUCKET_IN_LIST = "[InBucket]";
-        internal const string HTML_PLACEHOLDER_BUCKET_NEXT_LIST = "[NextBucket]";
-        internal const string HTML_PLACEHOLDER_BUCKET_WAIT_LIST = "[WaitBucket]";
-        internal const string HTML_PLACEHOLDER_BUCKET_SOMEDAY_LIST = "[SomedayBucket]";
-        internal const string HTML_PLACEHOLDER_TICKLER_LIST = "[TicklerList]";
-        internal const string HTML_PLACEHOLDER_COMPLETED_LIST = "[CompletedList]";
-        internal const string HTML_PLACEHOLDER_DAILY_LIST = "[DailyList]";
-        internal const string HTML_PLACEHOLDER_WEEKLY_LIST = "[WeeklyList]";
-        internal const string HTML_PLACEHOLDER_MONTHLY_LIST = "[MonthlyList]";
-        internal const string HTML_PLACEHOLDER_PROJECT_LIST_GROUP = "[ProjectGroups]";
-        internal const string HTML_PLACEHOLDER_FOUND_IN_FILES_LIST = "[FoundInFilesList]";
-        internal const string HTML_PLACEHOLDER_EVENT_LOG = "[EventLog]";
-        internal const string HTML_PLACEHOLDER_ALL_ITEMS = "[AllItems]";
+        internal const string HTML_PLACEHOLDER_CONTENT = "[ContentPlaceholder]";
 
-        internal const string HTML_PLACEHOLDER_PROJECTS_TABS = "[ProjectsTabs]";
-        internal const string HTML_PLACEHOLDER_ALL_PROJECTS_TAB = "[ProjectsTab]";
-        internal const string HTML_PLACEHOLDER_ALL_BUCKETS_TAB = "[BucketsTab]";
-        internal const string HTML_PLACEHOLDER_ALL_PRIORITIES_TAB = "[PrioritiesTab]";
+        internal const string TAB_GROUP_MAIN = "MainTabs";
+        internal const string TAB_GROUP_PROJECT = "ProjectTabs";
+        internal const string TAB_GROUP_OTHER = "OtherTabs";
 
-
-        //internal const string HTML_PLACEHOLDER_PROJECT_TAB_HEADERS = "[ProjectTabHeaders]";
-        //internal const string HTML_PLACEHOLDER_PROJECT_TAB_CONTENTS = "[ProjectTabContents]";
+        //internal const string HTML_PLACEHOLDER_PROJECTS_TABS = "[ProjectsTabs]";
+        //internal const string HTML_PLACEHOLDER_ALL_PROJECTS_TAB = "[ProjectsTab]";
+        //internal const string HTML_PLACEHOLDER_ALL_BUCKETS_TAB = "[BucketsTab]";
+        //internal const string HTML_PLACEHOLDER_ALL_PRIORITIES_TAB = "[PrioritiesTab]";
     }
 }

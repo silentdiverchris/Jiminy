@@ -7,161 +7,62 @@ namespace Jiminy.Utilities
 {
     internal static class HtmlBuilderUtilities
     {
-        internal static async Task<Result> BuildHtmlPage(AppSettings appSettings, ItemRegistry itemRegistry, List<LogEntry> logEntries)
+        internal static async Task<Result> BuildHtmlPage(AppSettings appSettings, ItemRegistry itemRegistry, List<LogEntry> logEntries, string htmlTemplateFileName, string htmlOutputFileName)
         {
             Result result = new("BuildHtmlPage");
-
-            string htmlTemplateFileName = appSettings.HtmlSettings.HtmlTemplateFileName.Contains(Path.DirectorySeparatorChar)
-                ? appSettings.HtmlSettings.HtmlTemplateFileName
-                : Path.Join(AppDomain.CurrentDomain.BaseDirectory, appSettings.HtmlSettings.HtmlTemplateFileName);
-
-            string htmlOutputFileName = appSettings.HtmlSettings.HtmlOutputFileName.Contains(Path.DirectorySeparatorChar)
-                ? appSettings.HtmlSettings.HtmlOutputFileName
-                : Path.Join(AppDomain.CurrentDomain.BaseDirectory, appSettings.HtmlSettings.HtmlOutputFileName);
 
             // The string handling is quite heavy here, use a stringbuilder ? TODO
 
             if (File.Exists(htmlTemplateFileName))
             {
                 string html = await File.ReadAllTextAsync(htmlTemplateFileName);
+                int contentStartIdx = html.IndexOf(Constants.HTML_PLACEHOLDER_CONTENT);
+                int contentEndIdx = contentStartIdx + Constants.HTML_PLACEHOLDER_CONTENT.Length;
 
-                string? generatedHtml = null;
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_ALL_ITEMS))
-                //{
-                //    generatedHtml = GenerateListTable("All items", itemRegistry.Items.OrderBy(_ => _.AssociatedText), showText: true, showBuckets: true, showLinks: true, showFileName: true, showPriority: true);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_ALL_ITEMS, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_PRIORITY_1_LIST))
-                //{
-                //    generatedHtml = GenerateListTable("High Priority", itemRegistry.OpenItems, onlyPriority: enPriority.High, showText: true, showBuckets: true, showLinks: true);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_PRIORITY_1_LIST, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_PRIORITY_2_LIST))
-                //{
-                //    generatedHtml = GenerateListTable("Medium Priority", itemRegistry.OpenItems, onlyPriority: enPriority.Medium, showText: true, showBuckets: true, showLinks: true);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_PRIORITY_2_LIST, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_PRIORITY_3_LIST))
-                //{
-                //    generatedHtml = GenerateListTable("Low Priority", itemRegistry.OpenItems, onlyPriority: enPriority.Low, showText: true, showBuckets: true, showLinks: true);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_PRIORITY_3_LIST, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_DAILY_LIST))
-                //{
-                //    generatedHtml = GenerateListTable("Daily", itemRegistry.OpenItems, onlyDaily: true, showText: true, showPriority: true, showLinks: true);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_DAILY_LIST, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_WEEKLY_LIST))
-                //{
-                //    generatedHtml = GenerateListTable("Weekly", itemRegistry.OpenItems, onlyWeekly: true, showText: true, showPriority: true, showLinks: true);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_WEEKLY_LIST, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_MONTHLY_LIST))
-                //{
-                //    generatedHtml = GenerateListTable("Monthly", itemRegistry.OpenItems, onlyMonthly: true, showText: true, showPriority: true, showLinks: true);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_MONTHLY_LIST, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_COMPLETED_LIST))
-                //{
-                //    generatedHtml = GenerateListTable("Completed", itemRegistry.CompletedItems, showText: true, showLinks: true);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_COMPLETED_LIST, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_BUCKET_IN_LIST))
-                //{
-                //    generatedHtml = GenerateListTable("Incoming", itemRegistry.BucketItems, onlyBucket: enBucket.In, showText: true, showPriority: true, showLinks: true);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_BUCKET_IN_LIST, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_BUCKET_NEXT_LIST))
-                //{
-                //    generatedHtml = GenerateListTable("Next", itemRegistry.BucketItems, onlyBucket: enBucket.Next, showText: true, showPriority: true, showLinks: true);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_BUCKET_NEXT_LIST, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_BUCKET_WAIT_LIST))
-                //{
-                //    generatedHtml = GenerateListTable("Waiting", itemRegistry.BucketItems, onlyBucket: enBucket.Waiting, showText: true, showPriority: true, showLinks: true);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_BUCKET_WAIT_LIST, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_BUCKET_SOMEDAY_LIST))
-                //{
-                //    generatedHtml = GenerateListTable("Someday/maybe", itemRegistry.BucketItems, onlyBucket: enBucket.Someday, showText: true, showPriority: true, showLinks: true);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_BUCKET_SOMEDAY_LIST, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_FOUND_IN_FILES_LIST))
-                //{
-                //    var foundIFilesTags = itemRegistry.Select(_ => _.FullFileName).Distinct().OrderBy(_ => _).Select(_ => new Item { FullFileName = _ });
-                //    generatedHtml = GenerateListTable("Items found in these files", foundIFilesTags, showFileName: true);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_FOUND_IN_FILES_LIST, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_PROJECT_LIST_GROUP))
-                //{
-                //    generatedHtml = GenerateProjectListGroup(itemRegistry.ProjectItems);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_PROJECT_LIST_GROUP, generatedHtml);
-                //}
-
-                //if (html.Contains(Constants.HTML_PLACEHOLDER_EVENT_LOG))
-                //{
-                //    generatedHtml = GenerateEventsTable(logEntries);
-                //    html = html.Replace(Constants.HTML_PLACEHOLDER_EVENT_LOG, generatedHtml);
-                //}
-
-                if (html.Contains(Constants.HTML_PLACEHOLDER_PROJECTS_TABS))
+                if (contentEndIdx == -1)
                 {
-                    StringBuilder sbTabHtml = new(2000);
-
-                    foreach (var project in itemRegistry.ProjectRegistry.Projects.OrderBy(_ => _.Priority))
-                    {
-                        string projectTabHtml = GenerateProjectTabHtml(itemRegistry, project);
-                        sbTabHtml.Append(projectTabHtml);
-                    }
-
-                    string allProjectsTabHtml = GenerateProjectTabHtml(itemRegistry, null);
-                    sbTabHtml.Append(allProjectsTabHtml);
-
-                    html = html.Replace(Constants.HTML_PLACEHOLDER_PROJECTS_TABS, sbTabHtml.ToString());
+                    result.AddError($"Cannot find content placeholder '{Constants.HTML_PLACEHOLDER_CONTENT}' in template");
                 }
 
-                if (html.Contains(Constants.HTML_PLACEHOLDER_ALL_PRIORITIES_TAB))
+                if (result.HasNoErrorsOrWarnings)
                 {
-                    StringBuilder sbTabHtml = new(2000);
+                    StringBuilder sbTabHeaders = new(1000);
+                    StringBuilder sbTabContent = new(1000);
 
-                    StringBuilder sbLists = new(2000);
-                    
-                    string headerHtml = GenerateHeader("Priorities", null, "project-header");
-                    sbLists.Append($"{headerHtml}<div class=\"table-group\">");
+                    // Projects tab wih sub-tabs for each project
+                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Projects", true));
+                    sbTabContent.Append(GenerateProjectTabCollectionContent(itemRegistry));
 
-                    foreach (var pri in Enum.GetValues(typeof(enPriority)))
-                    {
-                        int priVal = (int)pri;
-                        enPriority thisPriority = (enPriority)priVal;
+                    // All buckets tab
+                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "All Buckets"));
+                    sbTabContent.Append(GenerateBucketsTabContent(itemRegistry, "All Buckets", true));
 
-                        sbLists.Append(GenerateListTable($"Priority {thisPriority}", itemRegistry.OpenItems, onlyPriority: thisPriority, showText: true, showPriority: false, showLinks: true));
-                    }
+                    // All priorities tab
+                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Priorities"));
+                    sbTabContent.Append(GeneratePrioritiesTabContent(itemRegistry));
 
-                    sbLists.Append("</div>");
+                    // Admin tab wih sub-tabs
+                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Other"));
+                    sbTabContent.Append(GenerateOtherTabCollectionContent(itemRegistry, logEntries));
 
-                    sbTabHtml.Append(GenerateTab("Priorities", null, sbLists.ToString()));
+                    StringBuilder sbContent = new(8000);
 
-                    html = html.Replace(Constants.HTML_PLACEHOLDER_ALL_PRIORITIES_TAB, sbTabHtml.ToString());
+                    sbContent.Append(html.AsSpan(0, contentStartIdx));
+                    sbContent.Append("<div class=\"container\"><div class=\"tab-wrap\">");
+                    sbContent.Append(sbTabHeaders);
+                    sbContent.Append(sbTabContent);
+                    sbContent.Append("</div></div>");
+                    sbContent.Append(html.AsSpan(contentEndIdx));
+
+                    if (File.Exists(htmlOutputFileName))
+                        File.Delete(htmlOutputFileName);
+
+                    await File.WriteAllTextAsync(htmlOutputFileName, sbContent.ToString());
                 }
-
-                if (File.Exists(htmlOutputFileName))
-                    File.Delete(htmlOutputFileName);
-
-                await File.WriteAllTextAsync(htmlOutputFileName, html);
+                else
+                {
+                    result.AddError("Failed to generate new output file");
+                }
             }
             else
             {
@@ -171,26 +72,141 @@ namespace Jiminy.Utilities
             return result;
         }
 
-        private static string GenerateProjectTabHtml(ItemRegistry itemRegistry, Project? project)
+
+        private static string GenerateTabLeafHtml(string tabGroupName, string title, bool active = false)
+        {
+            string tabId = $"tab-{tabGroupName}-{title}".Replace(" ", "").ToLower();
+            string checkedStr = active ? "checked" : "";
+
+            string html = $"<input type=\"radio\" id=\"{tabId}\" name=\"{tabGroupName}\" class=\"tab\" {checkedStr}><label for=\"{tabId}\">{title}</label>";
+
+            return html;
+        }
+
+        private static string GenerateTabContentHtml(string contentHtml)
+        {
+            string html = $"<div class=\"tab__content\">{contentHtml}</tab>";
+
+            return html;
+        }
+
+        private static string GenerateOtherTabCollectionContent(ItemRegistry itemRegistry, List<LogEntry> logEntries)
+        {
+            StringBuilder sb = new(2000);
+
+            StringBuilder sbTabHeaders = new(2000);
+            StringBuilder sbTabContent = new(2000);
+
+            string headerHtml = ""; // GenerateTabBodyHeader("Other stuff", null, "tab-content-header");
+            sb.Append($"<div class=\"tab__content\">{headerHtml}<div class=\"table-group\">");
+
+            sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_OTHER, "Completed items", true));
+            sbTabContent.Append(GenerateBucketsTabContent(itemRegistry, null, false));
+
+            sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_OTHER, "Event Log"));
+            //sbTabContent.Append(GenerateTabBodyHeader("Event Log", null, "tab-content-header"));
+            sbTabContent.Append(GenerateTabContentHtml(GenerateEventsTable(logEntries)));
+
+            sb.Append(sbTabHeaders);
+            sb.Append(sbTabContent);
+
+            sb.Append("</div></div>");
+
+            return sb.ToString();
+        }
+
+        private static string GenerateProjectTabCollectionContent(ItemRegistry itemRegistry)
+        {
+            StringBuilder sb = new(2000);
+
+            StringBuilder sbTabHeaders = new(2000);
+            StringBuilder sbTabContent = new(2000);
+
+            string headerHtml = ""; // GenerateTabBodyHeader("Projects", null, "tab-content-header");
+            sb.Append($"<div class=\"tab__content\">{headerHtml}<div class=\"table-group\">");
+
+            bool activeTab = true;
+
+            foreach (var project in itemRegistry.ProjectRegistry.Projects.OrderBy(_ => _.Priority).ThenBy(_ => _.Name))
+            {
+                sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_PROJECT, project.Name, activeTab));
+                sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project));
+
+                activeTab = false;
+            }
+
+            sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_PROJECT, "All Projects", false));
+            sbTabContent.Append(GenerateProjectTabContent(itemRegistry, null));
+
+            sb.Append(sbTabHeaders);
+            sb.Append(sbTabContent);
+
+            sb.Append("</div></div>");
+
+            return sb.ToString();
+        }
+
+        private static string GenerateProjectTabContent(ItemRegistry itemRegistry, Project? project)
         {
             string projectName = project?.Name ?? "All projects";
 
             var projectItems = itemRegistry.ProjectItems.Filter(onlyProjectName: project?.Name);
 
-            StringBuilder sbLists = new(2000);
+            StringBuilder sb = new(2000);
 
-            string headerHtml = GenerateHeader(projectName, "Project", "project-header");
+            string headerHtml = ""; // GenerateTabBodyHeader(projectName, project is null ? null : "Project", "tab-content-header");
 
-            sbLists.Append($"{headerHtml}<div class=\"table-group\">");
-            sbLists.Append(GenerateListTable("Incoming", projectItems, onlyBucket: enBucket.In, showText: true, showPriority: true, showLinks: true, suppressProjectName: true));
-            sbLists.Append(GenerateListTable("Next", projectItems, onlyBucket: enBucket.Next, showText: true, showPriority: true, showLinks: true, suppressProjectName: true));
-            sbLists.Append(GenerateListTable("Waiting", projectItems, onlyBucket: enBucket.Waiting, showText: true, showPriority: true, showLinks: true, suppressProjectName: true));
-            sbLists.Append(GenerateListTable("Someday/maybe", projectItems, onlyBucket: enBucket.Someday, showText: true, showPriority: true, showLinks: true, suppressProjectName: true));
-            sbLists.Append("</div>");
+            sb.Append($"<div class=\"tab__content\">{headerHtml}<div class=\"table-group\">");
+            sb.Append(GenerateListTable("Incoming", projectItems, onlyBucket: enBucket.In, showText: true, showPriority: true, showLinks: true, suppressProjectName: true));
+            sb.Append(GenerateListTable("Next", projectItems, onlyBucket: enBucket.Next, showText: true, showPriority: true, showLinks: true, suppressProjectName: true));
+            sb.Append(GenerateListTable("Waiting", projectItems, onlyBucket: enBucket.Waiting, showText: true, showPriority: true, showLinks: true, suppressProjectName: true));
+            sb.Append(GenerateListTable("Someday/maybe", projectItems, onlyBucket: enBucket.Someday, showText: true, showPriority: true, showLinks: true, suppressProjectName: true));
+            sb.Append("</div></div>");
 
-            string projectTabHtml = GenerateTab(projectName, project is null ? null : "Project", sbLists.ToString());
+            return sb.ToString();
+        }
 
-            return projectTabHtml;
+        private static string GenerateBucketsTabContent(ItemRegistry itemRegistry, string? title, bool openItems)
+        {
+            StringBuilder sb = new(2000);
+
+            var items = openItems ? itemRegistry.OpenItems : itemRegistry.CompletedItems;
+
+            string headerHtml = ""; // GenerateTabBodyHeader(title, null, "tab-content-header");
+
+            sb.Append($"<div class=\"tab__content\">{headerHtml}<div class=\"table-group\">");
+
+            if (items.Any)
+            {
+                sb.Append(GenerateListTable("Incoming", items, onlyBucket: enBucket.In, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
+                sb.Append(GenerateListTable("Next", items, onlyBucket: enBucket.Next, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
+                sb.Append(GenerateListTable("Waiting", items, onlyBucket: enBucket.Waiting, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
+                sb.Append(GenerateListTable("Someday/maybe", items, onlyBucket: enBucket.Someday, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
+            }
+            else
+            {
+                string msg = "There are no items to view here";
+                sb.Append($"<img style='margin-top:20px' src='https://i.imgflip.com/20pfsv.jpg' title='{msg}' alt='{msg}'>");
+            }
+
+            sb.Append("</div></div>");
+
+            return sb.ToString();
+        }
+
+        private static string GeneratePrioritiesTabContent(ItemRegistry itemRegistry)
+        {
+            StringBuilder sb = new(2000);
+
+            string headerHtml = ""; // GenerateTabBodyHeader("Priorities", null, "tab-content-header");
+
+            sb.Append($"<div class=\"tab__content\">{headerHtml}<div class=\"table-group\">");
+            sb.Append(GenerateListTable("High", itemRegistry.OpenItems, onlyPriority: enPriority.High, showText: true, showLinks: true, suppressProjectName: false));
+            sb.Append(GenerateListTable("Medium", itemRegistry.OpenItems, onlyPriority: enPriority.Medium, showText: true, showLinks: true, suppressProjectName: false));
+            sb.Append(GenerateListTable("Low", itemRegistry.OpenItems, onlyPriority: enPriority.Low, showText: true, showLinks: true, suppressProjectName: false));
+            sb.Append("</div></div>");
+
+            return sb.ToString();
         }
 
         private static string GenerateProjectListGroup(ItemSubSet projectItems)
@@ -204,7 +220,7 @@ namespace Jiminy.Utilities
             foreach (var pn in projectNames)
             {
                 var itemList = new ItemSubSet(projectItems.Items.Where(_ => _.ProjectName == pn).OrderBy(_ => _.Bucket).ThenBy(_ => _.Priority));
-                string? html = GenerateListTable(pn ?? "No project", itemList , showText: true, showPriority: true, showBuckets: true, showLinks: true);
+                string? html = GenerateListTable(pn ?? "No project", itemList, showText: true, showPriority: true, showBuckets: true, showLinks: true);
 
                 if (!string.IsNullOrEmpty(html))
                 {
@@ -264,7 +280,7 @@ namespace Jiminy.Utilities
         private static string? GenerateDateString(DateTime? dateTime, string? prefix)
         {
             string? dateStr = null;
-            
+
             if (prefix is not null)
             {
                 prefix += " ";
@@ -312,7 +328,7 @@ namespace Jiminy.Utilities
                     dtStr = dt.ToString(Constants.DATE_FORMAT_DATE_TIME_REMINDER_DATE_ONLY);
                 }
                 else
-                {                    
+                {
                     dtStr = dt.ToString(Constants.DATE_FORMAT_DATE_TIME_REMINDER_DATE_TIME);
                 }
 
@@ -359,7 +375,7 @@ namespace Jiminy.Utilities
         {
             StringBuilder sb = new(1000);
 
-            sb.Append("<div class='table-title'>Event log</div><table class='event-log-table'><tr><th>Time</th><th>Event</th></tr>");
+            sb.Append("<table class='event-log-table'><tr><th>Time</th><th>Event</th></tr>");
 
             foreach (var ev in eventList)
             {
@@ -465,19 +481,7 @@ namespace Jiminy.Utilities
             return $"<div class='table-item'><div class='table-title'>{title}</div>{tableHtml}</div>";
         }
 
-        private static string GenerateTabHeader(string id, string title, string titleHeader)
-        {
-            string titleHtml = GenerateHeader(title, titleHeader, "tab-header");
-
-            return $"<button class=\"nav-link\" id=\"nav-{id}-tab\" data-bs-toggle=\"tab\" data-bs-target=\"#nav-{id}\" type=\"button\" role=\"tab\" aria-controls=\"nav-{id}\" aria-selected=\"false\">{titleHtml}</button>";
-        }
-
-        private static string GenerateTabContent(string id, string html)
-        {
-            return $"<div class=\"tab-pane fade\" id=\"nav-{id}\" role=\"tabpanel\" aria-labelledby=\"nav-{id}-tab\">{html}</div>";
-        }
-
-        private static string GenerateHeader(string title, string? titlePrefix, string headerClass)
+        private static string GenerateTabBodyHeader(string title, string? titlePrefix, string headerClass)
         {
             string? prefixHtml = titlePrefix is null
                 ? null
@@ -486,10 +490,10 @@ namespace Jiminy.Utilities
             return $"<div class='{headerClass}'>{prefixHtml}<div class='name'>{title}</div></div>";
         }
 
-        private static string GenerateTab(string title, string? titlePrefix, string contentHtml)
+        private static string GenerateTab(string title, string contentHtml)
         {
-            string tabId = $"{title}{titlePrefix}".ToLower();
-            string titleHtml = GenerateHeader(title, titlePrefix, "tab-header");
+            string tabId = title.ToLower();
+            string titleHtml = GenerateTabBodyHeader(title, null, "tab-header");
             string tabHtml = $"<div class=\"tab\" id=\"{tabId}\"><a href = \"#{tabId}\">{titleHtml}</a><div class=\"content\">{contentHtml}</div></div>";
 
             return tabHtml;
