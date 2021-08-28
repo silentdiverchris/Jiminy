@@ -26,6 +26,11 @@ namespace Jiminy.Utilities
 
                 if (result.HasNoErrorsOrWarnings)
                 {
+                    foreach (var item in itemRegistry.Items)
+                    {
+                        item.AssociatedText = StringHelpers.ConvertURLsToLinks(item.AssociatedText, false);
+                    }
+
                     StringBuilder sbTabHeaders = new(1000);
                     StringBuilder sbTabContent = new(1000);
 
@@ -40,6 +45,10 @@ namespace Jiminy.Utilities
                     // All priorities tab
                     sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Priorities"));
                     sbTabContent.Append(GeneratePrioritiesTabContent(itemRegistry));
+
+                    // Repeaters tab
+                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Repeating"));
+                    sbTabContent.Append(GenerateRepeatingTabContent(itemRegistry));
 
                     // Admin tab wih sub-tabs
                     sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Other"));
@@ -100,8 +109,11 @@ namespace Jiminy.Utilities
             string headerHtml = ""; // GenerateTabBodyHeader("Other stuff", null, "tab-content-header");
             sb.Append($"<div class=\"tab__content\">{headerHtml}<div class=\"table-group\">");
 
-            sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_OTHER, "Completed items", true));
+            sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_OTHER, "Completed Items", true));
             sbTabContent.Append(GenerateBucketsTabContent(itemRegistry, null, false));
+
+            sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_OTHER, "Open Items"));
+            sbTabContent.Append(GenerateOpenItemTabContent(itemRegistry));
 
             sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_OTHER, "Event Log"));
             //sbTabContent.Append(GenerateTabBodyHeader("Event Log", null, "tab-content-header"));
@@ -141,6 +153,19 @@ namespace Jiminy.Utilities
             sb.Append(sbTabHeaders);
             sb.Append(sbTabContent);
 
+            sb.Append("</div></div>");
+
+            return sb.ToString();
+        }
+
+        private static string GenerateOpenItemTabContent(ItemRegistry itemRegistry)
+        {
+            StringBuilder sb = new(2000);
+
+            string headerHtml = ""; // GenerateTabBodyHeader(projectName, project is null ? null : "Project", "tab-content-header");
+
+            sb.Append($"<div class=\"tab__content\">{headerHtml}<div class=\"table-group\">");
+            sb.Append(GenerateListTable("Open Items", itemRegistry.OpenItems, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
             sb.Append("</div></div>");
 
             return sb.ToString();
@@ -204,6 +229,21 @@ namespace Jiminy.Utilities
             sb.Append(GenerateListTable("High", itemRegistry.OpenItems, onlyPriority: enPriority.High, showText: true, showLinks: true, suppressProjectName: false));
             sb.Append(GenerateListTable("Medium", itemRegistry.OpenItems, onlyPriority: enPriority.Medium, showText: true, showLinks: true, suppressProjectName: false));
             sb.Append(GenerateListTable("Low", itemRegistry.OpenItems, onlyPriority: enPriority.Low, showText: true, showLinks: true, suppressProjectName: false));
+            sb.Append("</div></div>");
+
+            return sb.ToString();
+        }
+
+        private static string GenerateRepeatingTabContent(ItemRegistry itemRegistry)
+        {
+            StringBuilder sb = new(2000);
+
+            string headerHtml = ""; // GenerateTabBodyHeader("Priorities", null, "tab-content-header");
+
+            sb.Append($"<div class=\"tab__content\">{headerHtml}<div class=\"table-group\">");
+            sb.Append(GenerateListTable("Daily", itemRegistry.OpenItems, onlyDaily: true, showText: true, showLinks: true, suppressProjectName: false));
+            sb.Append(GenerateListTable("Weekly", itemRegistry.OpenItems, onlyWeekly: true, showText: true, showLinks: true, suppressProjectName: false));
+            sb.Append(GenerateListTable("Monthly", itemRegistry.OpenItems, onlyMonthly: true, showText: true, showLinks: true, suppressProjectName: false));
             sb.Append("</div></div>");
 
             return sb.ToString();
@@ -456,7 +496,7 @@ namespace Jiminy.Utilities
 
                         HtmlTableRow row = new()
                         {
-                            IsHeader = true,
+                            IsHeader = false,
                             Cells = bodyCells
                         };
 

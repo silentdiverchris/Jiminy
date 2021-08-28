@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Jiminy.Helpers;
+using System.Text;
 
 namespace Jiminy.Classes
 {
@@ -136,6 +137,8 @@ namespace Jiminy.Classes
                         sb.Append(row.GeneratedHtml);
                     }
 
+                    sb.Append(GenerateTotalRow(bodyRows));
+
                     sb.Append($"</tbody>");
                 }
 
@@ -143,6 +146,19 @@ namespace Jiminy.Classes
 
                 return sb.ToString();
             }
+        }
+
+        private string GenerateTotalRow(IEnumerable<HtmlTableRow> rows)
+        {
+            StringBuilder sb = new(100);
+
+            if (rows.Any())
+            {
+                int colCount = rows.First().Cells.Count;
+                sb.Append($"<tr><td class='cell-count' colspan='{colCount}'>{rows.Count()} item{rows.Count().PluralSuffix()}</td></tr>");
+            }
+
+            return sb.ToString();
         }
     }
 

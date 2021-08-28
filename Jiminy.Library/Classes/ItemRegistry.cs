@@ -16,7 +16,7 @@ namespace Jiminy.Classes
         // Open and project items get read an awful lot when generating the
         // report, so we cache filtered lists for them
 
-        private ItemSubSet _openItems = new ItemSubSet();
+        private ItemSubSet? _openItems = new ItemSubSet();
 
         internal ItemSubSet OpenItems
         {
@@ -47,7 +47,7 @@ namespace Jiminy.Classes
         }
 
         internal ItemSubSet CompletedItems => new(_items.Where(_ => _.IsCompleted == true && _.IsContext == false).OrderBy(_ => _.Priority));
-        internal ItemSubSet BucketItems => new(_openItems.Items.Where(_ => _.Bucket != enBucket.None));
+        internal ItemSubSet BucketItems => new(OpenItems.Items.Where(_ => _.Bucket != enBucket.None));
 
         internal ProjectRegistry ProjectRegistry => _projectRegistry;
         internal List<string> ProjectNames => _projectRegistry.Projects.Select(_ => _.Name).ToList();
