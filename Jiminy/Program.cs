@@ -7,7 +7,7 @@ namespace Jiminy
 {
     public class Program
     {
-        private const bool _alwaysCreateAppSettings = false;
+        private const bool _alwaysCreateAppSettings = true;
 
         static readonly object _lock = new();
 

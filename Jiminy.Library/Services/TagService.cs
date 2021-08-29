@@ -1,68 +1,73 @@
 ﻿using Jiminy.Classes;
 using Jiminy.Helpers;
+using System.Text;
 using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Utilities
 {
-    internal static class TagSetUtilities
+    internal class TagService
     {
-        internal static Result ExtractTagSet(string line, MarkdownSettings settings, out Item? tagSet)
+        private readonly AppSettings _appSettings;
+
+        public TagService(AppSettings appSettings)
         {
+            _appSettings = appSettings;
+        }
+
+        internal Result ExtractTagSet(string line, out Item? tagSet)
+        {
+            // TODO test with multi-character prefix and suffix
+
             Result result = new("ExtractTagSet");
 
             tagSet = null;
 
-            foreach (var delSet in settings.TagDelimiterSets)
+            int idxStart = -1;
+            int idxEnd = -1;
+            string tagString = "";
+
+            if (line.StartsWith(_appSettings.TagSettings.Prefix))
             {
-                int idxStart = -1;
-                int idxEnd = -1;
-                string tagString = "";
+                idxStart = line.IndexOf(_appSettings.TagSettings.Prefix);
+                idxEnd = line.IndexOf(_appSettings.TagSettings.Suffix, idxStart + _appSettings.TagSettings.Prefix.Length);
+            }
+            else if (line.EndsWith(_appSettings.TagSettings.Suffix))
+            {
+                idxEnd = line.Length - 1;
+                idxStart = line[..^1].LastIndexOf(_appSettings.TagSettings.Prefix);
+            }
 
-                if (line.StartsWith(delSet.StartDelim))
+            if (idxStart >= 0 && idxEnd >= 0)
+            {
+                if (idxEnd > 0)
                 {
-                    idxStart = line.IndexOf(delSet.StartDelim);
-                    idxEnd = line.IndexOf(delSet.EndDelim, idxStart + 1);
+                    tagString = line.Substring(idxStart + 1, idxEnd - idxStart - 1);
                 }
-                else if (line.EndsWith(delSet.EndDelim))
+                else
                 {
-                    idxEnd = line.Length - 1;
-                    idxStart = line[..^1].LastIndexOf(delSet.StartDelim);
+                    tagString = line[(idxStart + 1)..];
                 }
 
-                if (idxStart >= 0 && idxEnd >= 0)
+                string[] tagParts = tagString.Trim().Split(_appSettings.TagSettings.Seperator);
+
+                result.SubsumeResult(DecodeTagString(tagParts, out tagSet));
+
+                if (idxEnd > 0)
                 {
-                    if (idxEnd > 0)
-                    {
-                        tagString = line.Substring(idxStart + 1, idxEnd - idxStart - 1);
-                    }
-                    else
-                    {
-                        tagString = line.Substring(idxStart + 1);
-                    }
+                    string lineWithoutTags = line.Replace(line[idxStart..(idxEnd + 1)], "").Trim();
+                    string lineWithoutMarkdown = StripMarkdown(lineWithoutTags);
 
-                    string[] tagParts = tagString.Trim().Split(delSet.SepDelim);
-
-                    result.SubsumeResult(DecodeTagString(tagParts, delSet.QualifierDelim, out tagSet));
-
-                    if (idxEnd > 0)
-                    {
-                        string lineWithoutTags = line.Replace(line[idxStart..(idxEnd + 1)], "").Trim();
-                        string lineWithoutMarkdown = StripMarkdown(lineWithoutTags);
-
-                        tagSet.AssociatedText = lineWithoutMarkdown;
-                    }
-                    else
-                    {
-                        string lineWithoutTags = line.Replace(line[idxStart..], "").Trim();
-                        string lineWithoutMarkdown = StripMarkdown(lineWithoutTags);
-
-                        tagSet.AssociatedText = lineWithoutMarkdown;
-                    }
-
-                    tagSet.RawTagSet = tagString;
-
-                    break;
+                    tagSet.AssociatedText = lineWithoutMarkdown;
                 }
+                else
+                {
+                    string lineWithoutTags = line.Replace(line[idxStart..], "").Trim();
+                    string lineWithoutMarkdown = StripMarkdown(lineWithoutTags);
+
+                    tagSet.AssociatedText = lineWithoutMarkdown;
+                }
+
+                tagSet.RawTagSet = tagString;
             }
 
             return result;
@@ -72,7 +77,7 @@ namespace Jiminy.Utilities
         {
             while (text.StartsWith("#"))
             {
-                text = text.Substring(1);
+                text = text[1..];
             }
 
             // Could do more :)
@@ -80,11 +85,17 @@ namespace Jiminy.Utilities
             return text.Trim();
         }
 
-        private static Result DecodeTagString(string[] tagParts, string qualifierDelimiter, out Item ts)
+        /// <summary>
+        /// Take the array of little texts and decode them into items and tags
+        /// </summary>
+        /// <param name="tagParts"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        private Result DecodeTagString(string[] tagParts, out Item item)
         {
             Result result = new("DecodeTagString");
 
-            ts = new();
+            item = new();
 
             if (tagParts.Length > 0)
             {
@@ -96,83 +107,172 @@ namespace Jiminy.Utilities
                         break;
                     }
 
-                    if (tagPart.IsDigits())
+                    string tagCode = tagPart;
+                    string tagParam = "";
+
+                    int delimIdx = tagPart.IndexOf(_appSettings.TagSettings.Delimiter);
+
+                    if (delimIdx != -1)
                     {
-                        // has to be a priority
+                        tagCode = tagPart.Substring(0, delimIdx);
 
-                        ts.Diagnostics.Add($"Setting priority {tagPart}");
-
-                        if (tagPart.Length == 1)
+                        if (tagPart.Length >= delimIdx + 1)
                         {
-                            if (short.TryParse(tagPart, out short pri))
-                            {
-                                if (pri <= (short)enPriority.Low)
-                                {
-                                    ts.Priority = (enPriority)pri;
-                                }
-                                else
-                                {
-                                    result.AddWarning($"Priority must be 1, 2 or 3");
-                                }
-                            }
-                            else
-                            {
-                                result.AddWarning($"Failed to parse priority");
-                            }
+                            tagParam = tagPart[(delimIdx + 1)..];
                         }
-                        else if (tagPart.Length > 1)
+                        else
                         {
-                            result.AddWarning($"'{tagPart}' has multiple digits, priority must be 1, 2 or 3");
+                            result.AddWarning($"TagPart '{tagPart}' has invalid format, cannot extract parameter");
                         }
                     }
-                    else
+
+                    item.Diagnostics.Add($"decoding {tagPart}, code '{tagCode}', parameter '{tagParam}'");
+
+                    var td = _appSettings.TagSettings.TagDefintions.Get(tagCode, true);
+
+                    if (td is not null)
                     {
-                        // Character
-
-                        ts.Diagnostics.Add($"decoding {tagPart}");
-
-                        char firstChar = tagPart[0];
-
-                        if ("inwcdkmsx".Contains(firstChar))
+                        switch (td.Type)
                         {
-                            if (tagPart.Length > 1)
-                            {
-                                result.AddWarning($"TagPart {firstChar} should just be a single character");
-                                ts.Diagnostics.Add("Ignored characters after the first");
-                            }
-                        }
+                            case enTagType.Bucket:
+                                {
+                                    // We extract the parameter to get the bucket name
 
-                        switch (firstChar)
-                        {
-                            case 'i':
-                                {
-                                    ts.Bucket = enBucket.In;
-                                    break;
-                                }
-                            case 'n':
-                                {
-                                    ts.Bucket = enBucket.Next;
-                                    break;
-                                }
-                            case 'w':
-                                {
-                                    ts.Bucket = enBucket.Waiting;
-                                    break;
-                                }
-                            case 's':
-                                {
-                                    ts.Bucket = enBucket.Someday;
-                                    break;
-                                }
-                            case 'p':
-                                {
-                                    // Project
-                                    string? qual = GetTagQualifier(tagPart, qualifierDelimiter);
+                                    var bd = _appSettings.BucketSettings.BucketDefintions.Get(tagParam, true);
 
-                                    if (qual is not null)
+                                    if (bd is not null)
                                     {
-                                        ts.Diagnostics.Add($"Setting project {qual}");
-                                        ts.ProjectName = qual;
+                                        item.BucketName = bd.Name;
+                                        item.TagInstances.Add(new TagInstance(td, bucketName: bd.Name));
+                                    }
+                                    else
+                                    {
+                                        result.AddWarning($"TagPart '{tagPart}' has invalid bucket name '{tagParam}'");
+                                    }
+
+                                    break;
+                                }
+                            case enTagType.Repeating:
+                                {
+                                    // We extract the parameter to parse into an enRepeat
+
+                                    if (tagParam.Length == 1)
+                                    {
+                                        tagParam = tagParam.ToLower();
+
+                                        foreach (string name in typeof(enRepeat).GetEnumNames())
+                                        {
+                                            if (name.ToLower().StartsWith(tagParam))
+                                            {
+                                                enRepeat repeat = (enRepeat)Enum.Parse(typeof(enRepeat), name);
+
+                                                item.Repeat = repeat;
+                                                item.TagInstances.Add(new TagInstance(td, repeat: repeat));
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (item.Repeat == enRepeat.None)
+                                        {
+                                            result.AddWarning($"TagPart '{tagPart}' has invalid repeat period '{tagParam}', assuming daily");
+                                            item.Repeat = enRepeat.Daily;
+                                            item.TagInstances.Add(new TagInstance(td, repeat: enRepeat.Daily));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        result.AddWarning($"TagPart '{tagPart}' has no repeat period");
+                                    }
+
+                                    break;
+                                }
+                            case enTagType.Custom:
+                                {
+                                    break;
+                                }
+                            case enTagType.Context:
+                                {
+                                    // Sets the context for subsequent items
+
+                                    item.Diagnostics.Add($"Marking this as context: {item.ToString()}");
+                                    item.IsContext = true;
+                                    break;
+                                }
+                            case enTagType.Due:
+                            case enTagType.Reminder:
+                                {
+                                    // We expect the parameter to be a valid date, if not we will set the date to today
+
+                                    DateTime? dt;
+
+                                    if (!string.IsNullOrEmpty(tagParam))
+                                    {
+                                        DateTime? extractedDateTime = ExtractDateTime(tagParam);
+
+                                        if (extractedDateTime is not null)
+                                        {
+                                            dt = extractedDateTime;
+                                        }
+                                        else
+                                        {
+                                            // Less standard date/time, TODO
+                                            result.AddWarning($"TagPart '{tagPart}' cannot extract reminder date/time as the value cannot be parsed, assuming today. try 'd/mmm' format, eg. 'r:3/sep'");
+                                            item.Diagnostics.Add($"Setting reminder for today as date not readable");
+                                            dt = DateTime.Now;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //result.AddWarning($"TagPart '{tagPart}' cannot extract reminder date/time as none supplied, assuming today");
+                                        item.Diagnostics.Add($"Setting reminder for today as date not supplied");
+                                        dt = DateTime.Now;
+                                    }
+
+                                    item.Diagnostics.Add($"Setting date/time {dt}");
+                                    item.TagInstances.Add(new TagInstance(td, dateTime: dt));
+
+                                    break;
+                                }
+                            case enTagType.Priority:
+                                {
+                                    // We expect the parameter to be a single digit that parses as an enPriority
+
+                                    item.Diagnostics.Add($"Setting priority from {tagPart}");
+
+                                    if (tagParam.Length == 1 && tagParam.IsDigits())
+                                    {
+                                        if (short.TryParse(tagParam, out short pri))
+                                        {
+                                            if (pri <= (short)enPriority.Low)
+                                            {
+                                                item.Priority = (enPriority)pri;
+                                                item.TagInstances.Add(new TagInstance(td, priority: item.Priority));
+                                            }
+                                            else
+                                            {
+                                                result.AddWarning($"Priority must be 1, 2 or 3");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            result.AddWarning($"Failed to parse priority as a number");
+                                        }
+                                    }
+                                    else if (tagPart.Length > 1)
+                                    {
+                                        result.AddWarning($"'{tagPart}' is invalid, priority must be 1, 2 or 3");
+                                    }
+
+                                    break;
+                                }
+                            case enTagType.Project:
+                                {
+                                    if (tagParam.Length > 0)
+                                    {
+                                        item.Diagnostics.Add($"Setting project {tagParam}");
+                                        item.ProjectName = tagParam;
+                                        item.TagInstances.Add(new TagInstance(td, projectName: tagParam));
                                     }
                                     else
                                     {
@@ -181,111 +281,23 @@ namespace Jiminy.Utilities
 
                                     break;
                                 }
-                            case 'c':
+                            case enTagType.Completed:
                                 {
-                                    // Sets the context for subsequent tags
-                                    ts.Diagnostics.Add($"Marking this as context: {ts.ToString()}");
-                                    ts.IsContext = true;
-                                    break;
-                                }
-                            case 'r':
-                                {
-                                    // Reminder
+                                    item.Diagnostics.Add($"Setting completed {tagParam}");
+                                    item.IsCompleted = true;
 
-                                    string? qual = GetTagQualifier(tagPart, qualifierDelimiter);
-
-                                    if (!string.IsNullOrEmpty(qual))
-                                    {
-                                        DateTime? extractedDateTime = ExtractDateTime(qual);
-
-                                        if (extractedDateTime is not null)
-                                        {
-                                            ts.Diagnostics.Add($"Setting reminder {extractedDateTime}");
-                                            ts.ReminderDateTime = extractedDateTime;
-                                        }
-                                        else
-                                        {
-                                            // Less standard date/time, TODO
-                                            result.AddWarning($"TagPart '{tagPart}' cannot extract reminder date/time as the value cannot be parsed, assuming today. try 'd/mmm' format, eg. 'r:3/sep'");
-                                            ts.Diagnostics.Add($"Setting reminder for today as date not readable");
-                                            ts.ReminderDateTime = DateTime.Now;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        result.AddWarning($"TagPart '{tagPart}' cannot extract reminder date/time as none supplied, assuming today");
-                                        ts.Diagnostics.Add($"Setting reminder for today as date not supplied");
-                                        ts.ReminderDateTime = DateTime.Now;
-                                    }
-
-                                    break;
-                                }
-                            case 'u':
-                                {
-                                    // Due date
-
-                                    string? qual = GetTagQualifier(tagPart, qualifierDelimiter);
-
-                                    if (!string.IsNullOrEmpty(qual))
-                                    {
-                                        DateTime? extractedDateTime = ExtractDateTime(qual);
-
-                                        if (extractedDateTime is not null)
-                                        {
-                                            ts.Diagnostics.Add($"Setting due date {extractedDateTime}");
-                                            ts.DueDateTime = extractedDateTime;
-                                        }
-                                        else
-                                        {
-                                            // Less standard date/time, TODO
-                                            result.AddWarning($"TagPart '{tagPart}' cannot extract due date/time");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        ts.Diagnostics.Add($"Setting due today (default)");
-                                        ts.DueDateTime = DateTime.Now;
-                                    }
-
-                                    break;
-                                }
-                            case 'd':
-                                {
-                                    ts.Diagnostics.Add($"Setting daily");
-                                    ts.IsDaily = true;
-                                    break;
-                                }
-                            case 'k':
-                                {
-                                    ts.Diagnostics.Add($"Setting weekly");
-                                    ts.IsWeekly = true;
-                                    break;
-                                }
-                            case 'm':
-                                {
-                                    ts.Diagnostics.Add($"Setting monthly");
-                                    ts.IsMonthly = true;
-                                    break;
-                                }
-                            case 'x':
-                                {
-                                    ts.Diagnostics.Add($"Setting completed");
-                                    ts.IsCompleted = true;
-                                    break;
-                                }
-                            case 'b':
-                                {
-                                    ts.Diagnostics.Add($"Setting is a bug");
-                                    ts.IsBug = true;
                                     break;
                                 }
                             default:
                                 {
-                                    ts.Diagnostics.Add($"Unsupported first character");
-                                    result.AddWarning($"TagPart '{tagPart}' unsupported first character");
+                                    result.AddWarning($"'{tagPart}' is invalid, unrecognised tag type");
                                     break;
                                 }
                         }
+                    }
+                    else
+                    {
+                        result.AddWarning($"TagPart '{tagPart}' cannot find tag '{tagCode}'");
                     }
                 }
             }
@@ -302,7 +314,7 @@ namespace Jiminy.Utilities
         {
             if (tagPart.Contains(sep))
             {
-                return tagPart.Substring(tagPart.IndexOf(sep) + 1).Trim();
+                return tagPart[(tagPart.IndexOf(sep) + 1)..].Trim();
             }
             else
             {
@@ -324,6 +336,60 @@ namespace Jiminy.Utilities
             }
 
             return extractedDateTime;
+        }
+
+        internal string? ConvertURLsToLinks(string? text, bool showUrl)
+        {
+            if (text is not null)
+            {
+                int httpIdx = text.IndexOf("http");
+
+                if (httpIdx > -1)
+                {
+                    int startIdx = 0;
+
+                    StringBuilder sb = new(text.Length + 100);
+
+                    while (httpIdx != -1 && startIdx != -1)
+                    {
+                        sb.Append(text.AsSpan(startIdx, httpIdx - startIdx));
+
+                        startIdx = text.IndexOf(" ", httpIdx);
+
+                        if (startIdx == -1)
+                        {
+                            startIdx = text.IndexOf("<", httpIdx);
+                        }
+
+                        if (startIdx == -1)
+                        {
+                            // That was the end
+                            sb.Append(MakeUrlIntoLink(text[httpIdx..], showUrl));
+                        }
+                        else
+                        {
+                            sb.Append(MakeUrlIntoLink(text[httpIdx..startIdx], showUrl));
+
+                            httpIdx = text.IndexOf("http", startIdx);
+                        }
+                    }
+
+                    if (startIdx != -1)
+                    {
+                        sb.Append(text[startIdx..]);
+                    }
+
+                    return sb.ToString();
+                }
+            }
+
+            return text;
+        }
+
+        private static string MakeUrlIntoLink(string url, bool showUrl)
+        {
+            string txt = showUrl ? url : GetEmbeddedUrlIconHtml();
+            return $"<a href='{url}' title='{url}' target='_blank'>{txt}</a>";
         }
 
         // https://icons.getbootstrap.com/
@@ -358,6 +424,94 @@ namespace Jiminy.Utilities
             return $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{width}\" height=\"{height}\" fill=\"{fillColour}\" class=\"bi bi-cloud\" viewBox=\"0 0 16 16\"><path d=\"M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z\"/></svg>";
         }
 
+        internal static string GetDefaultIconHtml()
+        {
+            return $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-x-lg\" viewBox=\"0 0 16 16\"><path d=\"M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z\"/></svg>";
+        }
+
+        internal string GetTagIconHtml(TagInstance ti) // Dynamic SVG updateto come... int width = 24, int height = 24, string? overrideColour = null)
+        {
+
+            //string? colourStr = "currentColor";
+            string? valueStr = null;
+            string? fileName = ti.Definition.IconFileName;
+
+            switch (ti.Definition.Type)
+            {
+                case enTagType.Custom:
+                    {
+                        break;
+                    }
+                case enTagType.Priority:
+                    {
+                        valueStr = ti.Priority.ToString();
+                        break;
+                    }
+                case enTagType.Reminder:
+                    {
+                        if (ti.DateTime is not null)
+                        {
+                            valueStr = ti.DateTime.DateStatus(out _).ToString();
+                        }
+                        else
+                        {
+                            throw new Exception($"GetTagIconHtml found tag type reminder has no date time");
+                        }
+                        break;
+                    }
+                case enTagType.Due:
+                    {
+                        if (ti.DateTime is not null)
+                        {
+                            valueStr = ti.DateTime.DateStatus(out _).ToString();
+                        }
+                        else
+                        {
+                            throw new Exception($"GetTagIconHtml found tag type due has no date time");
+                        }
+                        break;
+                    }
+                case enTagType.Bucket:
+                    {
+                        valueStr = ti.BucketName;
+                        break;
+                    }
+                case enTagType.Project:
+                    {
+                        valueStr = ti.ProjectName;
+                        break;
+                    }
+            }
+
+            if (valueStr is not null && fileName is not null)
+            {
+                fileName = fileName.Replace(Constants.ICON_FILE_NAME_VALUE, valueStr);
+            }
+
+            string html;
+
+            if (File.Exists(fileName))
+            {
+                html = $"<div class='tag-icon'><img src='{fileName}'></div>";
+            }
+            else
+            {
+                html = $"<div class='tag-icon'>{GetDefaultIconHtml()}</div>";
+            }
+
+
+            // If it's an SVG, load the svg definition and set the color and size
+            //if (ti.Definition.SVGString is not null)
+            //{
+            //    html = $"<div class='tag-icon'><img src='{string.Format(ti.Definition.SVGString, width, height, overrideColour ?? colourStr)}'></div>";
+            //}
+            //else
+            //{
+            //}
+
+            return html;
+        }
+
         internal static string GetPriorityLowIconHtml(int width = 24, int height = 24, string fillColour = "currentColor")
         {
             return $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{width}\" height=\"{height}\" fill=\"{fillColour}\" class=\"bi bi-cloud-arrow-down\" viewBox=\"0 0 16 16\"><path fill-rule=\"evenodd\" d=\"M7.646 10.854a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 9.293V5.5a.5.5 0 0 0-1 0v3.793L6.354 8.146a.5.5 0 1 0-.708.708l2 2z\"/><path d=\"M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z\"/></svg>";
@@ -383,7 +537,7 @@ namespace Jiminy.Utilities
             return $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{width}\" height=\"{height}\" fill=\"{fillColour}\" class=\"bi bi-hourglass-split\" viewBox=\"0 0 16 16\"><path d=\"M2.5 15a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11zm2-13v1c0 .537.12 1.045.337 1.5h6.326c.216-.455.337-.963.337-1.5V2h-7zm3 6.35c0 .701-.478 1.236-1.011 1.492A3.5 3.5 0 0 0 4.5 13s.866-1.299 3-1.48V8.35zm1 0v3.17c2.134.181 3 1.48 3 1.48a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351z\"/></svg>";
         }
 
-        internal static string GetSomedayBucketHtml(int width = 24, int height = 24, string fillColour = "currentColor")
+        internal static string GetMaybeBucketHtml(int width = 24, int height = 24, string fillColour = "currentColor")
         {
             return $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{width}\" height=\"{height}\" fill=\"{fillColour}\" class=\"bi bi-piggy-bank\" viewBox=\"0 0 16 16\"><path d=\"M5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm1.138-1.496A6.613 6.613 0 0 1 7.964 4.5c.666 0 1.303.097 1.893.273a.5.5 0 0 0 .286-.958A7.602 7.602 0 0 0 7.964 3.5c-.734 0-1.441.103-2.102.292a.5.5 0 1 0 .276.962z\"/><path fill-rule=\"evenodd\" d=\"M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069c0-.145-.007-.29-.02-.431.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a.95.95 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.735.735 0 0 0-.375.562c-.024.243.082.48.32.654a2.112 2.112 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595zM2.516 6.26c.455-2.066 2.667-3.733 5.448-3.733 3.146 0 5.536 2.114 5.536 4.542 0 1.254-.624 2.41-1.67 3.248a.5.5 0 0 0-.165.535l.66 2.175h-.985l-.59-1.487a.5.5 0 0 0-.629-.288c-.661.23-1.39.359-2.157.359a6.558 6.558 0 0 1-2.157-.359.5.5 0 0 0-.635.304l-.525 1.471h-.979l.633-2.15a.5.5 0 0 0-.17-.534 4.649 4.649 0 0 1-1.284-1.541.5.5 0 0 0-.446-.275h-.56a.5.5 0 0 1-.492-.414l-.254-1.46h.933a.5.5 0 0 0 .488-.393zm12.621-.857a.565.565 0 0 1-.098.21.704.704 0 0 1-.044-.025c-.146-.09-.157-.175-.152-.223a.236.236 0 0 1 .117-.173c.049-.027.08-.021.113.012a.202.202 0 0 1 .064.199z\"/></svg>";
         }

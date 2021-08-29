@@ -40,7 +40,7 @@ namespace Jiminy.Classes
         public int ItemsProcessed { get; set; }
         public long BytesProcessed { get; set; }
 
-        public enSeverity HighestSeverity => Messages.OrderBy(_ => _.Severity).First().Severity;
+        public enSeverity HighestSeverity => Messages.Any() ? Messages.OrderBy(_ => _.Severity).First().Severity : enSeverity.Debug;
 
         public bool HasErrors => Messages.Any(_ => _.Severity == enSeverity.Error);
         public bool HasWarnings => Messages.Any(_ => _.Severity == enSeverity.Warning);

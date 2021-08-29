@@ -16,9 +16,9 @@ namespace Jiminy.Classes
             AssociatedText = associatedText;
         }
 
-        public Item(enBucket bucket, enPriority priority, string? associatedText = null, string? projectName = null, DateTime? reminderDateTime = null)
+        public Item(string? bucketName, enPriority priority, string? associatedText = null, string? projectName = null, DateTime? reminderDateTime = null)
         {
-            Bucket = bucket;
+            BucketName = bucketName;
             Priority = priority;
             ReminderDateTime = reminderDateTime;
             AssociatedText = associatedText;
@@ -28,18 +28,14 @@ namespace Jiminy.Classes
         public string? AssociatedText { get; set; } = null;
 
         public enPriority Priority { get; set; } = enPriority.Low;
-        public enBucket Bucket { get; set; } = enBucket.None;
+        public string? BucketName { get; set; } = null;
+        public enRepeat Repeat { get; set; } = enRepeat.None;
 
         public string? ProjectName { get; set; } = null;
         public DateTime? ReminderDateTime { get; set; } = null;
         public DateTime? DueDateTime { get; set; } = null;
-        public bool IsDaily { get; set; } = false;
-        public bool IsWeekly { get; set; } = false;
-        public bool IsMonthly { get; set; } = false;
         public bool IsCompleted { get; set; } = false;
         public bool IsContext { get; set; } = false;
-        //public bool IsDue { get; set; } = false;
-        public bool IsBug { get; set; } = false;
 
         public string? FullFileName { get; set; }
         public List<string> Diagnostics { get; set; } = new();
@@ -48,11 +44,13 @@ namespace Jiminy.Classes
         public int? LineNumber { get; set; }
         public DateTime? CreatedUtc { get; set; } = DateTime.UtcNow;
 
+        public TagInstanceList TagInstances { get; set; } = new();
+
         public string? TableDisplayClass { get; set; }
 
         public new string ToString()
         {
-            string str = $"Pri:{Priority,-6} Timing:{Bucket,-7}";
+            string str = $"Pri:{Priority,-6} Bucket:{BucketName,-7}";
 
             if (!string.IsNullOrEmpty(ProjectName))
             {

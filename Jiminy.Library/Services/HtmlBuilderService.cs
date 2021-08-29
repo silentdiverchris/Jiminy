@@ -5,9 +5,18 @@ using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Utilities
 {
-    internal static class HtmlBuilderUtilities
+    internal class HtmlBuilderService : IDisposable
     {
-        internal static async Task<Result> BuildHtmlPage(AppSettings appSettings, ItemRegistry itemRegistry, List<LogEntry> logEntries, string htmlTemplateFileName, string htmlOutputFileName)
+        private readonly AppSettings _appSettings;
+        private readonly TagService _tagService;
+
+        public HtmlBuilderService(AppSettings appSettings)
+        {
+            _appSettings = appSettings;
+            _tagService = new TagService(appSettings);
+        }
+
+        internal async Task<Result> BuildHtmlPage(AppSettings appSettings, ItemRegistry itemRegistry, List<LogEntry> logEntries, string htmlTemplateFileName, string htmlOutputFileName)
         {
             Result result = new("BuildHtmlPage");
 
@@ -19,16 +28,16 @@ namespace Jiminy.Utilities
                 int contentStartIdx = html.IndexOf(Constants.HTML_PLACEHOLDER_CONTENT);
                 int contentEndIdx = contentStartIdx + Constants.HTML_PLACEHOLDER_CONTENT.Length;
 
-                if (contentEndIdx == -1)
+                if (contentStartIdx == -1 || contentEndIdx == -1)
                 {
-                    result.AddError($"Cannot find content placeholder '{Constants.HTML_PLACEHOLDER_CONTENT}' in template");
+                    result.AddError($"Cannot find content placeholder '{Constants.HTML_PLACEHOLDER_CONTENT}' in template file '{htmlTemplateFileName}'");
                 }
 
                 if (result.HasNoErrorsOrWarnings)
                 {
                     foreach (var item in itemRegistry.Items)
                     {
-                        item.AssociatedText = StringHelpers.ConvertURLsToLinks(item.AssociatedText, false);
+                        item.AssociatedText = _tagService.ConvertURLsToLinks(item.AssociatedText, false);
                     }
 
                     StringBuilder sbTabHeaders = new(1000);
@@ -88,7 +97,7 @@ namespace Jiminy.Utilities
             return result;
         }
 
-        private static string GenerateRemindersTabContent(ItemRegistry itemRegistry)
+        private string GenerateRemindersTabContent(ItemRegistry itemRegistry)
         {
             StringBuilder sb = new(2000);
 
@@ -141,7 +150,7 @@ namespace Jiminy.Utilities
             return html;
         }
 
-        private static string GenerateOtherTabCollectionContent(ItemRegistry itemRegistry, List<LogEntry> logEntries)
+        private string GenerateOtherTabCollectionContent(ItemRegistry itemRegistry, List<LogEntry> logEntries)
         {
             StringBuilder sb = new(2000);
 
@@ -169,7 +178,7 @@ namespace Jiminy.Utilities
             return sb.ToString();
         }
 
-        private static string GenerateProjectTabCollectionContent(ItemRegistry itemRegistry)
+        private string GenerateProjectTabCollectionContent(ItemRegistry itemRegistry)
         {
             StringBuilder sb = new(2000);
 
@@ -200,7 +209,7 @@ namespace Jiminy.Utilities
             return sb.ToString();
         }
 
-        private static string GenerateOpenItemTabContent(ItemRegistry itemRegistry)
+        private string GenerateOpenItemTabContent(ItemRegistry itemRegistry)
         {
             StringBuilder sb = new(2000);
 
@@ -213,7 +222,7 @@ namespace Jiminy.Utilities
             return sb.ToString();
         }
 
-        private static string GenerateProjectTabContent(ItemRegistry itemRegistry, Project? project)
+        private string GenerateProjectTabContent(ItemRegistry itemRegistry, Project? project)
         {
             string projectName = project?.Name ?? "All projects";
 
@@ -224,16 +233,21 @@ namespace Jiminy.Utilities
             string headerHtml = ""; // GenerateTabBodyHeader(projectName, project is null ? null : "Project", "tab-content-header");
 
             sb.Append($"<div class=\"tab__content\">{headerHtml}<div class=\"table-group\">");
-            sb.Append(GenerateListTable("Incoming", projectItems, onlyBucket: enBucket.In, showText: true, showPriority: true, showLinks: true, suppressProjectName: project is not null));
-            sb.Append(GenerateListTable("Next", projectItems, onlyBucket: enBucket.Next, showText: true, showPriority: true, showLinks: true, suppressProjectName: project is not null));
-            sb.Append(GenerateListTable("Waiting", projectItems, onlyBucket: enBucket.Waiting, showText: true, showPriority: true, showLinks: true, suppressProjectName: project is not null));
-            sb.Append(GenerateListTable("Someday/maybe", projectItems, onlyBucket: enBucket.Someday, showText: true, showPriority: true, showLinks: true, suppressProjectName: project is not null));
+
+            foreach (var bucket in _appSettings.BucketSettings.BucketDefintions.Buckets.OrderBy(_ => _.DisplayOrder))
+            {
+                sb.Append(GenerateListTable(bucket.Name, projectItems, onlyBucketName: bucket.Name, showText: true, showPriority: true, showLinks: true, suppressProjectName: project is not null));
+            }
+
+            var noBucketItems = new ItemSubSet(projectItems.Items.Where(_ => _.BucketName is null));
+            sb.Append(GenerateListTable("No Bucket", noBucketItems, showText: true, showPriority: true, showLinks: true, suppressProjectName: project is not null));
+
             sb.Append("</div></div>");
 
             return sb.ToString();
         }
 
-        private static string GenerateBucketsTabContent(ItemRegistry itemRegistry, string? title, bool openItems)
+        private string GenerateBucketsTabContent(ItemRegistry itemRegistry, string? title, bool openItems)
         {
             StringBuilder sb = new(2000);
 
@@ -245,15 +259,14 @@ namespace Jiminy.Utilities
 
             if (items.Any)
             {
-                sb.Append(GenerateListTable("Incoming", items, onlyBucket: enBucket.In, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
-                sb.Append(GenerateListTable("Next", items, onlyBucket: enBucket.Next, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
-                sb.Append(GenerateListTable("Waiting", items, onlyBucket: enBucket.Waiting, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
-                sb.Append(GenerateListTable("Someday/maybe", items, onlyBucket: enBucket.Someday, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
+                foreach (var bucket in _appSettings.BucketSettings.BucketDefintions.Buckets.OrderBy(_ => _.DisplayOrder))
+                {
+                    sb.Append(GenerateListTable(bucket.Name, items, onlyBucketName: bucket.Name, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
+                }
             }
             else
             {
-                string msg = "There are no items to view here";
-                sb.Append($"<img style='margin-top:20px' src='https://i.imgflip.com/20pfsv.jpg' title='{msg}' alt='{msg}'>");
+                sb.Append(GetNoContentHtml());
             }
 
             sb.Append("</div></div>");
@@ -261,7 +274,13 @@ namespace Jiminy.Utilities
             return sb.ToString();
         }
 
-        private static string GeneratePrioritiesTabContent(ItemRegistry itemRegistry)
+        private static string GetNoContentHtml()
+        {
+            string msg = "There are no items to view here";
+            return $"<img style='margin-top:20px' src='https://i.imgflip.com/20pfsv.jpg' title='{msg}' alt='{msg}'>";
+        }
+
+        private string GeneratePrioritiesTabContent(ItemRegistry itemRegistry)
         {
             StringBuilder sb = new(2000);
 
@@ -276,22 +295,22 @@ namespace Jiminy.Utilities
             return sb.ToString();
         }
 
-        private static string GenerateRepeatingTabContent(ItemRegistry itemRegistry)
+        private string GenerateRepeatingTabContent(ItemRegistry itemRegistry)
         {
             StringBuilder sb = new(2000);
 
             string headerHtml = ""; // GenerateTabBodyHeader("Priorities", null, "tab-content-header");
 
             sb.Append($"<div class=\"tab__content\">{headerHtml}<div class=\"table-group\">");
-            sb.Append(GenerateListTable("Daily", itemRegistry.OpenItems, onlyDaily: true, showText: true, showLinks: true, suppressProjectName: false));
-            sb.Append(GenerateListTable("Weekly", itemRegistry.OpenItems, onlyWeekly: true, showText: true, showLinks: true, suppressProjectName: false));
-            sb.Append(GenerateListTable("Monthly", itemRegistry.OpenItems, onlyMonthly: true, showText: true, showLinks: true, suppressProjectName: false));
+            sb.Append(GenerateListTable("Daily", itemRegistry.OpenItems, onlyRepeat: enRepeat.Daily, showText: true, showLinks: true, suppressProjectName: false));
+            sb.Append(GenerateListTable("Weekly", itemRegistry.OpenItems, onlyRepeat: enRepeat.Weekly, showText: true, showLinks: true, suppressProjectName: false));
+            sb.Append(GenerateListTable("Monthly", itemRegistry.OpenItems, onlyRepeat: enRepeat.Monthly, showText: true, showLinks: true, suppressProjectName: false));
             sb.Append("</div></div>");
 
             return sb.ToString();
         }
 
-        private static string GenerateProjectListGroup(ItemSubSet projectItems)
+        private string GenerateProjectListGroup(ItemSubSet projectItems)
         {
             var projectNames = projectItems.Items
                 .OrderBy(_ => _.ProjectName)
@@ -301,7 +320,7 @@ namespace Jiminy.Utilities
 
             foreach (var pn in projectNames)
             {
-                var itemList = new ItemSubSet(projectItems.Items.Where(_ => _.ProjectName == pn).OrderBy(_ => _.Bucket).ThenBy(_ => _.Priority));
+                var itemList = new ItemSubSet(projectItems.Items.Where(_ => _.ProjectName == pn).OrderBy(_ => _.BucketName).ThenBy(_ => _.Priority));
                 string? html = GenerateListTable(pn ?? "No project", itemList, showText: true, showPriority: true, showBuckets: true, showLinks: true);
 
                 if (!string.IsNullOrEmpty(html))
@@ -328,7 +347,7 @@ namespace Jiminy.Utilities
 
         private static HtmlTableCell GenerateBucketCell(Item tagSet)
         {
-            return new HtmlTableCell(tagSet.Bucket.ToString(), classes: "cell-bucket");
+            return new HtmlTableCell(tagSet.BucketName, classes: "cell-bucket");
         }
 
         private static HtmlTableCell GenerateFileNameCell(Item tagSet)
@@ -336,75 +355,82 @@ namespace Jiminy.Utilities
             return new HtmlTableCell(tagSet.FullFileName, classes: "cell-file-name");
         }
 
-        private static HtmlTableCell GenerateTextCell(Item ts, bool suppressProjectName = false)
+        private HtmlTableCell GenerateTextCell(Item item, bool suppressProjectName = false)
         {
             StringBuilder sbIcons = new(2000);
 
-            string? diags = "Diagnostics: " + string.Join(", ", ts.Diagnostics);
+            string? diags = "Diagnostics: " + string.Join("<br>", item.Diagnostics);
 
-            string? warnings = string.IsNullOrEmpty(ts.Warnings)
+            string? warnings = string.IsNullOrEmpty(item.Warnings)
                 ? null
-                : $"<br><p class='tag-warning'>{string.Join("<br>", ts.Warnings)}</p>";
+                : $"<br><p class='tag-warning'>{item.Warnings}</p>";
 
-            string? project = suppressProjectName || string.IsNullOrEmpty(ts.ProjectName)
+            string? project = suppressProjectName || string.IsNullOrEmpty(item.ProjectName)
                 ? null
-                : $"<p class='cell-project-name'>Project: {ts.ProjectName}</p>";
+                : $"<p class='cell-project-name'>Project: {item.ProjectName}</p>";
 
             string reminder = "";
             string due = "";
 
-            if (ts.IsCompleted == false)
+            if (item.IsCompleted == false)
             {
-                enDateStatus reminderStatus = ts.GetReminderStatus(out string reminderColour);
+                enDateStatus reminderStatus = item.GetReminderStatus(out string reminderColour);
                 if (reminderStatus != enDateStatus.None)
                 {
-                    sbIcons.Append(TagSetUtilities.CustomiseIcon(TagSetUtilities.GetReminderIconHtml(24, 24, reminderColour), tipText: $"Reminder: {reminderStatus}"));
-                    reminder = GenerateDateString(ts.ReminderDateTime, "Reminder");
+                    string iconHtml = TagService.GetReminderIconHtml(24, 24, reminderColour);
+
+                    sbIcons.Append(TagService.CustomiseIcon(iconHtml, tipText: $"Reminder: {reminderStatus}"));
+                    reminder = GenerateDateString(item.ReminderDateTime, "Reminder");
                 }
 
-                enDateStatus dueStatus = ts.GetDueStatus(out string dueColour);
+                enDateStatus dueStatus = item.GetDueStatus(out string dueColour);
                 if (dueStatus != enDateStatus.None)
                 {
-                    sbIcons.Append(TagSetUtilities.CustomiseIcon(TagSetUtilities.GetDueIconHtml(24, 24, dueColour), tipText: $"Due: {dueStatus}"));
-                    due = GenerateDateString(ts.DueDateTime, "Due");
+                    sbIcons.Append(TagService.CustomiseIcon(TagService.GetDueIconHtml(24, 24, dueColour), tipText: $"Due: {dueStatus}"));
+                    due = GenerateDateString(item.DueDateTime, "Due");
                 }
             }
 
-            if (ts.IsBug)
+            foreach (var ti in item.TagInstances.Tags.Where(_ => _.Definition.Type == enTagType.Custom))
             {
-                sbIcons.Append(TagSetUtilities.CustomiseIcon(TagSetUtilities.GetBugIconHtml(24, 24), tipText: "This represents a bug"));
+                sbIcons.Append(_tagService.GetTagIconHtml(ti));
             }
 
-            string? text = string.IsNullOrEmpty(ts.AssociatedText)
-                ? ts.IsContext
+            string? text = string.IsNullOrEmpty(item.AssociatedText)
+                ? item.IsContext
                     ? "[Context item]"
                     : null
-                : $"<p class='cell-text'>{ts.AssociatedText}</p>";
+                : $"<p class='cell-text'>{item.AssociatedText}</p>";
 
-            if (ts.Bucket != enBucket.None)
+            //if (item.BucketName is not null)
+            //{
+            //    //string bucketIcon = item.BucketName switch
+            //    //{
+            //    //    enBucket.In => TagService.CustomiseIcon(TagService.GetInBucketHtml(fillColour: "orangered"), tipText: $"Bucket: {item.Bucket}"),
+            //    //    enBucket.Next => TagService.CustomiseIcon(TagService.GetNextBucketHtml(fillColour: "orangered"), tipText: $"Bucket: {item.Bucket}"),
+            //    //    enBucket.Waiting => TagService.CustomiseIcon(TagService.GetWaitingBucketHtml(fillColour: "orangered"), $"Bucket: {item.Bucket}"),
+            //    //    enBucket.Maybe => TagService.CustomiseIcon(TagService.GetMaybeBucketHtml(fillColour: "orangered"), tipText: $"Bucket: {item.Bucket}"),
+            //    //    _ => ""
+            //    //};
+
+            //    sbIcons.Append(gen);
+            //}
+
+            string priorityIcon = item.Priority switch
             {
-                string bucketIcon = ts.Bucket switch
-                {
-                    enBucket.In => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetInBucketHtml(fillColour: "orangered"), tipText: $"Bucket: {ts.Bucket}"),
-                    enBucket.Next => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetNextBucketHtml(fillColour: "orangered"), tipText: $"Bucket: {ts.Bucket}"),
-                    enBucket.Waiting => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetWaitingBucketHtml(fillColour: "orangered"), $"Bucket: {ts.Bucket}"),
-                    enBucket.Someday => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetSomedayBucketHtml(fillColour: "orangered"), tipText: $"Bucket: {ts.Bucket}"),
-                    _ => ""
-                };
-
-                sbIcons.Append(bucketIcon);
-            }
-
-            string priorityIcon = ts.Priority switch
-            {
-                enPriority.High => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetPriorityHighIconHtml(fillColour: "orangered"), tipText: $"Priority: {ts.Priority}"),
-                enPriority.Medium => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetPriorityMediumIconHtml(fillColour: "purple"), tipText:  $"Priority: {ts.Priority}"),
-                enPriority.Low => TagSetUtilities.CustomiseIcon(TagSetUtilities.GetPriorityLowIconHtml(fillColour: "darkgrey"), tipText: $"Priority: {ts.Priority}"),
+                enPriority.High => TagService.CustomiseIcon(TagService.GetPriorityHighIconHtml(fillColour: "orangered"), tipText: $"Priority: {item.Priority}"),
+                enPriority.Medium => TagService.CustomiseIcon(TagService.GetPriorityMediumIconHtml(fillColour: "purple"), tipText:  $"Priority: {item.Priority}"),
+                enPriority.Low => TagService.CustomiseIcon(TagService.GetPriorityLowIconHtml(fillColour: "darkgrey"), tipText: $"Priority: {item.Priority}"),
                 _ => ""
             };
             sbIcons.Append(priorityIcon);
 
-            sbIcons.Append(TagSetUtilities.CustomiseIcon(TagSetUtilities.GetLinkIconHtml(), tipText: "Open the source MarkDown file", linkUrl: ts.FullFileName));
+            sbIcons.Append(TagService.CustomiseIcon(TagService.GetLinkIconHtml(), tipText: "Open the source MarkDown file", linkUrl: item.FullFileName));
+
+            foreach (var ti in item.TagInstances.Tags)
+            {
+                sbIcons.Append(_tagService.GetTagIconHtml(ti));
+            }
 
             return new HtmlTableCell(
                 $"{project}{text}{reminder}{due}{warnings}<div class='item-icons'>{sbIcons}</div>"); // title: diags);
@@ -449,7 +475,7 @@ namespace Jiminy.Utilities
 
         private static string FormatReminderDate(DateTime dt)
         {
-            string? dtStr = null;
+            string? dtStr;
 
             if (dt.Date == DateTime.Now.Date)
             {
@@ -523,7 +549,7 @@ namespace Jiminy.Utilities
             return sb.ToString();
         }
 
-        private static string? GenerateListTable(
+        private string? GenerateListTable(
             string title,
             ItemSubSet itemSubset,
             int displayOrder = 0,
@@ -533,16 +559,14 @@ namespace Jiminy.Utilities
             bool showBuckets = false,
             bool showFileName = false,
             enPriority? onlyPriority = null,
-            enBucket? onlyBucket = null,
-            bool onlyDaily = false,
-            bool onlyWeekly = false,
-            bool onlyMonthly = false,
+            string? onlyBucketName = null,
+            enRepeat? onlyRepeat = null,
             string? onlyProjectName = null,
             bool suppressProjectName = false)
         {
             if (itemSubset.Any)
             {
-                var filtered = itemSubset.Filter(onlyProjectName, onlyPriority, onlyBucket, onlyDaily, onlyWeekly, onlyMonthly);
+                var filtered = itemSubset.Filter(onlyProjectName, onlyPriority, onlyBucketName, onlyRepeat);
 
                 HtmlTable table = new() { DisplayOrder = displayOrder };
 
@@ -634,5 +658,36 @@ namespace Jiminy.Utilities
 
             return tabHtml;
         }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~HtmlBuilderService()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        private bool disposedValue;
     }
 }

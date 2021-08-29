@@ -2,18 +2,25 @@
 {
     public static class Enumerations
     {
-        public enum enIcon
+        public enum enTagType
         {
-            PriorityHigh = 1,
-            PriorityMedium = 2,
-            PriorityLow = 3,
-            SourceFile = 4,
-            Reminder = 5,
-            Due = 6,
-            BucketIn = 7,
-            BucketNext = 8,
-            BucketWaiting = 9,
-            BucketSomeday = 10
+            Custom = 1,
+            Priority = 2,
+            Reminder = 3,
+            Due = 4,
+            Bucket = 5,
+            Project = 6,
+            Repeating = 7,
+            Context = 8,
+            Completed = 9
+        }
+
+        public enum enRepeat
+        {
+            None = 0,
+            Daily = 1,
+            Weekly = 2,
+            Monthly = 3
         }
 
         /// <summary>
@@ -42,15 +49,6 @@
             High = 1,
             Medium = 2,
             Low = 3
-        }
-
-        public enum enBucket
-        {
-            None = 0,
-            In = 1,
-            Next = 2,
-            Waiting = 3,
-            Someday = 4
         }
     }
 }

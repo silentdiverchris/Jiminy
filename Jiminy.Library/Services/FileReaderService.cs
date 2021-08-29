@@ -4,9 +4,12 @@ using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Services
 {
+
     internal class FileReaderService : IDisposable
     {
-        private readonly AppSettings _appSettings;
+        private readonly TagService _tagService;
+
+        //private readonly AppSettings _appSettings;
         private readonly LogService _logService;
 
         private List<Item> _tagSets = new();
@@ -15,8 +18,10 @@ namespace Jiminy.Services
             AppSettings appSettings,
             LogService logService)
         {
-            _appSettings = appSettings;
+            //_appSettings = appSettings;
             _logService = logService;
+
+            _tagService = new TagService(appSettings);
         }
 
         public async Task<Result> ReadFile(MonitoredFile mf)
@@ -49,7 +54,7 @@ namespace Jiminy.Services
             Result result = new("InterpretLines");
 
             int lineNumber = 0;
-            Item? contextTagSet = null;
+            Item? contextItem = null;
 
             foreach (string line in lines) // Don't filter out blank lines here or it breaks line numbering
             {
@@ -57,57 +62,47 @@ namespace Jiminy.Services
 
                 if (!string.IsNullOrEmpty(line))
                 {
-                    Result extractResult = TagSetUtilities.ExtractTagSet(line, _appSettings.MarkdownSettings, out Item? ts);
+                    Result extractResult = _tagService.ExtractTagSet(line, out Item? item);
 
                     if (result.HasErrorsOrWarnings)
                     {
                         await _logService.ProcessResult(extractResult);
                     }
 
-                    if (ts is not null)
+                    if (item is not null)
                     {
                         // If we have a context-setting tagset, overwrite unspecified
                         // values in subsequent ones
 
-                        if (ts.IsContext)
+                        if (item.IsContext)
                         {
-                            ts.Diagnostics.Add("Setting context");
+                            item.Diagnostics.Add("Setting context");
 
-                            contextTagSet = ts;
+                            contextItem = item;
                         }
-                        else if (contextTagSet is not null)
+                        else if (contextItem is not null)
                         {
-                            if (ts.ProjectName is null)
+                            if (item.ProjectName is null)
                             {
-                                ts.Diagnostics.Add($"Applying context project '{contextTagSet.ProjectName}'");
-                                ts.ProjectName = contextTagSet.ProjectName;
+                                item.Diagnostics.Add($"Applying context project '{contextItem.ProjectName}'");
+                                item.ProjectName = contextItem.ProjectName;
                             }
 
-                            if (ts.Bucket == enBucket.None)
+                            if (item.BucketName is null)
                             {
-                                ts.Diagnostics.Add($"Applying bucket '{contextTagSet.Bucket}'");
-                                ts.Bucket = contextTagSet.Bucket;
+                                item.Diagnostics.Add($"Applying bucket '{contextItem.BucketName}'");
+                                item.BucketName = contextItem.BucketName;
                             }
 
-                            if (contextTagSet.IsDaily)
+                            if (item.Repeat == enRepeat.None)
                             {
-                                ts.IsDaily = contextTagSet.IsDaily;
-                            }
-
-                            if (contextTagSet.IsWeekly)
-                            {
-                                ts.IsWeekly = contextTagSet.IsWeekly;
-                            }
-
-                            if (contextTagSet.IsMonthly)
-                            {
-                                ts.IsMonthly = contextTagSet.IsMonthly;
+                                item.Repeat = contextItem.Repeat;
                             }
                         }
 
-                        ts.Warnings = extractResult.TextSummary;
-                        ts.LineNumber = lineNumber;
-                        _tagSets.Add(ts);
+                        item.Warnings = extractResult.TextSummary;
+                        item.LineNumber = lineNumber;
+                        _tagSets.Add(item);
                     }
                 }
             }

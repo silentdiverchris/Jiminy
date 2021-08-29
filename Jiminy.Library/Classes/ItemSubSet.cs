@@ -17,9 +17,9 @@ namespace Jiminy.Classes
 
         public List<Item> Items => _items;
 
-        public ItemSubSet Filter(string? onlyProjectName = null, enPriority? onlyPriority = null, enBucket? onlyBucket = null, bool onlyDaily = false, bool onlyWeekly = false, bool onlyMonthly = false)
+        public ItemSubSet Filter(string? onlyProjectName = null, enPriority? onlyPriority = null, string? onlyBucketName = null, enRepeat? onlyRepeat = null)
         {
-            if (onlyProjectName is null && onlyPriority is null && onlyBucket is null && !onlyDaily && !onlyWeekly && !onlyMonthly)
+            if (onlyProjectName is null && onlyPriority is null && onlyBucketName is null && onlyRepeat is null)
             {
                 return this;
             }
@@ -28,10 +28,8 @@ namespace Jiminy.Classes
                 var filtered = _items.Where(_ =>
                     (onlyProjectName == null || _.ProjectName == onlyProjectName) &&
                     (onlyPriority == null || _.Priority == onlyPriority) &&
-                    (onlyBucket == null || _.Bucket == onlyBucket) &&
-                    (!onlyDaily || _.IsDaily) &&
-                    (!onlyWeekly || _.IsWeekly) &&
-                    (!onlyMonthly || _.IsMonthly));
+                    (onlyBucketName == null || _.BucketName == onlyBucketName) &&
+                    (onlyRepeat == null || _.Repeat == onlyRepeat));
 
                 return new ItemSubSet(filtered);
             }

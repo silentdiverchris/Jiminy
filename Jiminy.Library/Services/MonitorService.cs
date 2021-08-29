@@ -14,7 +14,7 @@ namespace Jiminy.Services
 
         private List<FileSystemWatcher> _fileWatchers = new();
 
-        private Queue<string> _filesToScanQueue = new Queue<string>();
+        private Queue<string> _filesToScanQueue = new();
 
         private Dictionary<string, MonitoredFile> _monitoredFiles = new();
         private Dictionary<string, MonitoredDirectory> _monitoredDirectories = new();
@@ -43,12 +43,7 @@ namespace Jiminy.Services
         {
             Result result = new("Monitor.Run", true);
 
-            _appSettings.MarkdownSettings.TagDelimiterSets = new List<ItemDelimiterSet>
-            {
-                new ItemDelimiterSet("=", "=", "-", ":")
-            };
-
-            result = AppSettingsUtilities.ValidateAppSettings(_appSettings);
+            result = AppSettingsUtilities.InitialiseAppSettings(_appSettings);
 
             await _logService.ProcessResult(result);
 
@@ -59,7 +54,7 @@ namespace Jiminy.Services
                     _ignoredFilesRegexList.Add(ignoreSpec.GenerateRegexForFileMask());
                 }
 
-                PrefillFilesToScan(_appSettings.MonitoredDirectories);
+                PrefillFilesToScan(_appSettings.MonitoredDirectories.Where(_ => _.IsActive).ToList());
 
                 await DoMainLoop();
             }
@@ -113,7 +108,7 @@ namespace Jiminy.Services
                     _recentLogEntries.Add(log);
                     _logService.LogToConsole(log);
 
-                    foreach (var dir in _appSettings.MonitoredDirectories.Where(_ => _.Exists))
+                    foreach (var dir in _appSettings.MonitoredDirectories.Where(_ => _.Exists && _.IsActive))
                     {
                         CreateFileSystemWatchers(dir);
                     }
@@ -138,7 +133,10 @@ namespace Jiminy.Services
                         htmlBuildResult.AddInfo($"Reading template from '{htmlTemplateFileName}'");
                         await _logService.ProcessResult(htmlBuildResult);
 
-                        htmlBuildResult.SubsumeResult(await HtmlBuilderUtilities.BuildHtmlPage(_appSettings, _itemRegistry, _recentLogEntries, htmlTemplateFileName, htmlOutputFileName));
+                        using (var builder = new HtmlBuilderService(_appSettings))
+                        {
+                            htmlBuildResult.SubsumeResult(await builder.BuildHtmlPage(_appSettings, _itemRegistry, _recentLogEntries, htmlTemplateFileName, htmlOutputFileName));
+                        }
 
                         if (htmlBuildResult.HasNoErrors)
                         {
@@ -391,29 +389,29 @@ namespace Jiminy.Services
             }
         }
 
-        private MonitoredDirectory GetMonitoredDirectory(string path)
-        {
-            var md = _monitoredDirectories[path];
+        //private MonitoredDirectory GetMonitoredDirectory(string path)
+        //{
+        //    var md = _monitoredDirectories[path];
 
-            if (md is not null)
-            {
-                return md;
-            }
-            else
-            {
-                throw new Exception($"GetMonitoredDirectory failed to find '{path}'");
-            }
-        }
+        //    if (md is not null)
+        //    {
+        //        return md;
+        //    }
+        //    else
+        //    {
+        //        throw new Exception($"GetMonitoredDirectory failed to find '{path}'");
+        //    }
+        //}
 
-        private void MarkFileDeleted(string fullFileName)
-        {
-            var mf = GetMonitoredFile(fullFileName, false);
+        //private void MarkFileDeleted(string fullFileName)
+        //{
+        //    var mf = GetMonitoredFile(fullFileName, false);
 
-            if (mf is not null)
-            {
-                mf.Exists = false;
-            }
-        }
+        //    if (mf is not null)
+        //    {
+        //        mf.Exists = false;
+        //    }
+        //}
 
         private void SetFileScanned(string fullFileName)
         {

@@ -18,9 +18,9 @@
         public List<MonitoredDirectory> MonitoredDirectories { get; set; } = new();
 
         /// <summary>
-        /// The settings that determine how the tags are dug out and interpreted
+        /// The buckets that items can be put into
         /// </summary>
-        public MarkdownSettings MarkdownSettings { get; set; } = new MarkdownSettings();
+        public BucketSettings BucketSettings { get; set; } = new BucketSettings();
 
         /// <summary>
         /// Setting relating to building the HTML output file

@@ -56,59 +56,7 @@ namespace Jiminy.Helpers
             }
         }
 
-        internal static string? ConvertURLsToLinks(string? text, bool showUrl)
-        {
-            if (text is not null)
-            {
-                int httpIdx = text.IndexOf("http");
-
-                if (httpIdx > -1)
-                {
-                    int startIdx = 0;
-
-                    StringBuilder sb = new(text.Length + 100);
-
-                    while (httpIdx != -1 && startIdx != -1)
-                    {
-                        sb.Append(text.AsSpan(startIdx, httpIdx - startIdx));
-
-                        startIdx = text.IndexOf(" ", httpIdx);
-
-                        if (startIdx == -1)
-                        {
-                            startIdx = text.IndexOf("<", httpIdx);
-                        }
-
-                        if (startIdx == -1)
-                        {
-                            // That was the end
-                            sb.Append(MakeUrlIntoLink(text[httpIdx..], showUrl));
-                        }
-                        else
-                        {
-                            sb.Append(MakeUrlIntoLink(text[httpIdx..startIdx], showUrl));
-                            
-                            httpIdx = text.IndexOf("http", startIdx);
-                        }
-                    }
-
-                    if (startIdx != -1)
-                    {
-                        sb.Append(text[startIdx..]);
-                    }
-
-                    return sb.ToString();
-                }
-            }
-
-            return text;
-        }
-
-        private static string MakeUrlIntoLink(string url, bool showUrl)
-        {
-            string txt = showUrl ? url : TagSetUtilities.GetEmbeddedUrlIconHtml();
-            return $"<a href='{url}' title='{url}' target='_blank'>{txt}</a>";
-        }
+        
 
         internal static string TruncateWithEllipsis(this string text, int length, bool strictLength = false)
         {

@@ -2,15 +2,43 @@
 {
     public class TagSettings
     {
-        public List<TagDefinition> Tags { get; set; } = new();
-    }
+        public string Prefix { get; set; } = "=";
+        public string Suffix { get; set; } = "=";
+        public string Seperator { get; set; } = "-";
+        public string Delimiter { get; set; } = ":";
 
-    public class TagDefinition
-    {
-        public bool GenerateView { get; set; } = false;
-        public string Code { get; set; } = "";
-        public string Name { get; set; } = "";
-        public string Description { get; set; } = "";
-        public string IconFileName { get; set; } = "";
-    }
+        public TagDefinitionList TagDefintions { get; set; } = new();
+
+        public Result ValidationResult
+        {
+            get
+            {
+                Result result = new();
+
+                result.SubsumeResult(TagDefintions.ValidationResult);
+
+                if (Prefix.Length == 0)
+                {
+                    result.AddError($"Prefix '{Prefix}' is invalid, it needs to be at least one character");
+                }
+
+                if (Suffix.Length == 0)
+                {
+                    result.AddError($"Suffix '{Suffix}' is invalid, it needs to be at least one character");
+                }
+
+                if (Seperator.Length != 1)
+                {
+                    result.AddError($"Separator '{Seperator}' is invalid, it needs to be just one character");
+                }
+
+                if (Delimiter.Length != 1)
+                {
+                    result.AddError($"Delimiter '{Delimiter}' is invalid, it needs to be just one character");
+                }
+
+                return result;
+            }
+        }
+    }    
 }

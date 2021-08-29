@@ -5,13 +5,14 @@
     /// </summary>
     public class MonitoredDirectory
     {
-        public MonitoredDirectory(string path, bool recursive)
+        public MonitoredDirectory(string path, bool recursive, bool isActive = true)
         {
             if (path is not null && Directory.Exists(path))
             {
                 Path = path;
                 Recursive = recursive;
-                Exists = true;               
+                Exists = true;
+                IsActive = isActive;
             }
             else
             {
@@ -27,6 +28,7 @@
         public string IncludeFileSpecification { get; set; } = "*.md";
 
         public bool Exists { get; set; } = true;
+        public bool IsActive { get; set; } = true;
         public string Path { get; set; }
     }
 }
