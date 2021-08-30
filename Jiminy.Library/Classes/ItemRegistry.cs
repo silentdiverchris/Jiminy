@@ -24,7 +24,7 @@ namespace Jiminy.Classes
             {
                 if (_reminderItems is null)
                 {
-                    _reminderItems = new(OpenItems.Items.Where(_ => _.ReminderDateTime != null).OrderBy(_ => _.ReminderDateTime).ThenBy(_ => _.PriorityNumber));
+                    _reminderItems = new(OpenItems.Items.Where(_ => _.ReminderDateTime != null || _.DueDateTime != null));
                 }
 
                 return _reminderItems;

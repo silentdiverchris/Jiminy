@@ -48,9 +48,14 @@ namespace Jiminy.Utilities
                     tagString = line[(idxStart + 1)..];
                 }
 
+                //if (tagString.Contains("que"))
+                //{
+                //    var a = 1;
+                //}
+
                 string[] tagParts = tagString.Trim().Split(_appSettings.TagSettings.Seperator);
 
-                result.SubsumeResult(DecodeTagString(tagParts, out item));
+                result.SubsumeResult(ExtractTags(tagParts, out item));
 
                 if (idxEnd > 0)
                 {
@@ -104,7 +109,7 @@ namespace Jiminy.Utilities
         /// <param name="tagParts"></param>
         /// <param name="item"></param>
         /// <returns></returns>
-        private Result DecodeTagString(string[] tagParts, out Item item)
+        private Result ExtractTags(string[] tagParts, out Item item)
         {
             Result result = new("DecodeTagString");
 
@@ -147,6 +152,11 @@ namespace Jiminy.Utilities
                     {
                         switch (td.Type)
                         {
+                            case enTagType.Custom:
+                                {
+                                    item.TagInstances.Add(new TagInstance(td));
+                                    break;
+                                }
                             case enTagType.Bucket:
                                 {
                                     // We extract the parameter to get the bucket name
@@ -181,10 +191,6 @@ namespace Jiminy.Utilities
                                         result.AddWarning($"TagPart '{tagPart}' has invalid repeat name '{tagParam}'");
                                     }
 
-                                    break;
-                                }
-                            case enTagType.Custom:
-                                {
                                     break;
                                 }
                             case enTagType.Context:
@@ -297,6 +303,7 @@ namespace Jiminy.Utilities
                                 {
                                     item.Diagnostics.Add($"Setting completed {tagParam}");
                                     item.IsCompleted = true;
+                                    item.TagInstances.Add(new TagInstance(td));
 
                                     break;
                                 }
@@ -426,6 +433,8 @@ namespace Jiminy.Utilities
                         {
                             if (ti.Definition.IconFileName is not null)
                             {
+                                iconText = ti.Definition.Description;
+                                colourStr = ti.Definition.Colour;
                                 svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
                             }
 
@@ -522,6 +531,7 @@ namespace Jiminy.Utilities
                         }
                     case enTagType.Project:
                         {
+                            colourStr = ti.Definition.Colour;
                             iconText = $"Project: {ti.ProjectName}";
 
                             if (ti.Definition.IconFileName is not null)

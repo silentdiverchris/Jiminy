@@ -108,7 +108,7 @@ namespace Jiminy.Utilities
 
             sb.Append(GenerateTabBodyHeader("Reminders"));
 
-            sb.Append("<div class='item-card-set-container'>");
+            sb.Append("<div class='card-grid-container'>");
 
             sb.Append(GenerateItemCardSet("Imminent", imminentItems, showBuckets: true, showPriority: true, showText: true, showLinks: true, suppressProjectName: false));
             sb.Append(GenerateItemCardSet("Future", futureItems, showBuckets: true, showPriority: true, showText: true, showLinks: true, suppressProjectName: false));
@@ -226,7 +226,7 @@ namespace Jiminy.Utilities
 
             sb.Append(GenerateTabBodyHeader(projectName));
 
-            sb.Append("<div class='item-card-set-container'>");
+            sb.Append("<div class='card-grid-container'>");
 
             foreach (var bucket in _appSettings.BucketSettings.Defintions.Buckets.OrderBy(_ => _.DisplayOrder))
             {
@@ -252,7 +252,7 @@ namespace Jiminy.Utilities
 
             if (items.Any)
             {
-                sb.Append("<div class='item-card-set-container'>");
+                sb.Append("<div class='card-grid-container'>");
 
                 foreach (var bucket in _appSettings.BucketSettings.Defintions.Buckets.OrderBy(_ => _.DisplayOrder))
                 {
@@ -272,7 +272,7 @@ namespace Jiminy.Utilities
         private static string GenerateNoContentHtml()
         {
             string msg = "There are no items to view here";
-            return $"<img style='margin-top:20px' src='https://i.imgflip.com/20pfsv.jpg' title='{msg}' alt='{msg}'>";
+            return $"<div class='nothing-to-see-here'><img style='margin-top:20px' src='https://i.imgflip.com/20pfsv.jpg' title='{msg}' alt='{msg}'></div>";
         }
 
         private string GeneratePrioritiesTabContent(ItemRegistry itemRegistry)
@@ -281,7 +281,7 @@ namespace Jiminy.Utilities
 
             sb.Append(GenerateTabBodyHeader("Priorities"));
 
-            sb.Append("<div class='item-card-set-container'>");
+            sb.Append("<div class='card-grid-container'>");
 
             foreach (var pri in _appSettings.PrioritySettings.Defintions.Priorities.OrderBy(_ => _.Number))
             {
@@ -299,7 +299,7 @@ namespace Jiminy.Utilities
 
             sb.Append(GenerateTabBodyHeader("Repeating Items"));
 
-            sb.Append("<div class='item-card-set-container'>");
+            sb.Append("<div class='card-grid-container'>");
 
             foreach (var rep in _appSettings.RepeatSettings.Defintions.Repeats.OrderBy(_ => _.DisplayOrder))
             {
@@ -445,18 +445,25 @@ namespace Jiminy.Utilities
         {
             StringBuilder sb = new(2000);
 
-            sb.Append($"<div class='item-card'>");
-            sb.Append($"<div class='item-text'>{item.AssociatedText}</div>");
-            sb.Append($"<div class='item-icon-container'>");
+            sb.Append($"<div class='card'>");
 
+            // Texts
+            sb.Append($"<div class='item-text'>{item.AssociatedText}</div>");
+            sb.Append($"<div class='item-warning'>{item.Warnings}</div>");
+
+            // Icons
+            sb.Append($"<div class='item-icon-container'>");
             foreach (var ti in item.TagInstances.Tags.OrderBy(_ => _.Definition.DisplayOrder))
             {
                 sb.Append(_tagService.GenerateIconItem(ti));
             }
+            sb.Append(_tagService.GenerateIconItem(fileName: Constants.ICON_FILE_NAME_MARKDOWN_FILE, linkUrl: item.FullFileName, overrideColour: "darkgrey", overrideText: $"{item.FullFileName} line {item.LineNumber}"));            
+            sb.Append($"</div>");
 
-            sb.Append(_tagService.GenerateIconItem(fileName: Constants.ICON_FILE_NAME_MARKDOWN_FILE, linkUrl: item.FullFileName, overrideColour: "darkgrey", overrideText: $"{item.FullFileName} line {item.LineNumber}"));
+            // Diagnostics
+            //sb.Append($"<div class='item-diagnostics'>{string.Join(", ", item.Diagnostics)}</div>");
 
-            sb.Append($"</div></div>");
+            sb.Append($"</div>");
 
             return sb.ToString();
         }
@@ -484,7 +491,7 @@ namespace Jiminy.Utilities
 
                 if (filtered.Any)
                 {
-                    sb.Append("<div class='item-card-set'>");
+                    sb.Append("<div class='card-grid'>");
 
                     foreach (var item in filtered.Items)
                     {

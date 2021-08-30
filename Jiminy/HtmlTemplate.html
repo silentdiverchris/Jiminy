@@ -30,59 +30,33 @@
             margin-bottom: 0px;
         }
 
-        .small {
-            font-size: 0.8em;
-        }
-
-        .very-small {
-            font-size: 0.6em;
-        }
-
-        .cell-count {
-            text-align: center;
-            color: darkgrey;
-            font-size: 0.8em;
-        }
-
-        .cell-priority {
-            text-align: center;
-            width: 50px;
-        }
-
-        .cell-links {
-            text-align: center;
-            width: 40px;
-        }
-
-        td.cell-priority,
-        td.cell-links {
-            font-size: 0.8em;
-        }
-
-        .cell-bucket {
-            text-align: center;
-            width: 60px;
-        }
-
-        .cell-file-name {
+        .item-file-name {
             text-align: left;
         }
 
-        .cell-text {
+        .item-text {
             text-align: left;
             margin: 0px;
             font-size: 1.2em;
         }
 
-        .warning {
-            color: red;
-            font-size: 0.8em;
-        }
-
-        .tag-warning {
+        .item-warning {
             color: red;
             font-size: 1.0em;
             margin: 0px;
+        }
+
+        .item-diagnostics {
+            color: darkgrey;
+            font-size: 0.8em;
+            margin-top: 5px;
+            padding: 5px;
+            border: 1px solid grey;
+            border-radius: 5px;
+        }
+
+        .event-log-table td {
+            font-size: 1.0em;
         }
 
         a.tab-header {
@@ -169,21 +143,26 @@
             margin-bottom: 5px;
         }
 
-        .event-log-table td,
-        .event-log-table th {
-            text-align: left;
+        .event-log-table {
+            margin: 5px;
         }
 
-            .event-log-table td:first-child {
-                width: 80px;
+            .event-log-table td,
+            .event-log-table th {
+                font-size: 0.8em;
+                text-align: left;
             }
+
+                .event-log-table td:first-child {
+                    width: 80px;
+                }
 
         .nav-tabs .nav-link:first-child {
             margin-left: 10px;
         }
 
         .reminder-panel {
-            margin: 5px;
+            margin: 8px;
             padding: 10px;
         }
 
@@ -210,100 +189,63 @@
                     color: #888383;
                 }
 
-        .item-card {
-            padding: 10px;
-            /*margin: 10px;*/
-            border: 1px solid darkgrey;
-            border-radius: 5px;
-            background-color: lightgray;
-            width: 100%;
-            flex-grow: 1;
+        .nothing-to-see-here {
+            margin: 20px 0;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            justify-content: center;
         }
 
-        .item-card-set {
-            margin: 0px 10px 10px 10px;
+        .card-grid-container {
+        }
+
+        .card-grid {
+            margin: 10px;
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+            grid-template-rows: auto;
+            grid-gap: 10px;
             padding-bottom: 10px;
-            display: inline-flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: start;
-            gap: 10px;
-            border-bottom: 2px dotted darkgrey;
+            border-bottom: 1px solid darkgrey;
         }
 
-            .item-card-set:last-child {
+            .card-grid:last-child {
                 margin-bottom: 0px;
                 border-bottom: none;
             }
 
-        .item-card-set-container {
-            display: flex;
-            flex-direction: column;
-        }
+            .card-grid .card {
+                padding: 10px;
+                align-self: stretch;
+                border-radius: 5px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                background-color: lightgray;
+            }
 
         @media screen and (min-width: 600px) {
-            .item-card {
-                max-width: 44%;
-            }
-        }
-
-        @media screen and (min-width: 700px) {
-            .item-card {
-                max-width: 46%;
+            .card-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
 
         @media screen and (min-width: 1000px) {
-            .item-card {
-                max-width: 47%;
+            .card-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
         }
 
-        @media screen and (min-width: 1200px) {
-            .item-card {
-                max-width: 30%;
+        @media screen and (min-width: 1300px) {
+            .card-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
             }
         }
 
-        @media screen and (min-width: 1600px) {
-            .item-card {
-                max-width: 18%;
+        @media screen and (min-width: 1700px) {
+            .card-grid {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
             }
         }
-
-        .tip {
-            /*border-bottom: 1px dashed;*/
-            text-decoration: none
-        }
-
-            .tip:hover {
-                cursor: help;
-                position: relative
-            }
-
-            .tip span {
-                display: none
-            }
-
-            .tip:hover span {
-                /*border: #c0c0c0 1px dotted;*/
-                padding: 5px 20px 5px 5px;
-                display: block;
-                z-index: 100;
-                background: purple;
-                left: 0px;
-                margin: 10px;
-                width: 280px;
-                position: absolute;
-                top: 20px;
-                left: -140px;
-                text-decoration: none;
-                font-size: 1.2em;
-                color: white;
-            }
     </style>
 
     <!--Tabs CSS enthusiastically stolen from https://codeconvey.com/simple-css-tabs-without-javascript/ -->
