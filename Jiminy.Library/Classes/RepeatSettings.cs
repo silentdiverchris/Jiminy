@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Jiminy.Classes
 {
-    public class BucketSettings
+    public class RepeatSettings
     {
-        public BucketDefinitionList Defintions { get; set; } = new();
+        public RepeatDefinitionList Defintions { get; set; } = new();
     }
 }

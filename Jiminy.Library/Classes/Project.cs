@@ -17,7 +17,6 @@ namespace Jiminy.Classes
         }
 
         public string Name { get; private set; }
-        public enPriority Priority { get; set; } = enPriority.Low;
     }
 
     internal class ProjectRegistry

@@ -24,7 +24,7 @@ namespace Jiminy.Classes
             {
                 if (_reminderItems is null)
                 {
-                    _reminderItems = new(OpenItems.Items.Where(_ => _.ReminderDateTime != null).OrderBy(_ => _.ReminderDateTime).ThenBy(_ => _.Priority));
+                    _reminderItems = new(OpenItems.Items.Where(_ => _.ReminderDateTime != null).OrderBy(_ => _.ReminderDateTime).ThenBy(_ => _.PriorityNumber));
                 }
 
                 return _reminderItems;
@@ -39,7 +39,7 @@ namespace Jiminy.Classes
             {
                 if (_openItems is null)
                 {
-                    _openItems = new(_items.Where(_ => _.IsCompleted == false && _.IsContext == false).OrderBy(_ => _.Priority));
+                    _openItems = new(_items.Where(_ => _.IsCompleted == false && _.IsContext == false).OrderBy(_ => _.PriorityNumber));
                 }
 
                 return _openItems;
@@ -54,14 +54,14 @@ namespace Jiminy.Classes
             {
                 if (_projectItems is null)
                 {
-                    _projectItems = new(OpenItems.Items.Where(_ => !string.IsNullOrEmpty(_.ProjectName)).OrderBy(_ => _.ProjectName).ThenBy(_ => _.Priority));
+                    _projectItems = new(OpenItems.Items.Where(_ => !string.IsNullOrEmpty(_.ProjectName)).OrderBy(_ => _.ProjectName).ThenBy(_ => _.PriorityNumber));
                 }
 
                 return _projectItems ?? new ItemSubSet();
             }
         }
 
-        internal ItemSubSet CompletedItems => new(_items.Where(_ => _.IsCompleted == true && _.IsContext == false).OrderBy(_ => _.Priority));
+        internal ItemSubSet CompletedItems => new(_items.Where(_ => _.IsCompleted == true && _.IsContext == false).OrderBy(_ => _.PriorityNumber));
         internal ItemSubSet BucketItems => new(OpenItems.Items.Where(_ => _.BucketName is not null));
 
         internal ProjectRegistry ProjectRegistry => _projectRegistry;

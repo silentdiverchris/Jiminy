@@ -4,25 +4,35 @@ namespace Jiminy.Classes
 {
     public class TagInstance
     {
-        public TagInstance(TagDefinition definition, string? projectName = null, enPriority? priority = null, string? bucketName = null, enRepeat? repeat = null, DateTime? dateTime = null)
+        public TagInstance(
+            TagDefinition definition, 
+            string? projectName = null, 
+            string? priorityName = null, 
+            string? bucketName = null, 
+            string? repeatName = null, 
+            int? priorityNumber = null, 
+            DateTime? dateTime = null)
         {
             Definition = definition;
-            Priority = priority;
+            PriorityName = priorityName;
+            PriorityNumber = priorityNumber;
             BucketName = bucketName;
             DateTime = dateTime;
             ProjectName = projectName;
-            Repeat = repeat;
+            RepeatName = repeatName;
         }
 
         public TagDefinition Definition { get; private set; }
-        public enPriority? Priority { get; private set; }
+        public string? PriorityName { get; private set; }
+        public int? PriorityNumber { get; private set; }
         public string? BucketName {  get; private set; }
-        public enRepeat? Repeat { get; private set; }
+        public string? RepeatName { get; private set; }
         public DateTime? DateTime { get; private set; }
         public string? ProjectName { get; private set; }
 
         public string Name => Definition.Name;
         public enTagType Type => Definition.Type;
+
     }
 
     public class TagInstanceList

@@ -86,17 +86,53 @@ namespace Jiminy.Services
                             {
                                 item.Diagnostics.Add($"Applying context project '{contextItem.ProjectName}'");
                                 item.ProjectName = contextItem.ProjectName;
+
+                                var ti = contextItem.TagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Project);
+
+                                if (ti is not null)
+                                {
+                                    item.TagInstances.Add(ti);
+                                }
                             }
 
                             if (item.BucketName is null)
                             {
-                                item.Diagnostics.Add($"Applying bucket '{contextItem.BucketName}'");
+                                item.Diagnostics.Add($"Applying context bucket '{contextItem.BucketName}'");
                                 item.BucketName = contextItem.BucketName;
+
+                                var ti = contextItem.TagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Bucket);
+
+                                if (ti is not null)
+                                {
+                                    item.TagInstances.Add(ti);
+                                }
                             }
 
-                            if (item.Repeat == enRepeat.None)
+                            if (item.PriorityNumber is null)
                             {
-                                item.Repeat = contextItem.Repeat;
+                                item.Diagnostics.Add($"Applying context priority '{contextItem.PriorityName}'");
+                                item.PriorityName = contextItem.PriorityName;
+                                item.PriorityNumber = contextItem.PriorityNumber;
+
+                                var ti = contextItem.TagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Priority);
+
+                                if (ti is not null)
+                                {
+                                    item.TagInstances.Add(ti);
+                                }
+                            }
+
+                            if (item.RepeatName is null)
+                            {
+                                item.Diagnostics.Add($"Applying context repeat '{contextItem.PriorityName}'");
+                                item.RepeatName = contextItem.RepeatName;
+
+                                var ti = contextItem.TagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Repeating);
+
+                                if (ti is not null)
+                                {
+                                    item.TagInstances.Add(ti);
+                                }
                             }
                         }
 

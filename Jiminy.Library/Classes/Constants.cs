@@ -21,5 +21,7 @@
 
         internal const string ICON_FILE_NAME_VALUE = "{value}";
 
+        internal const string ICON_FILE_NAME_MARKDOWN_FILE = "markdown.svg";
+        internal const string ICON_FILE_NAME_EMBEDDED_LINK = "link.svg";
     }
 }

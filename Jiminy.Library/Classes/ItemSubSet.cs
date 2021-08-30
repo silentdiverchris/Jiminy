@@ -17,9 +17,13 @@ namespace Jiminy.Classes
 
         public List<Item> Items => _items;
 
-        public ItemSubSet Filter(string? onlyProjectName = null, enPriority? onlyPriority = null, string? onlyBucketName = null, enRepeat? onlyRepeat = null)
+        public ItemSubSet Filter(
+            string? onlyProjectName = null, 
+            string? onlyPriorityName = null, 
+            string? onlyBucketName = null, 
+            string? onlyRepeatName = null)
         {
-            if (onlyProjectName is null && onlyPriority is null && onlyBucketName is null && onlyRepeat is null)
+            if (onlyProjectName is null && onlyPriorityName is null && onlyBucketName is null && onlyRepeatName is null)
             {
                 return this;
             }
@@ -27,9 +31,9 @@ namespace Jiminy.Classes
             {
                 var filtered = _items.Where(_ =>
                     (onlyProjectName == null || _.ProjectName == onlyProjectName) &&
-                    (onlyPriority == null || _.Priority == onlyPriority) &&
+                    (onlyPriorityName == null || _.PriorityName == onlyPriorityName) &&
                     (onlyBucketName == null || _.BucketName == onlyBucketName) &&
-                    (onlyRepeat == null || _.Repeat == onlyRepeat));
+                    (onlyRepeatName == null || _.RepeatName == onlyRepeatName));
 
                 return new ItemSubSet(filtered);
             }

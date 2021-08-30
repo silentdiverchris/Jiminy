@@ -23,8 +23,23 @@
         public BucketSettings BucketSettings { get; set; } = new BucketSettings();
 
         /// <summary>
+        /// The prioritties that items can be assigned
+        /// </summary>
+        public PrioritySettings PrioritySettings { get; set; } = new PrioritySettings();
+
+        /// <summary>
+        /// The periods over which items can repeat
+        /// </summary>
+        public RepeatSettings RepeatSettings { get; set; } = new RepeatSettings();
+
+        /// <summary>
         /// Setting relating to building the HTML output file
         /// </summary>
         public HtmlSettings HtmlSettings { get; set; } = new HtmlSettings();
+
+        /// <summary>
+        /// Load all SVG files into here indexed on file name for fast re-use
+        /// </summary>
+        public Dictionary<string, string> SvgCache = new();
     }
 }

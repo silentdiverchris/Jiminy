@@ -15,7 +15,7 @@
             {
                 Result result = new();
 
-                result.SubsumeResult(TagDefintions.ValidationResult);
+                result.SubsumeResult(TagDefintions.Validate());
 
                 if (Prefix.Length == 0)
                 {

@@ -30,58 +30,6 @@
             margin-bottom: 0px;
         }
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 0px 5px 5px 5px;
-        }
-
-            table td,
-            table th {
-                border: 1px solid lightgrey;
-                padding: 5px;
-                font-size: 0.9em;
-            }
-
-            table th {
-                font-weight: 400;
-                color: darkgrey;
-                font-size: 0.8em;
-            }
-
-            table td {
-                font-weight: 400;
-                font-size: 0.8em;
-            }
-
-        .table-group {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .table-item {
-            display: flex;
-            flex-direction: column;
-            padding: 5px;
-            margin: 5px;
-            width: 99%;
-            align-items: center;
-        }
-
-        @media screen and (min-width: 700px) {
-            .table-item {
-                width: 46%;
-            }
-        }
-
-        @media screen and (min-width: 1200px) {
-            .table-item {
-                width: 30%;
-            }
-        }
-
         .small {
             font-size: 0.8em;
         }
@@ -142,6 +90,10 @@
             font-weight: normal;
         }
 
+        .tab-content {
+            margin-top: 5px;
+        }
+
         .tab-content-header,
         .tab-header {
             display: flex;
@@ -153,7 +105,7 @@
             flex-direction: row;
             justify-content: center;
             align-items: baseline;
-            margin: 5px 0;
+            margin: 5px 0 5px 0;
         }
 
         .tab-header {
@@ -190,10 +142,6 @@
             margin: 0px;
             font-size: 1.0em;
             color: dodgerblue;
-        }
-
-        .cell-icon {
-            margin-left: 5px;
         }
 
         .no-bottom-margin {
@@ -239,28 +187,108 @@
             padding: 10px;
         }
 
-        .item-icons {
-            margin: 5px 0 0 5px;
+        .item-icon-container {
+            margin: 5px 5px 5px 0px;
             display: flex;
-            flex-direction: row;
-            justify-content: end;
+            flex-direction: column;
+            justify-content: start;
         }
 
-        a.tip {
+            .item-icon-container .item-icon-item {
+                margin-top: 5px;
+                display: flex;
+                flex-direction: row;
+                justify-content: start;
+                align-items: center;
+            }
+
+                .item-icon-container .item-icon-item .icon {
+                    margin-right: 10px;
+                }
+
+                .item-icon-container .item-icon-item .text {
+                    color: #888383;
+                }
+
+        .item-card {
+            padding: 10px;
+            /*margin: 10px;*/
+            border: 1px solid darkgrey;
+            border-radius: 5px;
+            background-color: lightgray;
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .item-card-set {
+            margin: 0px 10px 10px 10px;
+            padding-bottom: 10px;
+            display: inline-flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: start;
+            gap: 10px;
+            border-bottom: 2px dotted darkgrey;
+        }
+
+            .item-card-set:last-child {
+                margin-bottom: 0px;
+                border-bottom: none;
+            }
+
+        .item-card-set-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media screen and (min-width: 600px) {
+            .item-card {
+                max-width: 44%;
+            }
+        }
+
+        @media screen and (min-width: 700px) {
+            .item-card {
+                max-width: 46%;
+            }
+        }
+
+        @media screen and (min-width: 1000px) {
+            .item-card {
+                max-width: 47%;
+            }
+        }
+
+        @media screen and (min-width: 1200px) {
+            .item-card {
+                max-width: 30%;
+            }
+        }
+
+        @media screen and (min-width: 1600px) {
+            .item-card {
+                max-width: 18%;
+            }
+        }
+
+        .tip {
             /*border-bottom: 1px dashed;*/
             text-decoration: none
         }
 
-            a.tip:hover {
+            .tip:hover {
                 cursor: help;
                 position: relative
             }
 
-            a.tip span {
+            .tip span {
                 display: none
             }
 
-            a.tip:hover span {
+            .tip:hover span {
                 /*border: #c0c0c0 1px dotted;*/
                 padding: 5px 20px 5px 5px;
                 display: block;
@@ -268,9 +296,10 @@
                 background: purple;
                 left: 0px;
                 margin: 10px;
-                /*width: 250px;*/
+                width: 280px;
                 position: absolute;
-                top: 10px;
+                top: 20px;
+                left: -140px;
                 text-decoration: none;
                 font-size: 1.2em;
                 color: white;
@@ -282,7 +311,7 @@
 
         .tab-wrap {
             transition: 0.3s box-shadow ease;
-            border-radius: 6px;
+            border-radius: 5px;
             max-width: 100%;
             display: flex;
             flex-wrap: wrap;

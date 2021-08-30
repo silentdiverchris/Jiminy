@@ -10,26 +10,29 @@ namespace Jiminy.Classes
 
         }
 
-        public Item(enPriority priority, string? associatedText = null)
+        public Item(string? priorityName = null, string? associatedText = null)
         {
-            Priority = priority;
+            PriorityName = priorityName;
             AssociatedText = associatedText;
         }
 
-        public Item(string? bucketName, enPriority priority, string? associatedText = null, string? projectName = null, DateTime? reminderDateTime = null)
+        public Item(string? bucketName = null, string? priorityName = null, int? priorityNumber = null, string? associatedText = null, string? projectName = null, DateTime? reminderDateTime = null, string? repeatName = null)
         {
             BucketName = bucketName;
-            Priority = priority;
+            PriorityName = priorityName;
+            PriorityNumber = priorityNumber;
             ReminderDateTime = reminderDateTime;
             AssociatedText = associatedText;
             ProjectName = projectName;
+            RepeatName = repeatName;
         }
 
         public string? AssociatedText { get; set; } = null;
 
-        public enPriority Priority { get; set; } = enPriority.Low;
+        public string? PriorityName { get; set; } = null;
+        public int? PriorityNumber { get; set; } = null;
         public string? BucketName { get; set; } = null;
-        public enRepeat Repeat { get; set; } = enRepeat.None;
+        public string? RepeatName { get; set; } = null;
 
         public string? ProjectName { get; set; } = null;
         public DateTime? ReminderDateTime { get; set; } = null;
@@ -50,21 +53,26 @@ namespace Jiminy.Classes
 
         public new string ToString()
         {
-            string str = $"Pri:{Priority,-6} Bucket:{BucketName,-7}";
+            string str = $"Repeat:{RepeatName}, Pri:{PriorityName}, Bucket:{BucketName}";
 
             if (!string.IsNullOrEmpty(ProjectName))
             {
-                str += " Project:" + ProjectName;
+                str += ", Project:" + ProjectName;
             }
 
             if (ReminderDateTime is not null)
             {
-                str += $" Reminder:{((DateTime)ReminderDateTime).ToString(Constants.DATE_FORMAT_DATE_TIME_LONG_SECONDS)}";
+                str += $", Reminder:{((DateTime)ReminderDateTime).ToString(Constants.DATE_FORMAT_DATE_TIME_LONG_SECONDS)}";
             }
 
-            str += " Text:" + AssociatedText;
+            if (DueDateTime is not null)
+            {
+                str += $", Due:{((DateTime)DueDateTime).ToString(Constants.DATE_FORMAT_DATE_TIME_LONG_SECONDS)}";
+            }
 
-            str += " File:" + FullFileName;
+            str += ", Text:" + AssociatedText;
+
+            str += ", File:" + FullFileName;
 
             return str;
         }

@@ -15,14 +15,6 @@
             Completed = 9
         }
 
-        public enum enRepeat
-        {
-            None = 0,
-            Daily = 1,
-            Weekly = 2,
-            Monthly = 3
-        }
-
         /// <summary>
         /// For reminders and due dates
         /// </summary>
@@ -42,13 +34,6 @@
             Success = 2,
             Warning = 3,
             Error = 4,
-        }
-
-        public enum enPriority
-        {
-            High = 1,
-            Medium = 2,
-            Low = 3
         }
     }
 }
