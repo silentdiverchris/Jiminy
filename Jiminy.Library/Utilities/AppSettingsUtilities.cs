@@ -37,7 +37,7 @@ namespace Jiminy.Utilities
                 },
                 HtmlSettings = new HtmlSettings
                 {
-                    ShowDiagnostics = true,
+                    ShowDiagnostics = false,
                     HtmlTemplateFileName = @"C:\Personal\Jiminy\HtmlTemplate.html",
                     HtmlOutputFileName = @"C:\Personal\Jiminy\HtmlOutput.html"
                 },
