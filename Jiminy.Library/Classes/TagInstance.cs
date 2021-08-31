@@ -1,4 +1,6 @@
-﻿using static Jiminy.Classes.Enumerations;
+﻿using Jiminy.Helpers;
+using System.Text;
+using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Classes
 {
@@ -18,7 +20,7 @@ namespace Jiminy.Classes
             PriorityName = priorityName;
             PriorityNumber = priorityNumber;
             BucketName = bucketName;
-            DateTime = dateTime;
+            DateTimeValue = dateTime;
             ProjectName = projectName;
             RepeatName = repeatName;
             Url = url;
@@ -29,13 +31,45 @@ namespace Jiminy.Classes
         public int? PriorityNumber { get; private set; }
         public string? BucketName {  get; private set; }
         public string? RepeatName { get; private set; }
-        public DateTime? DateTime { get; private set; }
+        public DateTime? DateTimeValue { get; private set; }
         public string? ProjectName { get; private set; }
         public string? Url { get; private set; }
 
-        public string Name => Definition.Name;
+        public string DefinitionName => Definition.Name;
         public enTagType Type => Definition.Type;
 
+        public string ToString(bool verbose)
+        {
+            StringBuilder sb = new();
+
+            sb.Append($"Tag:{Type}");
+
+            if (BucketName.NotEmpty())
+                sb.Append($" bucket {BucketName}");
+
+            if (PriorityName.NotEmpty())
+                sb.Append($" priority {PriorityName}");
+
+            if (RepeatName.NotEmpty())
+                sb.Append($" repeat {RepeatName}");
+
+            if (ProjectName.NotEmpty())
+                sb.Append($" project {ProjectName}");
+
+            if (DateTimeValue is not null)
+                sb.Append($" {DateTimeValue.DisplayFriendly()}");
+
+            if (verbose)
+            {
+                if (Definition.IconFileName is not null)
+                    sb.Append($" icon {Definition.IconFileName}");
+
+                if (Definition.Colour is not null)
+                    sb.Append($" colour {Definition.Colour}");
+            }
+
+            return sb.ToString();
+        }
     }
 
     public class TagInstanceList
@@ -44,17 +78,17 @@ namespace Jiminy.Classes
 
         public bool Exists(string name)
         {
-            return Tags.Any(_ => _.Name == name);
+            return Tags.Any(_ => _.DefinitionName == name);
         }
 
         public TagInstance? Get(string name)
         {
-            return Tags.FirstOrDefault(_ => _.Name == name);
+            return Tags.FirstOrDefault(_ => _.DefinitionName == name);
         }
 
         public void Add(TagInstance ti, bool overwrite = false)
         {
-            var existing = Get(ti.Name);
+            var existing = Get(ti.DefinitionName);
 
             if (existing is null)
             {
@@ -69,7 +103,7 @@ namespace Jiminy.Classes
                 }
                 else
                 {
-                    throw new Exception($"TagInstanceList.Add cannot add tag '{ti.Name}' as it already exists and ioverwrite is false");
+                    throw new Exception($"TagInstanceList.Add cannot add tag '{ti.DefinitionName}' as it already exists and overwrite is false");
                 }
             }
         }

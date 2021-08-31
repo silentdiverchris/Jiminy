@@ -10,6 +10,10 @@
             WshShell = new ActiveXObject("WScript.Shell");
             WshShell.Run("c:/windows/system32/notepad.exe", 1, false);
         }
+
+        function GoAway(id) {
+            document.getElementById(id).hide();
+        }
     </script>-->
 
     <style>
@@ -41,9 +45,10 @@
         }
 
         .item-warnings,
-        .item-diagnostics {
-            display:flex;
-            flex-direction:column;
+        .item-diagnostics,
+        .header-warnings {
+            display: flex;
+            flex-direction: column;
             color: darkgrey;
             font-size: 0.9em;
             margin-top: 5px;
@@ -52,10 +57,19 @@
             border-radius: 5px;
         }
 
-        .item-warnings {
+        .item-warnings,
+        .header-warnings {
             font-size: 1.0em;
             color: red;
         }
+
+            .header-warnings .item {
+                color: unset;
+            }
+
+                .header-warnings .item .text {
+                    margin-left: 5px;
+                }
 
         a.tab-header {
             text-decoration: none;
@@ -225,11 +239,11 @@
             }
 
                 .card-grid .card.imminent {
-                    border: 1px solid orange;
+                    border: 2px solid orange;
                 }
 
                 .card-grid .card.overdue {
-                    border: 1px solid red;
+                    border: 2px solid red;
                 }
 
         .card-link {

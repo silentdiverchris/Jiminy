@@ -73,8 +73,10 @@ namespace Jiminy.Utilities
 
                     StringBuilder sbContent = new(8000);
 
+                    string? warningsHtml = GenerateWarningsHtml(itemRegistry);
+
                     sbContent.Append(html.AsSpan(0, contentStartIdx));
-                    sbContent.Append("<div class='container'><div class='tab-wrap'>");
+                    sbContent.Append($"<div class='container'>{warningsHtml}<div class='tab-wrap'>");
                     sbContent.Append(sbTabHeaders);
                     sbContent.Append(sbTabContent);
                     sbContent.Append("</div></div>");
@@ -96,6 +98,35 @@ namespace Jiminy.Utilities
             }
 
             return result;
+        }
+
+        private string? GenerateWarningsHtml(ItemRegistry itemRegistry)
+        {
+            StringBuilder sb = new();
+
+            var list = itemRegistry.Items.Where(_ => _.Warnings.Any());
+
+            if (list.Any())
+            {
+                sb.Append("<div class='header-warnings'>");
+
+                foreach (var item in list)
+                {
+                    sb.Append("<div class='item'>");
+                    sb.Append($"<div>{item.FullFileName} line {item.LineNumber} has invalid tagset '{item.RawTagSet}'</div>");
+                    
+                    foreach (var warn in item.Warnings)
+                    {
+                        sb.Append($"<div class='text'>{warn}</div>");
+                    }
+
+                    sb.Append("</div>");
+                }
+
+                sb.Append("</div>");
+            }
+
+            return sb.ToString();
         }
 
         private string GenerateRemindersTabContent(ItemRegistry itemRegistry)
@@ -293,7 +324,14 @@ namespace Jiminy.Utilities
 
             var noBucketItems = new ItemSubSet(projectItems.Items.Where(_ => _.BucketName is null));
 
-            sb.Append(GenerateItemCardSet("No Bucket", noBucketItems, showText: true, showPriority: true, showLinks: true, suppressProjectDisplay: project is not null));
+            sb.Append(GenerateItemCardSet(
+                title: "No Bucket", 
+                items: noBucketItems, 
+                showText: true, 
+                showPriority: true, 
+                showLinks: true, 
+                suppressProjectDisplay: project is not null, 
+                subHeaderHtml: GenerateTabBodyHeader("No bucket", subHeader: true)));
 
             sb.Append("</div>");
 
@@ -322,7 +360,7 @@ namespace Jiminy.Utilities
                         showPriority: true,
                         showLinks: true,
                         suppressProjectDisplay: false,
-                        subHeaderHtml: GenerateTabBodyHeader(bucket.Name, titleSuffix: "bucket", subHeader: true)));
+                        subHeaderHtml: GenerateTabBodyHeader(bucket.Name, subHeader: true)));
                 }
 
                 sb.Append("</div>");
@@ -496,7 +534,7 @@ namespace Jiminy.Utilities
 
             // Icons
             sb.Append($"<div class='item-icon-container'>");
-            foreach (var ti in item.TagInstances.Tags.OrderBy(_ => _.Definition.DisplayOrder).ThenBy(_ => _.Name))
+            foreach (var ti in item.TagInstances.OrderBy(_ => _.Definition.DisplayOrder).ThenBy(_ => _.DefinitionName))
             {
                 if (suppressProjectDisplay == false || ti.Type != enTagType.Project)
                 {
@@ -510,7 +548,11 @@ namespace Jiminy.Utilities
             
             if (_appSettings.HtmlSettings.ShowDiagnostics)
             {
-                sb.Append(item.Diagnostics.Join("<div class='item-diagnostics'>", "<div>", "</div>",  "</div>", 1000));
+                List<string> diags = new();
+                diags.Add($"Raw TagSet '{item.RawTagSet}'");
+                diags.AddRange(item.Diagnostics);
+                diags.AddRange(item.TagInstances.Select(_ => _.ToString(_appSettings.HtmlSettings.VerboseDiagnostics)));
+                sb.Append(diags.Join("<div class='item-diagnostics'>", "<div>", "</div>",  "</div>", 1000));
             }
 
             sb.Append($"</div>");

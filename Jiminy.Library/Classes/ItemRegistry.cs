@@ -39,7 +39,7 @@ namespace Jiminy.Classes
             {
                 if (_openItems is null)
                 {
-                    _openItems = new(_items.Where(_ => _.IsCompleted == false && _.IsContext == false).OrderBy(_ => _.PriorityNumber));
+                    _openItems = new(_items.Where(_ => _.IsCompleted == false && _.SetsContext == false && _.ClearsContext == false).OrderBy(_ => _.PriorityNumber));
                 }
 
                 return _openItems;
@@ -61,7 +61,7 @@ namespace Jiminy.Classes
             }
         }
 
-        internal ItemSubSet CompletedItems => new(_items.Where(_ => _.IsCompleted == true && _.IsContext == false).OrderBy(_ => _.PriorityNumber));
+        internal ItemSubSet CompletedItems => new(_items.Where(_ => _.IsCompleted == true && _.SetsContext == false && _.ClearsContext == false).OrderBy(_ => _.PriorityNumber));
         internal ItemSubSet BucketItems => new(OpenItems.Items.Where(_ => _.BucketName is not null));
 
         internal ItemSubSet OverdueItems => new(DatedItems.Items.Where(_ => _.IsOverdue));

@@ -37,7 +37,8 @@ namespace Jiminy.Utilities
                 },
                 HtmlSettings = new HtmlSettings
                 {
-                    ShowDiagnostics = false,
+                    ShowDiagnostics = true,
+                    VerboseDiagnostics = false,
                     HtmlTemplateFileName = @"C:\Personal\Jiminy\HtmlTemplate.html",
                     HtmlOutputFileName = @"C:\Personal\Jiminy\HtmlOutput.html"
                 },
@@ -91,7 +92,7 @@ namespace Jiminy.Utilities
                     {
                         Tags = new List<TagDefinition>
                         {
-                            new TagDefinition { Type = enTagType.Completed, Name = "Completed", DisplayOrder = 1, Synonyms = new List<string>{ "closed" }, Description = "This item is completed", IconFileName = "completed.svg" },
+                            new TagDefinition { Type = enTagType.Completed, Name = "Completed", DisplayOrder = 1, Synonyms = new List<string>{ "closed", "x" }, Description = "This item is completed", IconFileName = "completed.svg" },
                             new TagDefinition { Type = enTagType.Link, Name = "Link", DisplayOrder = 2, IconFileName = "link.svg", Colour = "blue", Synonyms = new List<string>{ "url" }, Description = "A link to a URL" },
                             new TagDefinition { Type = enTagType.Bucket, Name = "Bucket", DisplayOrder = 3, Synonyms = new List<string>{ "b" }, Description = "This item is in a bucket (in, next, waiting, maybe)", GenerateView = true, IconFileName = "bucket.svg" },
                             new TagDefinition { Type = enTagType.Priority, Name = "Priority", DisplayOrder = 3, Synonyms = new List<string>{ "p" }, IconFileName = "priority-medium.svg", Description = "The priority of this item", GenerateView = true },
@@ -99,7 +100,8 @@ namespace Jiminy.Utilities
                             new TagDefinition { Type = enTagType.Due, Name = "Due", DisplayOrder = 4, Description = "There is a due date for this item", GenerateView = true, IconFileName = "due.svg" },
                             new TagDefinition { Type = enTagType.Reminder, Name = "Reminder", DisplayOrder = 5, Synonyms = new List<string>{ "r" }, Description = "There is a reminder for this item", GenerateView = true, IconFileName = "reminder.svg" },
                             new TagDefinition { Type = enTagType.Repeating, Name = "Repeating", DisplayOrder = 6, Description = "This item repeats", IconFileName = "repeating.svg" },
-                            new TagDefinition { Type = enTagType.Context, Name = "Context", DisplayOrder = 7, Synonyms = new List<string>{ "ctx" }, Description = "An abstract property that sets the context of subsequent tags" },
+                            new TagDefinition { Type = enTagType.SetContext, Name = "SetContext", DisplayOrder = 7, Synonyms = new List<string>{ "context", "ctx", "setctx" }, Description = "An abstract property that sets the context of subsequent tags" },
+                            new TagDefinition { Type = enTagType.ClearContext, Name = "ClearContext", DisplayOrder = 7, Synonyms = new List<string>{ "clear", "xctx" }, Description = "An abstract property that sets the context of subsequent tags" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Bug", DisplayOrder = 8, Description = "Bug", GenerateView = true, IconFileName = "bug.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Enhancement", DisplayOrder = 8, Description = "Enhancement", GenerateView = true, IconFileName = "enhancement.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Conversation", DisplayOrder = 9, Description = "Talk to somebody", GenerateView = true, IconFileName = "conversation.svg" },

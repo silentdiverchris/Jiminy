@@ -11,9 +11,10 @@
             Bucket = 5,
             Project = 6,
             Repeating = 7,
-            Context = 8,
+            SetContext = 8,
             Completed = 9,
-            Link = 10
+            Link = 10,
+            ClearContext = 11
         }
 
         /// <summary>

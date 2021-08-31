@@ -1,61 +1,83 @@
 ﻿using Jiminy.Helpers;
+using System.Linq;
 using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Classes
 {
     internal class Item
     {
+        private readonly TagInstanceList _tagInstances = new();        
         private readonly DateTime _imminentThreshold = DateTime.UtcNow.AddDays(2);
 
-        public Item()
-        {
-
-        }
-
-        public Item(string? priorityName = null, string? associatedText = null)
-        {
-            PriorityName = priorityName;
-            AssociatedText = associatedText;
-        }
-
-        public Item(string? bucketName = null, string? priorityName = null, int? priorityNumber = null, string? associatedText = null, string? projectName = null, DateTime? reminderDateTime = null, DateTime? dueDateTime = null, string? repeatName = null)
-        {
-            BucketName = bucketName;
-            PriorityName = priorityName;
-            PriorityNumber = priorityNumber;
-            DueDateTime = dueDateTime;
-            ReminderDateTime = reminderDateTime;
-            AssociatedText = associatedText;
-            ProjectName = projectName;
-            RepeatName = repeatName;
-        }
-
-        public DateTime? ReminderDateTime {get; private set; } = null;
-        public DateTime? DueDateTime { get; private set; } = null;
-
         public string? AssociatedText { get; set; } = null;
+        
+        public bool SetsContext { get; set; } = false;
+        public bool ClearsContext { get; set; } = false;
 
-        public string? PriorityName { get; set; } = null;
-        public int? PriorityNumber { get; set; } = null;
-        public string? BucketName { get; set; } = null;
-        public string? RepeatName { get; set; } = null;
-
-        public string? ProjectName { get; set; } = null;
-        public bool IsCompleted { get; set; } = false;
-        public bool IsContext { get; set; } = false;
-
-        public string? FullFileName { get; set; }
-        public List<string> Diagnostics { get; set; } = new();
+        public int? LineNumber { get; set; }        
+        public string? FullText { get; set; }
         public string? RawTagSet { get; set; }
-        public List<string> Warnings { get; set; } = new();
-        public int? LineNumber { get; set; }
-        public DateTime? CreatedUtc { get; set; } = DateTime.UtcNow;
+        public string? FullFileName { get; set; }
+        
+        public List<string> Warnings { get; private set; } = new();
+        public List<string> Diagnostics { get; private set; } = new();
 
-        public TagInstanceList TagInstances { get; set; } = new();
+        public DateTime? CreatedUtc { get; private set; } = DateTime.UtcNow;
+                
+        public bool IsCompleted => _tagInstances.Tags.Any(_ => _.Type == enTagType.Completed);
 
-        public string? TableDisplayClass { get; set; }
+        public TagInstance? Due => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Due);
+        public DateTime? DueDateTime => Due?.DateTimeValue;
 
-        public new string ToString()
+        public TagInstance? Reminder => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Reminder);
+        public DateTime? ReminderDateTime => Reminder?.DateTimeValue;
+
+        public TagInstance? Repeat => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Repeating);
+        public string? RepeatName => Repeat?.RepeatName;
+
+        public TagInstance? Bucket => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Bucket);
+        public string? BucketName => Bucket?.BucketName;
+
+        public TagInstance? Project => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Project);
+        public string? ProjectName => Project?.ProjectName;
+
+        public TagInstance? Priority => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Priority);
+        public string? PriorityName => Priority?.PriorityName;
+        public int? PriorityNumber => Priority?.PriorityNumber;
+
+        internal IReadOnlyList<TagInstance> TagInstances => _tagInstances.Tags.AsReadOnly();
+
+        internal TagInstance? GetTagInstance(enTagType type)
+        {
+            return _tagInstances.Tags.SingleOrDefault(_ => _.Type == type);
+        }
+
+        internal bool HasTagInstance(enTagType type)
+        {
+            return _tagInstances.Tags.Any(_ => _.Type == type);
+        }
+
+        internal void AddTagInstance(TagInstance? ti)
+        {
+            if (ti is not null)
+            {
+                _tagInstances.Add(ti);
+
+                switch (ti.Type)
+                {
+                    case enTagType.Due:
+                    case enTagType.Reminder:
+                    case enTagType.Repeating:
+                    case enTagType.Completed:
+                        {
+                            SetDatedProperties();
+                            break;
+                        }
+                }
+            }
+        }
+
+        internal new string ToString()
         {
             string str = $"Repeat:{RepeatName}, Pri:{PriorityName}, Bucket:{BucketName}";
 
@@ -103,25 +125,15 @@ namespace Jiminy.Classes
 
         internal bool IsImminent { get; private set; }
 
-        internal bool IsFuture { get; private set; } 
-
-        internal void SetReminderDateTime(DateTime? dt)
-        {
-            ReminderDateTime = dt;
-            SetDatedProperties();
-        }
-
-        internal void SetDueDateTime(DateTime? dt)
-        {
-            DueDateTime = dt;
-            SetDatedProperties();
-        }
+        internal bool IsFuture { get; private set; }
 
         private void SetDatedProperties()
         {
             IsOverdue = !IsCompleted && (ReminderDateTime < DateTime.Now.Date || DueDateTime < DateTime.Now.Date);
-            IsImminent = !IsOverdue && !IsCompleted && (ReminderDateTime < _imminentThreshold || DueDateTime < _imminentThreshold);
+            IsImminent = !IsCompleted && !IsOverdue && (ReminderDateTime < _imminentThreshold || DueDateTime < _imminentThreshold);
             IsFuture = !IsCompleted && (ReminderDateTime >= _imminentThreshold || DueDateTime >= _imminentThreshold);
+
+            Diagnostics.Add($"Completed:{IsCompleted.YesNo()} Imminent:{IsImminent.YesNo()} Overdue:{IsOverdue.YesNo()}");
         }
     }
 }

@@ -48,14 +48,11 @@ namespace Jiminy.Utilities
                     tagString = line[(idxStart + 1)..];
                 }
 
-                //if (tagString.Contains("que"))
-                //{
-                //    var a = 1;
-                //}
-
                 string[] tagParts = tagString.Trim().Split(_appSettings.TagSettings.Seperator);
 
                 result.SubsumeResult(ExtractTags(tagParts, out item));
+                
+                item.RawTagSet = tagString;
 
                 if (idxEnd > 0)
                 {
@@ -72,18 +69,25 @@ namespace Jiminy.Utilities
                     item.AssociatedText = lineWithoutMarkdown;
                 }
 
-                item.RawTagSet = tagString;
+                // If not in a bucket, put it in the incoming one, if it exists
+                if (!item.HasTagInstance(enTagType.Bucket))
+                {
+                    var td = _appSettings.TagSettings.Defintions.Get("Bucket");
+                    var bucket = _appSettings.BucketSettings.Defintions.Get("Incoming");
+                    if (td is not null && bucket is not null)
+                    {
+                        item.AddTagInstance(new TagInstance(td, bucketName: bucket.Name));
+                    }
+                }
 
                 // If no priority item, add one with the lowest defined priority
-                if (!item.TagInstances.Tags.Any(_ => _.Type == enTagType.Priority))
+                if (!item.HasTagInstance(enTagType.Priority))
                 {
                     var td = _appSettings.TagSettings.Defintions.Get("Priority");
                     var pri = _appSettings.PrioritySettings.Defintions.Priorities.OrderByDescending(_ => _.Number).FirstOrDefault();
                     if (td is not null && pri is not null)
                     {
-                        item.TagInstances.Add(new TagInstance(td, priorityName: pri.Name, priorityNumber: pri.Number));
-                        item.PriorityName = pri.Name;
-                        item.PriorityNumber = pri.Number;
+                        item.AddTagInstance(new TagInstance(td, priorityName: pri.Name, priorityNumber: pri.Number));
                     }
                 }
             }
@@ -163,7 +167,7 @@ namespace Jiminy.Utilities
                         {
                             case enTagType.Custom:
                                 {
-                                    item.TagInstances.Add(new TagInstance(td));
+                                    item.AddTagInstance(new TagInstance(td));
                                     item.Diagnostics.Add($"Added custom tag '{td.Name}'");
                                     break;
                                 }
@@ -175,8 +179,7 @@ namespace Jiminy.Utilities
 
                                     if (bd is not null)
                                     {
-                                        item.BucketName = bd.Name;
-                                        item.TagInstances.Add(new TagInstance(td, bucketName: bd.Name));
+                                        item.AddTagInstance(new TagInstance(td, bucketName: bd.Name));
                                         item.Diagnostics.Add($"Set bucket to '{bd.Name}'");
                                     }
                                     else
@@ -188,14 +191,13 @@ namespace Jiminy.Utilities
                                 }
                             case enTagType.Repeating:
                                 {
-                                    // We extract the parameter to match a repeat name
+                                    // We expect the parameter to match a repeat name
 
                                     var rd = _appSettings.RepeatSettings.Defintions.Get(tagParam, true);
 
                                     if (rd is not null)
                                     {
-                                        item.RepeatName = rd.Name;
-                                        item.TagInstances.Add(new TagInstance(td, repeatName: rd.Name));
+                                        item.AddTagInstance(new TagInstance(td, repeatName: rd.Name));
                                         item.Diagnostics.Add($"Set repeat to '{rd.Name}'");
                                     }
                                     else
@@ -205,12 +207,20 @@ namespace Jiminy.Utilities
 
                                     break;
                                 }
-                            case enTagType.Context:
+                            case enTagType.SetContext:
                                 {
                                     // Sets the context for subsequent items
 
                                     item.Diagnostics.Add($"Set context: {item.ToString()}");
-                                    item.IsContext = true;
+                                    item.SetsContext = true;
+                                    break;
+                                }
+                            case enTagType.ClearContext:
+                                {
+                                    // Clears any context 
+
+                                    item.Diagnostics.Add($"Clear context");
+                                    item.ClearsContext = true;
                                     break;
                                 }
                             case enTagType.Due:
@@ -231,30 +241,20 @@ namespace Jiminy.Utilities
                                         else
                                         {
                                             // Less standard date/time, TODO
-                                            result.AddWarning($"Cannot extract reminder date/time as the value cannot be parsed, assuming today. try 'd/mmm' format, eg. 'r:3/sep'");
-                                            item.Diagnostics.Add($"Setting reminder for today as date not readable");
+                                            result.AddWarning($"Cannot extract date/time as the value cannot be parsed, assuming today. try 'd/mmm' format, eg. 'r:3/sep'");
+                                            item.Diagnostics.Add($"Date not readable");
                                             dt = DateTime.Now;
                                         }
                                     }
                                     else
                                     {
                                         //result.AddWarning($"TagPart '{tagPart}' cannot extract reminder date/time as none supplied, assuming today");
-                                        item.Diagnostics.Add($"Setting reminder for today as date not supplied");
+                                        item.Diagnostics.Add($"No date supplied");
                                         dt = DateTime.Now;
                                     }
 
                                     item.Diagnostics.Add($"Setting {td.Type.ToString().ToLower()} to '{dt.DisplayFriendly()}'");
-
-                                    if (td.Type == enTagType.Reminder)
-                                    {
-                                        item.SetReminderDateTime(dt);
-                                    }
-                                    else if (td.Type == enTagType.Due)
-                                    {
-                                        item.SetDueDateTime(dt);
-                                    }
-
-                                    item.TagInstances.Add(new TagInstance(td, dateTime: dt));
+                                    item.AddTagInstance(new TagInstance(td, dateTime: dt));
 
                                     break;
                                 }
@@ -282,9 +282,7 @@ namespace Jiminy.Utilities
 
                                     if (pri is not null)
                                     {
-                                        item.PriorityName = pri.Name;
-                                        item.PriorityNumber = pri.Number;
-                                        item.TagInstances.Add(new TagInstance(td, priorityName: pri.Name, priorityNumber: pri.Number));
+                                        item.AddTagInstance(new TagInstance(td, priorityName: pri.Name, priorityNumber: pri.Number));
                                         item.Diagnostics.Add($"Setting priority to '{pri.Name}'");
                                     }
                                     else
@@ -299,8 +297,7 @@ namespace Jiminy.Utilities
                                     if (tagParam.Length > 0)
                                     {
                                         item.Diagnostics.Add($"Setting project to '{tagParam}'");
-                                        item.ProjectName = tagParam;
-                                        item.TagInstances.Add(new TagInstance(td, projectName: tagParam));
+                                        item.AddTagInstance(new TagInstance(td, projectName: tagParam));
                                     }
                                     else
                                     {
@@ -312,8 +309,7 @@ namespace Jiminy.Utilities
                             case enTagType.Completed:
                                 {
                                     item.Diagnostics.Add($"Setting to completed");
-                                    item.IsCompleted = true;
-                                    item.TagInstances.Add(new TagInstance(td));
+                                    item.AddTagInstance(new TagInstance(td));
 
                                     break;
                                 }
@@ -405,7 +401,7 @@ namespace Jiminy.Utilities
 
                         if (td is not null)
                         {
-                            item.TagInstances.Add(new TagInstance(td, url: url));
+                            item.AddTagInstance(new TagInstance(td, url: url));
                         }
 
                         if (replaceUrlWith is null)
@@ -520,11 +516,11 @@ namespace Jiminy.Utilities
                         }
                     case enTagType.Reminder:
                         {
-                            enDateStatus status = ti.DateTime.DateStatus(out colourStr);
+                            enDateStatus status = ti.DateTimeValue.DateStatus(out colourStr);
 
-                            iconText = ti.DateTime.DisplayFriendly(showInAgo: true, prefix: "Reminder ");
+                            iconText = ti.DateTimeValue.DisplayFriendly(showInAgo: true, prefix: "Reminder ");
 
-                            if (ti.DateTime is not null)
+                            if (ti.DateTimeValue is not null)
                             {
                                 svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
                             }
@@ -537,11 +533,11 @@ namespace Jiminy.Utilities
                         }
                     case enTagType.Due:
                         {
-                            enDateStatus status = ti.DateTime.DateStatus(out colourStr);
+                            enDateStatus status = ti.DateTimeValue.DateStatus(out colourStr);
 
-                            iconText = ti.DateTime.DisplayFriendly(showInAgo: true, prefix: "Due ");
+                            iconText = ti.DateTimeValue.DisplayFriendly(showInAgo: true, prefix: "Due ");
 
-                            if (ti.DateTime is not null)
+                            if (ti.DateTimeValue is not null)
                             {
                                 svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
                             }

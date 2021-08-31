@@ -72,76 +72,35 @@ namespace Jiminy.Services
 
                     if (item is not null)
                     {
+                        item.FullText = line;
+
                         // If we have a context-setting tagset, overwrite unspecified
                         // values in subsequent ones
 
-                        if (item.IsContext)
+                        if (item.SetsContext)
                         {
                             item.Diagnostics.Add("Setting context");
 
                             contextItem = item;
                         }
+                        else if (item.ClearsContext)
+                        {
+                            item.Diagnostics.Add("Clearing context");
+
+                            contextItem = null;
+                        }
                         else if (contextItem is not null)
                         {
-                            if (item.ProjectName is null)
-                            {
-                                item.Diagnostics.Add($"Applying context project '{contextItem.ProjectName}'");
-                                item.ProjectName = contextItem.ProjectName;
-
-                                var ti = contextItem.TagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Project);
-
-                                if (ti is not null)
-                                {
-                                    item.TagInstances.Add(ti);
-                                }
-                            }
-
-                            if (item.BucketName is null)
-                            {
-                                item.Diagnostics.Add($"Applying context bucket '{contextItem.BucketName}'");
-                                item.BucketName = contextItem.BucketName;
-
-                                var ti = contextItem.TagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Bucket);
-
-                                if (ti is not null)
-                                {
-                                    item.TagInstances.Add(ti);
-                                }
-                            }
-
-                            if (item.PriorityNumber is null)
-                            {
-                                item.Diagnostics.Add($"Applying context priority '{contextItem.PriorityName}'");
-                                item.PriorityName = contextItem.PriorityName;
-                                item.PriorityNumber = contextItem.PriorityNumber;
-
-                                var ti = contextItem.TagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Priority);
-
-                                if (ti is not null)
-                                {
-                                    item.TagInstances.Add(ti);
-                                }
-                            }
-
-                            if (item.RepeatName is null)
-                            {
-                                item.Diagnostics.Add($"Applying context repeat '{contextItem.PriorityName}'");
-                                item.RepeatName = contextItem.RepeatName;
-
-                                var ti = contextItem.TagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Repeating);
-
-                                if (ti is not null)
-                                {
-                                    item.TagInstances.Add(ti);
-                                }
-                            }
+                            ApplyContext(item, contextItem);
                         }
 
                         if (extractResult.TextSummary.NotEmpty())
                         {
                             item.Warnings.Add(extractResult.TextSummary);
                         }
+
                         item.LineNumber = lineNumber;
+
                         _tagSets.Add(item);
                     }
                 }
@@ -153,6 +112,40 @@ namespace Jiminy.Services
             //}
 
             return result;
+        }
+
+        private void ApplyContext(Item item, Item contextItem)
+        {
+            if (item.Project is null && contextItem.Project is not null)
+            {
+                item.Diagnostics.Add($"Applying context project '{contextItem.ProjectName}'");
+                item.AddTagInstance(contextItem.Project);
+            }
+
+            if (item.BucketName is null && contextItem.Bucket is not null)
+            {
+                item.Diagnostics.Add($"Applying context bucket '{contextItem.BucketName}'");
+                item.AddTagInstance(contextItem.Bucket);
+            }
+
+            if (item.PriorityNumber is null && contextItem.Priority is not null)
+            {
+                item.Diagnostics.Add($"Applying context priority '{contextItem.PriorityName}'");
+                item.AddTagInstance(contextItem.Priority);
+            }
+
+            if (item.RepeatName is null && contextItem.Repeat is not null)
+            {
+                item.Diagnostics.Add($"Applying context repeat '{contextItem.RepeatName}'");
+                item.AddTagInstance(contextItem.Repeat);
+
+                var ti = contextItem.GetTagInstance(enTagType.Repeating); 
+
+                if (ti is not null)
+                {
+                    item.AddTagInstance(ti);
+                }
+            }
         }
 
         public List<Item> FoundTagSets => _tagSets;
