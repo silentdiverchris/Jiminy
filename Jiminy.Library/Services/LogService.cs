@@ -1,4 +1,5 @@
 ﻿using Jiminy.Classes;
+using Jiminy.Helpers;
 using Jiminy.Utilities;
 using Microsoft.Data.SqlClient;
 using System.Security.AccessControl;
@@ -42,7 +43,7 @@ namespace Jiminy.Services
             _consoleDelegate = consoleDelegate;
             _logSettings = appSettings.LogSettings;
 
-            if (!string.IsNullOrEmpty(_logSettings.SqlConnectionString))
+            if (_logSettings.SqlConnectionString.NotEmpty())
             {
                 Result result = VerifyAndPrepareDatabase();
 
@@ -56,11 +57,11 @@ namespace Jiminy.Services
                 }
             }
 
-            if (!string.IsNullOrEmpty(_logSettings.LogDirectoryPath))
+            if (_logSettings.LogDirectoryPath.NotEmpty())
             {
                 // If just the directory name, we will asume it's under the install
                 // directory, if not, then use the path supplied
-                _logSettings.LogDirectoryPath = _logSettings.LogDirectoryPath.Contains(Path.DirectorySeparatorChar)
+                _logSettings.LogDirectoryPath = _logSettings.LogDirectoryPath!.Contains(Path.DirectorySeparatorChar)
                     ? _logSettings.LogDirectoryPath
                     : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _logSettings.LogDirectoryPath);
 

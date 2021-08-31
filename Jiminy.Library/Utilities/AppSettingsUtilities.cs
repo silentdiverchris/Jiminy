@@ -37,6 +37,7 @@ namespace Jiminy.Utilities
                 },
                 HtmlSettings = new HtmlSettings
                 {
+                    ShowDiagnostics = true,
                     HtmlTemplateFileName = @"C:\Personal\Jiminy\HtmlTemplate.html",
                     HtmlOutputFileName = @"C:\Personal\Jiminy\HtmlOutput.html"
                 },
@@ -62,8 +63,8 @@ namespace Jiminy.Utilities
                             new BucketDefinition { Name = "Incoming", DisplayOrder = 1, IconFileName = "inbox.svg", Colour = "red", Description = "The place where new items go when they have no home"},
                             new BucketDefinition { Name = "Next", DisplayOrder = 2, IconFileName = "next.svg", Colour = "purple", Description = "Items to do next"},
                             new BucketDefinition { Name = "Soon", DisplayOrder = 3, IconFileName = "soon.svg", Colour = "darkgrey", Description = "Items to do soon"},
-                            new BucketDefinition { Name = "Eventually", DisplayOrder = 4, Colour = "lightgrey", Description = "Items to do eventually"},
-                            new BucketDefinition { Name = "Maybe", DisplayOrder = 5, Colour = "green", IconFileName = "maybe.svg", Description = "Items that may or may not end up happening"},
+                            new BucketDefinition { Name = "Maybe", DisplayOrder = 4, Colour = "green", IconFileName = "maybe.svg", Description = "Items that may or may not end up happening"},
+                            new BucketDefinition { Name = "Eventually", DisplayOrder = 5, IconFileName = "eventually.svg", Colour = "darkgrey", Description = "Items to do eventually"},
                             new BucketDefinition { Name = "Waiting", DisplayOrder = 6, Colour = "darkgrey", IconFileName = "waiting.svg", Description = "Items that are waiting on other items or something else"}
                         }
                     }
@@ -75,7 +76,7 @@ namespace Jiminy.Utilities
                         Priorities = new List<PriorityDefinition>
                         {
                             new PriorityDefinition { Name = "High", Number = 1, IconFileName = "priority-high.svg", Colour = "orange"},
-                            new PriorityDefinition { Name = "Medium", Number = 2, IconFileName = "priority-medium.svg", Colour = "green"},
+                            new PriorityDefinition { Name = "Medium", Number = 2, IconFileName = "priority-medium.svg", Colour = "darkgrey"},
                             new PriorityDefinition { Name = "Low", Number = 3, IconFileName = "priority-low.svg", Colour = "darkgrey"}
                         }
                     }
@@ -86,19 +87,21 @@ namespace Jiminy.Utilities
                     Suffix = "=",
                     Seperator = "-",
                     Delimiter = ":",
-                    TagDefintions = new TagDefinitionList
+                    Defintions = new TagDefinitionList
                     {
                         Tags = new List<TagDefinition>
                         {
-                            new TagDefinition { Type = enTagType.Completed, Name = "Completed", DisplayOrder = 10, Synonyms = new List<string>{ "closed" }, Description = "This item is completed", IconFileName = "completed.svg" },
-                            new TagDefinition { Type = enTagType.Bucket, Name = "Bucket", DisplayOrder = 1, Synonyms = new List<string>{ "b" }, Description = "This item is in a bucket (in, next, waiting, maybe)", GenerateView = true, IconFileName = "bucket.svg" },
-                            new TagDefinition { Type = enTagType.Priority, Name = "Priority", DisplayOrder = 2, Synonyms = new List<string>{ "p" }, Description = "The priority of this item", GenerateView = true },
+                            new TagDefinition { Type = enTagType.Completed, Name = "Completed", DisplayOrder = 1, Synonyms = new List<string>{ "closed" }, Description = "This item is completed", IconFileName = "completed.svg" },
+                            new TagDefinition { Type = enTagType.Link, Name = "Link", DisplayOrder = 2, IconFileName = "link.svg", Colour = "blue", Synonyms = new List<string>{ "url" }, Description = "A link to a URL" },
+                            new TagDefinition { Type = enTagType.Bucket, Name = "Bucket", DisplayOrder = 3, Synonyms = new List<string>{ "b" }, Description = "This item is in a bucket (in, next, waiting, maybe)", GenerateView = true, IconFileName = "bucket.svg" },
+                            new TagDefinition { Type = enTagType.Priority, Name = "Priority", DisplayOrder = 3, Synonyms = new List<string>{ "p" }, IconFileName = "priority-medium.svg", Description = "The priority of this item", GenerateView = true },
                             new TagDefinition { Type = enTagType.Project, Name = "Project", DisplayOrder = 3, Synonyms = new List<string>{ "prj" }, Colour = "green", Description = "This item relates to a project", GenerateView = true, IconFileName = "project.svg" },
                             new TagDefinition { Type = enTagType.Due, Name = "Due", DisplayOrder = 4, Description = "There is a due date for this item", GenerateView = true, IconFileName = "due.svg" },
                             new TagDefinition { Type = enTagType.Reminder, Name = "Reminder", DisplayOrder = 5, Synonyms = new List<string>{ "r" }, Description = "There is a reminder for this item", GenerateView = true, IconFileName = "reminder.svg" },
                             new TagDefinition { Type = enTagType.Repeating, Name = "Repeating", DisplayOrder = 6, Description = "This item repeats", IconFileName = "repeating.svg" },
                             new TagDefinition { Type = enTagType.Context, Name = "Context", DisplayOrder = 7, Synonyms = new List<string>{ "ctx" }, Description = "An abstract property that sets the context of subsequent tags" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Bug", DisplayOrder = 8, Description = "Bug", GenerateView = true, IconFileName = "bug.svg" },
+                            new TagDefinition { Type = enTagType.Custom, Name = "Enhancement", DisplayOrder = 8, Description = "Enhancement", GenerateView = true, IconFileName = "enhancement.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Conversation", DisplayOrder = 9, Description = "Talk to somebody", GenerateView = true, IconFileName = "conversation.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Phone call", DisplayOrder = 10, Description = "Phone call required", GenerateView = true, IconFileName = "phone.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Question", DisplayOrder = 10, Description = "Question", IconFileName = "question.svg" },
@@ -146,7 +149,7 @@ namespace Jiminy.Utilities
                     imageFilesToCache.Add(priority.IconFileName!);
                 }
 
-                foreach (var td in settings.TagSettings.TagDefintions.Tags.Where(_ => _.IconFileName is not null))
+                foreach (var td in settings.TagSettings.Defintions.Tags.Where(_ => _.IconFileName is not null))
                 {
                     imageFilesToCache.Add(td.IconFileName!);
                 }
@@ -177,7 +180,7 @@ namespace Jiminy.Utilities
             }
 
             // Call the internal validator
-            result.SubsumeResult(settings.TagSettings.ValidationResult);
+            result.SubsumeResult(settings.TagSettings.Validate());
 
             return result;
         }

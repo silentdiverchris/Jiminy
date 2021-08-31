@@ -10,6 +10,7 @@ namespace Jiminy.Classes
             string? priorityName = null, 
             string? bucketName = null, 
             string? repeatName = null, 
+            string? url = null,
             int? priorityNumber = null, 
             DateTime? dateTime = null)
         {
@@ -20,6 +21,7 @@ namespace Jiminy.Classes
             DateTime = dateTime;
             ProjectName = projectName;
             RepeatName = repeatName;
+            Url = url;
         }
 
         public TagDefinition Definition { get; private set; }
@@ -29,6 +31,7 @@ namespace Jiminy.Classes
         public string? RepeatName { get; private set; }
         public DateTime? DateTime { get; private set; }
         public string? ProjectName { get; private set; }
+        public string? Url { get; private set; }
 
         public string Name => Definition.Name;
         public enTagType Type => Definition.Type;

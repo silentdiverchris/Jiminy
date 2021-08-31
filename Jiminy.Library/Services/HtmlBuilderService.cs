@@ -38,13 +38,13 @@ namespace Jiminy.Utilities
                 {
                     foreach (var item in itemRegistry.Items)
                     {
-                        item.AssociatedText = _tagService.ConvertURLsToLinks(item.AssociatedText, false);
+                        _tagService.ProcessEmbeddedUrls(item, "<span class='card-text-link-placeholder'>[link]</span>", false);
                     }
 
                     StringBuilder sbTabHeaders = new(1000);
                     StringBuilder sbTabContent = new(1000);
 
-                    if (itemRegistry.ReminderItems.Any)
+                    if (itemRegistry.DatedItems.Any)
                     {
                         // Reminders tab
                         sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Reminders", true));
@@ -102,16 +102,39 @@ namespace Jiminy.Utilities
         {
             StringBuilder sb = new(2000);
 
-            DateTime threshold = DateTime.UtcNow.AddDays(2);
-            var imminentItems = new ItemSubSet(itemRegistry.ReminderItems.Items.Where(_ => _.ReminderDateTime < threshold));
-            var futureItems = new ItemSubSet(itemRegistry.ReminderItems.Items.Where(_ => _.ReminderDateTime > threshold));
-
             sb.Append(GenerateTabBodyHeader("Reminders"));
 
             sb.Append("<div class='card-grid-container'>");
 
-            sb.Append(GenerateItemCardSet("Imminent", imminentItems, showBuckets: true, showPriority: true, showText: true, showLinks: true, suppressProjectName: false));
-            sb.Append(GenerateItemCardSet("Future", futureItems, showBuckets: true, showPriority: true, showText: true, showLinks: true, suppressProjectName: false));
+            sb.Append(GenerateItemCardSet(
+                title: "Overdue",
+                items: itemRegistry.OverdueItems,
+                showBuckets: true,
+                showPriority: true,
+                showText: true,
+                showLinks: true,
+                suppressProjectDisplay: false,
+                subHeaderHtml: GenerateTabBodyHeader("Overdue", subHeader: true)));
+
+            sb.Append(GenerateItemCardSet(
+                title: "Imminent",
+                items: itemRegistry.ImminentItems,
+                showBuckets: true,
+                showPriority: true,
+                showText: true,
+                showLinks: true,
+                suppressProjectDisplay: false,
+                subHeaderHtml: GenerateTabBodyHeader("Imminent", subHeader: true)));
+
+            sb.Append(GenerateItemCardSet(
+                title: "Future",
+                items: itemRegistry.FutureItems,
+                showBuckets: true,
+                showPriority: true,
+                showText: true,
+                showLinks: true,
+                suppressProjectDisplay: false,
+                subHeaderHtml: GenerateTabBodyHeader("Future", subHeader: true)));
 
             sb.Append("</div>");
 
@@ -161,13 +184,12 @@ namespace Jiminy.Utilities
             StringBuilder sbTabContent = new(2000);
 
             sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_OTHER, "Completed Items", true));
-            sbTabContent.Append(GenerateBucketsTabContent(itemRegistry, null, false));
+            sbTabContent.Append(GenerateCompletedItemTabContent(itemRegistry));
 
             sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_OTHER, "Open Items"));
             sbTabContent.Append(GenerateOpenItemTabContent(itemRegistry));
 
             sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_OTHER, "Event Log"));
-            //sbTabContent.Append(GenerateTabBodyHeader("Event Log", null, "tab-content-header"));
             sbTabContent.Append(GenerateTabBodyHtml(GenerateEventsTable(logEntries)));
 
             sb.Append("<div class='container'><div class='tab-wrap'>");
@@ -187,16 +209,22 @@ namespace Jiminy.Utilities
 
             bool activeTab = true;
 
+            var projectTagDef = _appSettings.TagSettings.Defintions.Get("Project");
+
+            string? iconHtml = projectTagDef is not null
+                ? _tagService.GenerateIconItem(fileName: projectTagDef.IconFileName, overrideColour: projectTagDef.Colour)
+                : null;
+
             foreach (var project in itemRegistry.ProjectRegistry.Projects.OrderBy(_ => _.Name))
             {
                 sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_PROJECT, project.Name, activeTab));
-                sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project));
+                sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project, iconHtml: iconHtml));
 
                 activeTab = false;
             }
 
             sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_PROJECT, "All Projects", false));
-            sbTabContent.Append(GenerateProjectTabContent(itemRegistry, null));
+            sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project: null, iconHtml: iconHtml));
 
             sb.Append("<div class='container'><div class='tab-wrap'>");
             sb.Append(sbTabHeaders);
@@ -206,17 +234,39 @@ namespace Jiminy.Utilities
             return GenerateTabBodyHtml(sb.ToString());
         }
 
-        private string GenerateOpenItemTabContent(ItemRegistry itemRegistry)
+        private string GenerateCompletedItemTabContent(ItemRegistry itemRegistry)
         {
             StringBuilder sb = new(2000);
 
-            sb.Append(GenerateTabBodyHeader("Open Items"));
-            sb.Append(GenerateItemCardSet("Open Items", itemRegistry.OpenItems, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
+            sb.Append(GenerateItemCardSet(
+                "Completed Items",
+                itemRegistry.CompletedItems,
+                showText: true,
+                showPriority: true,
+                showLinks: true,
+                suppressProjectDisplay: false,
+                subHeaderHtml: GenerateTabBodyHeader("Completed Items")));
 
             return GenerateTabBodyHtml(sb.ToString());
         }
 
-        private string GenerateProjectTabContent(ItemRegistry itemRegistry, Project? project)
+        private string GenerateOpenItemTabContent(ItemRegistry itemRegistry)
+        {
+            StringBuilder sb = new(2000);
+
+            sb.Append(GenerateItemCardSet(
+                "Open Items",
+                itemRegistry.OpenItems,
+                showText: true,
+                showPriority: true,
+                showLinks: true,
+                suppressProjectDisplay: false,
+                subHeaderHtml: GenerateTabBodyHeader("Open Items")));
+
+            return GenerateTabBodyHtml(sb.ToString());
+        }
+
+        private string GenerateProjectTabContent(ItemRegistry itemRegistry, Project? project, string? iconHtml = null)
         {
             string projectName = project?.Name ?? "All projects";
 
@@ -224,18 +274,26 @@ namespace Jiminy.Utilities
 
             StringBuilder sb = new(2000);
 
-            sb.Append(GenerateTabBodyHeader(projectName));
+            sb.Append(GenerateTabBodyHeader(projectName, iconHtml: iconHtml));
 
             sb.Append("<div class='card-grid-container'>");
 
             foreach (var bucket in _appSettings.BucketSettings.Defintions.Buckets.OrderBy(_ => _.DisplayOrder))
             {
-                sb.Append(GenerateItemCardSet(bucket.Name, projectItems, onlyBucketName: bucket.Name, showText: true, showPriority: true, showLinks: true, suppressProjectName: project is not null));
+                sb.Append(GenerateItemCardSet(
+                    title: bucket.Name,
+                    items: projectItems,
+                    onlyBucketName: bucket.Name,
+                    showText: true,
+                    showPriority: true,
+                    showLinks: true,
+                    suppressProjectDisplay: project is not null,
+                    subHeaderHtml: GenerateTabBodyHeader(bucket.Name, subHeader: true)));
             }
 
             var noBucketItems = new ItemSubSet(projectItems.Items.Where(_ => _.BucketName is null));
 
-            sb.Append(GenerateItemCardSet("No Bucket", noBucketItems, showText: true, showPriority: true, showLinks: true, suppressProjectName: project is not null));
+            sb.Append(GenerateItemCardSet("No Bucket", noBucketItems, showText: true, showPriority: true, showLinks: true, suppressProjectDisplay: project is not null));
 
             sb.Append("</div>");
 
@@ -256,7 +314,15 @@ namespace Jiminy.Utilities
 
                 foreach (var bucket in _appSettings.BucketSettings.Defintions.Buckets.OrderBy(_ => _.DisplayOrder))
                 {
-                    sb.Append(GenerateItemCardSet(bucket.Name, items, onlyBucketName: bucket.Name, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
+                    sb.Append(GenerateItemCardSet(
+                        title: bucket.Name,
+                        items: items,
+                        onlyBucketName: bucket.Name,
+                        showText: true,
+                        showPriority: true,
+                        showLinks: true,
+                        suppressProjectDisplay: false,
+                        subHeaderHtml: GenerateTabBodyHeader(bucket.Name, titleSuffix: "bucket", subHeader: true)));
                 }
 
                 sb.Append("</div>");
@@ -279,13 +345,26 @@ namespace Jiminy.Utilities
         {
             StringBuilder sb = new(2000);
 
-            sb.Append(GenerateTabBodyHeader("Priorities"));
+            //var priTagDef = _appSettings.TagSettings.Defintions.Get("Priority");
+
+            //string? iconHtml = priTagDef is not null
+            //    ? _tagService.GenerateIconItem(fileName: priTagDef.IconFileName, overrideColour: priTagDef.Colour)
+            //    : null;
+
+            sb.Append(GenerateTabBodyHeader("Priorities")); //, iconHtml: iconHtml));
 
             sb.Append("<div class='card-grid-container'>");
 
             foreach (var pri in _appSettings.PrioritySettings.Defintions.Priorities.OrderBy(_ => _.Number))
             {
-                sb.Append(GenerateItemCardSet(pri.Name, itemRegistry.OpenItems, onlyPriorityName: pri.Name, showText: true, showLinks: true, suppressProjectName: false));
+                sb.Append(GenerateItemCardSet(
+                    title: pri.Name,
+                    items: itemRegistry.OpenItems,
+                    onlyPriorityName: pri.Name,
+                    showText: true,
+                    showLinks: true,
+                    suppressProjectDisplay: false,
+                    subHeaderHtml: GenerateTabBodyHeader(pri.Name, subHeader: true, titleSuffix: "priority")));
             }
 
             sb.Append("</div>");
@@ -297,13 +376,26 @@ namespace Jiminy.Utilities
         {
             StringBuilder sb = new(2000);
 
-            sb.Append(GenerateTabBodyHeader("Repeating Items"));
+            var repeatTagDef = _appSettings.TagSettings.Defintions.Get("Repeating");
+
+            string? iconHtml = repeatTagDef is not null
+                ? _tagService.GenerateIconItem(fileName: repeatTagDef.IconFileName, overrideColour: repeatTagDef.Colour)
+                : null;
+
+            sb.Append(GenerateTabBodyHeader("Repeating Items", iconHtml: iconHtml));
 
             sb.Append("<div class='card-grid-container'>");
 
             foreach (var rep in _appSettings.RepeatSettings.Defintions.Repeats.OrderBy(_ => _.DisplayOrder))
             {
-                sb.Append(GenerateItemCardSet(rep.Name, itemRegistry.OpenItems, onlyRepeatName: rep.Name, showText: true, showLinks: true, suppressProjectName: false));
+                sb.Append(GenerateItemCardSet(
+                    title: rep.Name,
+                    items: itemRegistry.OpenItems,
+                    onlyRepeatName: rep.Name,
+                    showText: true,
+                    showLinks: true,
+                    suppressProjectDisplay: false,
+                    subHeaderHtml: GenerateTabBodyHeader(rep.Name, subHeader: true)));
             }
 
             sb.Append("</div>");
@@ -324,7 +416,7 @@ namespace Jiminy.Utilities
                 var itemList = new ItemSubSet(projectItems.Items.Where(_ => _.ProjectName == pn).OrderBy(_ => _.BucketName).ThenBy(_ => _.PriorityNumber));
                 string? html = GenerateItemCardSet(pn ?? "No project", itemList, showText: true, showPriority: true, showBuckets: true, showLinks: true);
 
-                if (!string.IsNullOrEmpty(html))
+                if (html.NotEmpty())
                 {
                     sb.Append(html);
                 }
@@ -332,55 +424,6 @@ namespace Jiminy.Utilities
 
             return sb.ToString();
         }
-
-        //private HtmlTableCell GenerateTextCell(Item item, bool suppressProjectName = false)
-        //{
-        //    string? diags = "Diagnostics: " + string.Join("<br>", item.Diagnostics);
-
-        //    string? warnings = string.IsNullOrEmpty(item.Warnings)
-        //        ? null
-        //        : $"<br><p class='tag-warning'>{item.Warnings}</p>";
-
-        //    string? project = suppressProjectName || string.IsNullOrEmpty(item.ProjectName)
-        //        ? null
-        //        : $"<p class='cell-project-name'>Project: {item.ProjectName}</p>";
-
-        //    string reminder = "";
-        //    string due = "";
-
-        //    if (item.IsCompleted == false)
-        //    {
-        //        enDateStatus reminderStatus = item.GetReminderStatus(out string reminderColour);
-        //        if (reminderStatus != enDateStatus.None)
-        //        {
-        //            reminder = GenerateDateString(item.ReminderDateTime, "Reminder");
-        //        }
-
-        //        enDateStatus dueStatus = item.GetDueStatus(out string dueColour);
-        //        if (dueStatus != enDateStatus.None)
-        //        {
-        //            due = GenerateDateString(item.DueDateTime, "Due");
-        //        }
-        //    }
-
-        //    StringBuilder sbIcons = new(2000);
-
-        //    string? text = string.IsNullOrEmpty(item.AssociatedText)
-        //        ? item.IsContext
-        //            ? "[Context item]"
-        //            : null
-        //        : $"<p class='cell-text'>{item.AssociatedText}</p>";
-
-        //    foreach (var ti in item.TagInstances.Tags)
-        //    {
-        //        sbIcons.Append(_tagService.GetIconHtml(ti));
-        //    }
-
-        //    sbIcons.Append(_tagService.GetIconHtml(fileName: Constants.ICON_FILE_NAME_MARKDOWN_FILE, linkUrl: item.FullFileName, overrideTipText: $"Open the MarkDown file '{item.FullFileName}'"));
-
-        //    return new HtmlTableCell(
-        //        $"{project}{text}{reminder}{due}{warnings}<div class='item-icon-set'>{sbIcons}</div>"); // title: diags);
-        //}
 
         private static string GenerateDateString(DateTime? dateTime, string? prefix)
         {
@@ -441,27 +484,34 @@ namespace Jiminy.Utilities
             bool showPriority = false,
             bool showLinks = false,
             bool showBucket = false,
-            bool showFileName = false)
+            bool showFileName = false,
+            bool suppressProjectDisplay = false)
         {
             StringBuilder sb = new(2000);
 
-            sb.Append($"<div class='card'>");
+            sb.Append($"<div class='card {(item.IsOverdue ? " overdue" : item.IsImminent ? " imminent" : null)}'>");
 
             // Texts
             sb.Append($"<div class='item-text'>{item.AssociatedText}</div>");
-            sb.Append($"<div class='item-warning'>{item.Warnings}</div>");
 
             // Icons
             sb.Append($"<div class='item-icon-container'>");
-            foreach (var ti in item.TagInstances.Tags.OrderBy(_ => _.Definition.DisplayOrder))
+            foreach (var ti in item.TagInstances.Tags.OrderBy(_ => _.Definition.DisplayOrder).ThenBy(_ => _.Name))
             {
-                sb.Append(_tagService.GenerateIconItem(ti));
+                if (suppressProjectDisplay == false || ti.Type != enTagType.Project)
+                {
+                    sb.Append(_tagService.GenerateIconItem(ti));
+                }
             }
-            sb.Append(_tagService.GenerateIconItem(fileName: Constants.ICON_FILE_NAME_MARKDOWN_FILE, linkUrl: item.FullFileName, overrideColour: "darkgrey", overrideText: $"{item.FullFileName} line {item.LineNumber}"));            
+            sb.Append(_tagService.GenerateIconItem(fileName: Constants.ICON_FILE_NAME_MARKDOWN_FILE, linkUrl: item.FullFileName, overrideColour: "darkgrey", overrideText: $"{item.FullFileName} #{item.LineNumber}"));
             sb.Append($"</div>");
 
-            // Diagnostics
-            //sb.Append($"<div class='item-diagnostics'>{string.Join(", ", item.Diagnostics)}</div>");
+            sb.Append(item.Warnings.Join("<div class='item-warnings'>", "<div>", "</div>", "</div>", 1000));
+            
+            if (_appSettings.HtmlSettings.ShowDiagnostics)
+            {
+                sb.Append(item.Diagnostics.Join("<div class='item-diagnostics'>", "<div>", "</div>",  "</div>", 1000));
+            }
 
             sb.Append($"</div>");
 
@@ -470,7 +520,7 @@ namespace Jiminy.Utilities
 
         private string? GenerateItemCardSet(
             string title,
-            ItemSubSet itemSubset,
+            ItemSubSet items,
             int displayOrder = 0,
             bool showText = false,
             bool showPriority = false,
@@ -481,21 +531,24 @@ namespace Jiminy.Utilities
             string? onlyBucketName = null,
             string? onlyRepeatName = null,
             string? onlyProjectName = null,
-            bool suppressProjectName = false)
+            bool suppressProjectDisplay = false,
+            string? subHeaderHtml = null)
         {
-            if (itemSubset.Any)
+            if (items.Any)
             {
-                var filtered = itemSubset.Filter(onlyProjectName, onlyPriorityName, onlyBucketName, onlyRepeatName);
+                var filtered = items.Filter(onlyProjectName, onlyPriorityName, onlyBucketName, onlyRepeatName);
 
                 StringBuilder sb = new(2000);
 
                 if (filtered.Any)
                 {
+                    sb.Append(subHeaderHtml);
+
                     sb.Append("<div class='card-grid'>");
 
-                    foreach (var item in filtered.Items)
+                    foreach (var item in filtered.Items.OrderByDescending(_ => _.IsOverdue).ThenByDescending(_ => _.IsImminent).ThenBy(_ => _.PriorityNumber))
                     {
-                        sb.Append(GenerateItemCard(item, showText, showPriority, showLinks, showBuckets, showFileName));
+                        sb.Append(GenerateItemCard(item, showText, showPriority, showLinks, showBuckets, showFileName, suppressProjectDisplay));
                     }
 
                     sb.Append("</div>");
@@ -513,19 +566,32 @@ namespace Jiminy.Utilities
             }
         }
 
-        private static string GenerateTabBodyHeader(string title, string? titlePrefix = null, string headerClass = "tab-content-header")
+        private string GenerateTabBodyHeader(string title, string? titlePrefix = null, string? titleSuffix = null, bool subHeader = false, string? iconHtml = null)
         {
+            string headerClass = subHeader
+                ? "tab-body-header sub-header"
+                : "tab-body-header";
+
             string? prefixHtml = titlePrefix is null
                 ? null
                 : $"<div class='prefix'>{titlePrefix}</div>";
 
-            return $"<div class='{headerClass}'>{prefixHtml}<div class='name'>{title}</div></div>";
+            string? suffixHtml = titleSuffix is null
+                ? null
+                : $"<div class='suffix'>{titleSuffix}</div>";
+
+            iconHtml = iconHtml is null
+                ? null
+                : $"<div class='icon'>{iconHtml}</div>";
+
+
+            return $"<div class='{headerClass}'>{iconHtml}{prefixHtml}<div class='name'>{title}</div>{suffixHtml}</div>";
         }
 
-        private static string GenerateTab(string title, string contentHtml)
+        private string GenerateTab(string title, string contentHtml)
         {
             string tabId = title.ToLower();
-            string titleHtml = GenerateTabBodyHeader(title, null, "tab-header");
+            string titleHtml = GenerateTabBodyHeader(title);
             string tabHtml = $"<div class=\"tab\" id=\"{tabId}\"><a href = \"#{tabId}\">{titleHtml}</a><div class=\"content\">{contentHtml}</div></div>";
 
             return tabHtml;

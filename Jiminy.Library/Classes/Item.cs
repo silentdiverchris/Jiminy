@@ -5,6 +5,8 @@ namespace Jiminy.Classes
 {
     internal class Item
     {
+        private readonly DateTime _imminentThreshold = DateTime.UtcNow.AddDays(2);
+
         public Item()
         {
 
@@ -16,16 +18,20 @@ namespace Jiminy.Classes
             AssociatedText = associatedText;
         }
 
-        public Item(string? bucketName = null, string? priorityName = null, int? priorityNumber = null, string? associatedText = null, string? projectName = null, DateTime? reminderDateTime = null, string? repeatName = null)
+        public Item(string? bucketName = null, string? priorityName = null, int? priorityNumber = null, string? associatedText = null, string? projectName = null, DateTime? reminderDateTime = null, DateTime? dueDateTime = null, string? repeatName = null)
         {
             BucketName = bucketName;
             PriorityName = priorityName;
             PriorityNumber = priorityNumber;
+            DueDateTime = dueDateTime;
             ReminderDateTime = reminderDateTime;
             AssociatedText = associatedText;
             ProjectName = projectName;
             RepeatName = repeatName;
         }
+
+        public DateTime? ReminderDateTime {get; private set; } = null;
+        public DateTime? DueDateTime { get; private set; } = null;
 
         public string? AssociatedText { get; set; } = null;
 
@@ -35,15 +41,13 @@ namespace Jiminy.Classes
         public string? RepeatName { get; set; } = null;
 
         public string? ProjectName { get; set; } = null;
-        public DateTime? ReminderDateTime { get; set; } = null;
-        public DateTime? DueDateTime { get; set; } = null;
         public bool IsCompleted { get; set; } = false;
         public bool IsContext { get; set; } = false;
 
         public string? FullFileName { get; set; }
         public List<string> Diagnostics { get; set; } = new();
         public string? RawTagSet { get; set; }
-        public string? Warnings { get; set; }
+        public List<string> Warnings { get; set; } = new();
         public int? LineNumber { get; set; }
         public DateTime? CreatedUtc { get; set; } = DateTime.UtcNow;
 
@@ -55,7 +59,7 @@ namespace Jiminy.Classes
         {
             string str = $"Repeat:{RepeatName}, Pri:{PriorityName}, Bucket:{BucketName}";
 
-            if (!string.IsNullOrEmpty(ProjectName))
+            if (ProjectName.NotEmpty())
             {
                 str += ", Project:" + ProjectName;
             }
@@ -93,6 +97,31 @@ namespace Jiminy.Classes
             enDateStatus ds = DueDateTime.DateStatus(out colour);
 
             return ds;
+        }
+
+        internal bool IsOverdue { get; private set; }
+
+        internal bool IsImminent { get; private set; }
+
+        internal bool IsFuture { get; private set; } 
+
+        internal void SetReminderDateTime(DateTime? dt)
+        {
+            ReminderDateTime = dt;
+            SetDatedProperties();
+        }
+
+        internal void SetDueDateTime(DateTime? dt)
+        {
+            DueDateTime = dt;
+            SetDatedProperties();
+        }
+
+        private void SetDatedProperties()
+        {
+            IsOverdue = !IsCompleted && (ReminderDateTime < DateTime.Now.Date || DueDateTime < DateTime.Now.Date);
+            IsImminent = !IsOverdue && !IsCompleted && (ReminderDateTime < _imminentThreshold || DueDateTime < _imminentThreshold);
+            IsFuture = !IsCompleted && (ReminderDateTime >= _imminentThreshold || DueDateTime >= _imminentThreshold);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using static Jiminy.Classes.Enumerations;
+﻿using Jiminy.Helpers;
+using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Classes
 {
@@ -6,7 +7,7 @@ namespace Jiminy.Classes
     {
         public Project(string name)
         {
-            if (!string.IsNullOrEmpty(name))
+            if (name.NotEmpty())
             {
                 Name = name;
             }

@@ -77,7 +77,7 @@ namespace Jiminy.Utilities
                 // If no priority item, add one with the lowest defined priority
                 if (!item.TagInstances.Tags.Any(_ => _.Type == enTagType.Priority))
                 {
-                    var td = _appSettings.TagSettings.TagDefintions.Get("Priority");
+                    var td = _appSettings.TagSettings.Defintions.Get("Priority");
                     var pri = _appSettings.PrioritySettings.Defintions.Priorities.OrderByDescending(_ => _.Number).FirstOrDefault();
                     if (td is not null && pri is not null)
                     {
@@ -144,9 +144,18 @@ namespace Jiminy.Utilities
                         }
                     }
 
-                    item.Diagnostics.Add($"decoding {tagPart}, code '{tagCode}', parameter '{tagParam}'");
+                    item.Diagnostics.Add($"Processing tag '{tagPart}'");
 
-                    var td = _appSettings.TagSettings.TagDefintions.Get(tagCode, true);
+                    if (tagParam.Length > 0)
+                    {
+                        item.Diagnostics.Add($"Code '{tagCode}', parameter '{tagParam}'");
+                    }
+                    else
+                    {
+                        item.Diagnostics.Add($"Code '{tagCode}', no parameter");
+                    }
+
+                    var td = _appSettings.TagSettings.Defintions.Get(tagCode, true);
 
                     if (td is not null)
                     {
@@ -155,6 +164,7 @@ namespace Jiminy.Utilities
                             case enTagType.Custom:
                                 {
                                     item.TagInstances.Add(new TagInstance(td));
+                                    item.Diagnostics.Add($"Added custom tag '{td.Name}'");
                                     break;
                                 }
                             case enTagType.Bucket:
@@ -167,10 +177,11 @@ namespace Jiminy.Utilities
                                     {
                                         item.BucketName = bd.Name;
                                         item.TagInstances.Add(new TagInstance(td, bucketName: bd.Name));
+                                        item.Diagnostics.Add($"Set bucket to '{bd.Name}'");
                                     }
                                     else
                                     {
-                                        result.AddWarning($"TagPart '{tagPart}' has invalid bucket name '{tagParam}'");
+                                        result.AddWarning($"Invalid bucket name '{tagParam}'");
                                     }
 
                                     break;
@@ -185,10 +196,11 @@ namespace Jiminy.Utilities
                                     {
                                         item.RepeatName = rd.Name;
                                         item.TagInstances.Add(new TagInstance(td, repeatName: rd.Name));
+                                        item.Diagnostics.Add($"Set repeat to '{rd.Name}'");
                                     }
                                     else
                                     {
-                                        result.AddWarning($"TagPart '{tagPart}' has invalid repeat name '{tagParam}'");
+                                        result.AddWarning($"Invalid repeat name '{tagParam}'");
                                     }
 
                                     break;
@@ -197,7 +209,7 @@ namespace Jiminy.Utilities
                                 {
                                     // Sets the context for subsequent items
 
-                                    item.Diagnostics.Add($"Marking this as context: {item.ToString()}");
+                                    item.Diagnostics.Add($"Set context: {item.ToString()}");
                                     item.IsContext = true;
                                     break;
                                 }
@@ -208,7 +220,7 @@ namespace Jiminy.Utilities
 
                                     DateTime? dt;
 
-                                    if (!string.IsNullOrEmpty(tagParam))
+                                    if (tagParam.NotEmpty())
                                     {
                                         DateTime? extractedDateTime = ExtractDateTime(tagParam);
 
@@ -219,7 +231,7 @@ namespace Jiminy.Utilities
                                         else
                                         {
                                             // Less standard date/time, TODO
-                                            result.AddWarning($"TagPart '{tagPart}' cannot extract reminder date/time as the value cannot be parsed, assuming today. try 'd/mmm' format, eg. 'r:3/sep'");
+                                            result.AddWarning($"Cannot extract reminder date/time as the value cannot be parsed, assuming today. try 'd/mmm' format, eg. 'r:3/sep'");
                                             item.Diagnostics.Add($"Setting reminder for today as date not readable");
                                             dt = DateTime.Now;
                                         }
@@ -231,15 +243,15 @@ namespace Jiminy.Utilities
                                         dt = DateTime.Now;
                                     }
 
-                                    item.Diagnostics.Add($"Setting date/time {dt}");
-                                    
+                                    item.Diagnostics.Add($"Setting {td.Type.ToString().ToLower()} to '{dt.DisplayFriendly()}'");
+
                                     if (td.Type == enTagType.Reminder)
                                     {
-                                        item.ReminderDateTime = dt;
+                                        item.SetReminderDateTime(dt);
                                     }
                                     else if (td.Type == enTagType.Due)
                                     {
-                                        item.DueDateTime = dt;
+                                        item.SetDueDateTime(dt);
                                     }
 
                                     item.TagInstances.Add(new TagInstance(td, dateTime: dt));
@@ -249,9 +261,6 @@ namespace Jiminy.Utilities
                             case enTagType.Priority:
                                 {
                                     // We expect the parameter to match either the name or the number of a priority
-
-                                    item.Diagnostics.Add($"Setting priority from {tagPart}");
-
 
                                     PriorityDefinition? pri = null;
 
@@ -263,7 +272,7 @@ namespace Jiminy.Utilities
                                         }
                                         else
                                         {
-                                            result.AddWarning($"Failed to parse priority as a number");
+                                            result.AddWarning($"Failed to parse '{tagParam}' as a number");
                                         }
                                     }
                                     else
@@ -276,10 +285,11 @@ namespace Jiminy.Utilities
                                         item.PriorityName = pri.Name;
                                         item.PriorityNumber = pri.Number;
                                         item.TagInstances.Add(new TagInstance(td, priorityName: pri.Name, priorityNumber: pri.Number));
+                                        item.Diagnostics.Add($"Setting priority to '{pri.Name}'");
                                     }
                                     else
                                     {
-                                        result.AddWarning($"'{tagPart}' is not a valid priority name or number");
+                                        result.AddWarning($"No valid priority name or number");
                                     }
 
                                     break;
@@ -288,20 +298,20 @@ namespace Jiminy.Utilities
                                 {
                                     if (tagParam.Length > 0)
                                     {
-                                        item.Diagnostics.Add($"Setting project {tagParam}");
+                                        item.Diagnostics.Add($"Setting project to '{tagParam}'");
                                         item.ProjectName = tagParam;
                                         item.TagInstances.Add(new TagInstance(td, projectName: tagParam));
                                     }
                                     else
                                     {
-                                        result.AddWarning($"TagPart '{tagPart}' no project name supplied");
+                                        result.AddWarning($"No project name supplied");
                                     }
 
                                     break;
                                 }
                             case enTagType.Completed:
                                 {
-                                    item.Diagnostics.Add($"Setting completed {tagParam}");
+                                    item.Diagnostics.Add($"Setting to completed");
                                     item.IsCompleted = true;
                                     item.TagInstances.Add(new TagInstance(td));
 
@@ -309,14 +319,15 @@ namespace Jiminy.Utilities
                                 }
                             default:
                                 {
-                                    result.AddWarning($"'{tagPart}' is invalid, unrecognised tag type");
+                                    result.AddWarning($"'{tagCode}' is invalid, unrecognised tag");
+                                    item.Diagnostics.Add($"No handler found for code '{tagCode}'");
                                     break;
                                 }
                         }
                     }
                     else
                     {
-                        result.AddWarning($"TagPart '{tagPart}' cannot find tag '{tagCode}'");
+                        result.AddWarning($"Cannot find tag from code '{tagCode}'");
                     }
                 }
             }
@@ -357,15 +368,21 @@ namespace Jiminy.Utilities
             return extractedDateTime;
         }
 
-        internal string? ConvertURLsToLinks(string? text, bool showUrl)
+        internal void ProcessEmbeddedUrls(Item item, string? replaceUrlWith = null, bool showUrl = false)
         {
-            if (text is not null)
+            if (item.AssociatedText is not null)
             {
+                TagDefinition? td = null;
+
+                string text = item.AssociatedText;
+
                 int httpIdx = text.IndexOf("http");
 
                 if (httpIdx > -1)
                 {
                     int startIdx = 0;
+
+                    td = _appSettings.TagSettings.Defintions.Get("Link");
 
                     StringBuilder sb = new(text.Length + 100);
 
@@ -380,15 +397,28 @@ namespace Jiminy.Utilities
                             startIdx = text.IndexOf("<", httpIdx);
                         }
 
-                        if (startIdx == -1)
+                        string url = startIdx == -1
+                            ? text[httpIdx..]
+                            : text[httpIdx..startIdx];
+
+                        string linkHtml = MakeUrlIntoLink(url, showUrl);
+
+                        if (td is not null)
                         {
-                            // That was the end
-                            sb.Append(MakeUrlIntoLink(text[httpIdx..], showUrl));
+                            item.TagInstances.Add(new TagInstance(td, url: url));
+                        }
+
+                        if (replaceUrlWith is null)
+                        {
+                            sb.Append(linkHtml);
                         }
                         else
                         {
-                            sb.Append(MakeUrlIntoLink(text[httpIdx..startIdx], showUrl));
+                            sb.Append(replaceUrlWith);
+                        }
 
+                        if (startIdx != -1)
+                        { 
                             httpIdx = text.IndexOf("http", startIdx);
                         }
                     }
@@ -398,11 +428,9 @@ namespace Jiminy.Utilities
                         sb.Append(text[startIdx..]);
                     }
 
-                    return sb.ToString();
+                    item.AssociatedText = sb.ToString();
                 }
             }
-
-            return text;
         }
 
         private string MakeUrlIntoLink(string url, bool showUrl)
@@ -434,6 +462,18 @@ namespace Jiminy.Utilities
                             if (ti.Definition.IconFileName is not null)
                             {
                                 iconText = ti.Definition.Description;
+                                colourStr = ti.Definition.Colour;
+                                svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
+                            }
+
+                            break;
+                        }
+                    case enTagType.Link:
+                        {
+                            if (ti.Definition.IconFileName is not null)
+                            {
+                                iconText = $"<a class='card-link' href='{ti.Url}'>{ti.Url ?? "Missing URL"}</a>";
+                                linkUrl = linkUrl ?? ti.Url;
                                 colourStr = ti.Definition.Colour;
                                 svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
                             }
@@ -541,6 +581,22 @@ namespace Jiminy.Utilities
 
                             break;
                         }
+                    case enTagType.Completed:
+                        {
+                            colourStr = ti.Definition.Colour;
+                            iconText = $"Completed item";
+
+                            if (ti.Definition.IconFileName is not null)
+                            {
+                                svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
+                            }
+
+                            break;
+                        }
+                    default:
+                        {
+                            throw new Exception($"GenerateIconItem unhandled type '{ti.Definition.Type}'");
+                        }
                 }
             }
             else
@@ -561,7 +617,7 @@ namespace Jiminy.Utilities
             svgHtml = svgHtml.Replace("width=\"16\"", $"width=\"{width}\"");
             svgHtml = svgHtml.Replace("height=\"16\"", $"width=\"{height}\"");
             svgHtml = svgHtml.Replace("fill=\"currentColor\"", $"fill=\"{colourStr}\"");
-            
+
             sb.Append($"<div class='item-icon-item'>");
 
             if (linkUrl is null)
@@ -573,12 +629,15 @@ namespace Jiminy.Utilities
                 sb.Append($"<div class='icon'><a href='{linkUrl}' title='' target='_blank'>{svgHtml}</a></div>");
             }
 
-            sb.Append($"<div class='text'>");
-            sb.Append(overrideText ?? iconText);
-            sb.Append($"</div>");
+            iconText = overrideText ?? iconText;
+            if (iconText is not null)
+            {
+                sb.Append($"<div class='text'>{iconText}</div>");
+            }
+
             sb.Append($"</div>");
 
-            return sb.ToString(); 
+            return sb.ToString();
         }
     }
 }

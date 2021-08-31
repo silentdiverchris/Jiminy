@@ -1,4 +1,5 @@
 ﻿using Jiminy.Classes;
+using Jiminy.Helpers;
 using Jiminy.Utilities;
 using static Jiminy.Classes.Enumerations;
 
@@ -60,7 +61,7 @@ namespace Jiminy.Services
             {
                 lineNumber++;
 
-                if (!string.IsNullOrEmpty(line))
+                if (line.NotEmpty())
                 {
                     Result extractResult = _tagService.ExtractTagSet(line, out Item? item);
 
@@ -136,7 +137,10 @@ namespace Jiminy.Services
                             }
                         }
 
-                        item.Warnings = extractResult.TextSummary;
+                        if (extractResult.TextSummary.NotEmpty())
+                        {
+                            item.Warnings.Add(extractResult.TextSummary);
+                        }
                         item.LineNumber = lineNumber;
                         _tagSets.Add(item);
                     }

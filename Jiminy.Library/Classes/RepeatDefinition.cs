@@ -1,4 +1,6 @@
-﻿namespace Jiminy.Classes
+﻿using Jiminy.Helpers;
+
+namespace Jiminy.Classes
 {
     public class RepeatDefinition : BaseDefinition
     {
@@ -21,14 +23,14 @@
 
         public RepeatDefinition? Get(string? name, bool allowPartial = false)
         {
-            if (string.IsNullOrEmpty(name))
+            if (name.IsEmpty())
                 return null;
 
             var found = Repeats.FirstOrDefault(_ => _.Name.ToLower() == name);
 
             if (found is null && allowPartial)
             {
-                found = Repeats.FirstOrDefault(_ => _.Name.ToLower().StartsWith(name));
+                found = Repeats.FirstOrDefault(_ => _.Name.ToLower().StartsWith(name!));
             }
 
             return found;

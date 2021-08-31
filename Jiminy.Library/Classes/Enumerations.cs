@@ -12,7 +12,8 @@
             Project = 6,
             Repeating = 7,
             Context = 8,
-            Completed = 9
+            Completed = 9,
+            Link = 10
         }
 
         /// <summary>

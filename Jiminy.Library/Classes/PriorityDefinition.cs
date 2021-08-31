@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using Jiminy.Helpers;
+using System.Text.RegularExpressions;
 
 namespace Jiminy.Classes
 {
@@ -18,14 +19,14 @@ namespace Jiminy.Classes
 
         public PriorityDefinition? Get(string? name, bool allowPartial = false)
         {
-            if (string.IsNullOrEmpty(name))
+            if (name.IsEmpty())
                 return null;
 
             var found = Priorities.FirstOrDefault(_ => _.Name.ToLower() == name);
 
             if (found is null && allowPartial)
             {
-                found = Priorities.FirstOrDefault(_ => _.Name.ToLower().StartsWith(name));
+                found = Priorities.FirstOrDefault(_ => _.Name.ToLower().StartsWith(name!));
             }
 
             return found;

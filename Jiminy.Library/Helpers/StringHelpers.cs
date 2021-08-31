@@ -5,6 +5,39 @@ namespace Jiminy.Helpers
 {
     internal static class StringHelpers
     {
+        internal static bool NotEmpty(this string? value)
+        {
+            return !string.IsNullOrEmpty(value);
+        }
+
+        internal static bool IsEmpty(this string? value)
+        {
+            return string.IsNullOrEmpty(value);
+        }
+
+        internal static string? Join(this IEnumerable<string> value, string? prefixOutput = null, string? prefixItem = null, string? suffixItem = null, string? suffixOutput = null, int expectedLength = 100)
+        {
+            if (value.Any())
+            {
+                StringBuilder sb = new(expectedLength);
+
+                sb.Append(prefixOutput);
+
+                foreach (var str in value)
+                {
+                    sb.Append($"{prefixItem}{str}{suffixItem}");
+                }
+
+                sb.Append(suffixOutput);
+
+                return sb.ToString();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         internal static string ConcatenateToDelimitedList(this IEnumerable<string> strings, string delimiter = ",", string quote = "'")
         {
             return quote + string.Join(delimiter, strings) + quote;

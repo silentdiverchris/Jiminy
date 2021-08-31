@@ -18,7 +18,7 @@ namespace Jiminy.Classes
 
         private ItemSubSet? _reminderItems = new();
 
-        internal ItemSubSet ReminderItems
+        internal ItemSubSet DatedItems
         {
             get
             {
@@ -54,7 +54,7 @@ namespace Jiminy.Classes
             {
                 if (_projectItems is null)
                 {
-                    _projectItems = new(OpenItems.Items.Where(_ => !string.IsNullOrEmpty(_.ProjectName)).OrderBy(_ => _.ProjectName).ThenBy(_ => _.PriorityNumber));
+                    _projectItems = new(OpenItems.Items.Where(_ => _.ProjectName.NotEmpty()).OrderBy(_ => _.ProjectName).ThenBy(_ => _.PriorityNumber));
                 }
 
                 return _projectItems ?? new ItemSubSet();
@@ -63,6 +63,10 @@ namespace Jiminy.Classes
 
         internal ItemSubSet CompletedItems => new(_items.Where(_ => _.IsCompleted == true && _.IsContext == false).OrderBy(_ => _.PriorityNumber));
         internal ItemSubSet BucketItems => new(OpenItems.Items.Where(_ => _.BucketName is not null));
+
+        internal ItemSubSet OverdueItems => new(DatedItems.Items.Where(_ => _.IsOverdue));
+        internal ItemSubSet ImminentItems => new(DatedItems.Items.Where(_ => _.IsImminent));
+        internal ItemSubSet FutureItems => new(DatedItems.Items.Where(_ => _.IsFuture));
 
         internal ProjectRegistry ProjectRegistry => _projectRegistry;
         internal List<string> ProjectNames => _projectRegistry.Projects.Select(_ => _.Name).ToList();
@@ -101,7 +105,7 @@ namespace Jiminy.Classes
 
                 _items.AddRange(items);
 
-                var projectNames = _items.Where(_ => !string.IsNullOrEmpty(_.ProjectName)).Select(_ => _.ProjectName).Distinct().ToList();
+                var projectNames = _items.Where(_ => _.ProjectName.NotEmpty()).Select(_ => _.ProjectName).Distinct().ToList();
 
                 _projectRegistry = new(projectNames!);
 

@@ -40,23 +40,21 @@
             font-size: 1.2em;
         }
 
-        .item-warning {
-            color: red;
-            font-size: 1.0em;
-            margin: 0px;
-        }
-
+        .item-warnings,
         .item-diagnostics {
+            display:flex;
+            flex-direction:column;
             color: darkgrey;
-            font-size: 0.8em;
+            font-size: 0.9em;
             margin-top: 5px;
             padding: 5px;
             border: 1px solid grey;
             border-radius: 5px;
         }
 
-        .event-log-table td {
+        .item-warnings {
             font-size: 1.0em;
+            color: red;
         }
 
         a.tab-header {
@@ -68,18 +66,10 @@
             margin-top: 5px;
         }
 
-        .tab-content-header,
+        .tab-body-header,
         .tab-header {
             display: flex;
             justify-content: center;
-        }
-
-        .tab-content-header {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: baseline;
-            margin: 5px 0 5px 0;
         }
 
         .tab-header {
@@ -95,29 +85,52 @@
                 margin-right: 5px;
             }
 
-        .tab-content-header .prefix {
-            font-size: 1.0em;
-            margin-right: 5px;
-        }
+            .tab-header .name {
+                font-size: 1.2em;
+            }
 
-        .tab-content-header .prefix {
-            margin-right: 5px;
-        }
-
-        .tab-content-header .name {
+        .tab-body-header {
             font-size: 1.5em;
+            flex-direction: row;
+            padding: 10px;
+            align-items: center;
+            margin: 5px 10px 10px 10px;
+            border-radius: 5px;
+            background-color: lightgray;
         }
 
-        .tab-header .name {
-            font-size: 1.2em;
-        }
+            .tab-body-header .prefix {
+                margin-right: 5px;
+            }
 
-        .cell-project-name {
-            margin: 0px;
-            font-size: 1.0em;
-            color: dodgerblue;
-        }
+            .tab-body-header .suffix {
+                margin-left: 5px;
+            }
 
+            .tab-body-header .icon {
+                margin-right: 5px;
+            }
+
+            /*            .tab-body-header .name,
+                    .tab-body-header .prefix,
+                    .tab-body-header .suffix {
+                        font-size: 1.5em;
+                    }
+        */
+            .tab-body-header.sub-header {
+                font-size: 1.0em;
+                color: darkgray;
+            }
+
+        /*                .tab-body-header.sub-header .prefix,
+                        .tab-body-header.sub-header .suffix {
+                            font-size: 1.0em;
+                        }
+
+                        .tab-body-header.sub-header .name {
+                            font-size: 1.2em;
+                        }
+        */
         .no-bottom-margin {
             margin-bottom: 0px;
         }
@@ -138,18 +151,13 @@
             font-size: 0.9em;
         }
 
-        .table-title {
-            font-size: 1.4em;
-            margin-bottom: 5px;
-        }
-
         .event-log-table {
-            margin: 5px;
+            margin: 10px;
         }
 
             .event-log-table td,
             .event-log-table th {
-                font-size: 0.8em;
+                font-size: 1.0em;
                 text-align: left;
             }
 
@@ -174,7 +182,7 @@
         }
 
             .item-icon-container .item-icon-item {
-                margin-top: 5px;
+                margin-top: 8px;
                 display: flex;
                 flex-direction: row;
                 justify-content: start;
@@ -204,24 +212,34 @@
             grid-template-columns: repeat(1, minmax(0, 1fr));
             grid-template-rows: auto;
             grid-gap: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid darkgrey;
         }
-
-            .card-grid:last-child {
-                margin-bottom: 0px;
-                border-bottom: none;
-            }
 
             .card-grid .card {
                 padding: 10px;
                 align-self: stretch;
                 border-radius: 5px;
+                background-color: lightgray;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
-                background-color: lightgray;
             }
+
+                .card-grid .card.imminent {
+                    border: 1px solid orange;
+                }
+
+                .card-grid .card.overdue {
+                    border: 1px solid red;
+                }
+
+        .card-link {
+            font-size: 0.8em;
+        }
+
+        .card-text-link-placeholder {
+            font-size: 0.8em;
+            color: darkgrey;
+        }
 
         @media screen and (min-width: 600px) {
             .card-grid {
