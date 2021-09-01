@@ -4,31 +4,26 @@
 ## Overview
 A custom TODO system that scans through .md files in a set of nominated directories, finds custom tags from an extended, and further extendable GTD-type set, combines and structures them and generates one or more static html and/or json outputs.
 
-It watches a configurable set of directories, and re-scans and regenerates the outputs immediately when a new .md file is created or an existing one is upadted.
+It watches a configurable set of directories, and re-scans and regenerates the outputs immediately when a new .md file is created or an existing one is updated.
 
 ## Why
-Over the years I've used numerous systems to organise the things I needed to do, such as Evernote, OneNote, BoostNote and a few others, mainly trying to shoehorn in a personalised version of the GTD system.
+Over the years I've used numerous systems to organise the things I needed to do, such as Evernote, OneNote, BoostNote and a few others, mainly trying to shoehorn in a personalised version of the GTD system into a host that seemed to prefer that I didn't.
 
-While they are variously pretty and useful in their own ways, I found each to be variously annoying, bloated, awkward or otherwise not ideal.
+While they are all capable, pretty and/or useful in their own ways, I found each to be variously annoying, bloated, awkward, tying me into their way of working, or otherwise not ideal.
 
-I want something that is super-simple to add items to, where I can just dump in a note, reminder or other to-do item that I need to be nudged about, then find them magically all in one place in a good structure that helps me prioritise and schedule getting on with them.
+I want something that is super-simple to add items to, where I can just dump in a note, reminder or other to-do item that I need to be nudged about, then find them all magically in one place in a nice structure that helps me prioritise and schedule getting on with them.
 
 Since I use MarkDown for making notes anyway, and a lot of my to-dos in other systems referenced those .md files, I figured why not just add the to-do items (I'll call them 'items' from now) directly to the .md in a way that they can be recognised and dug out by something.
 
-So, my solution is to go back to good old files in directories, but with the MarkDown as the glue that holds everything together.
+So, my solution is to go back to good old files in directories for my to-do system, like my old method of just having a 'todo.txt' in each folder, but now with MarkDown as the glue that holds everything together and a system that gathers it all in one place and highlights things that need it.
 
 This means I can keep using my favourite Markdown editor (Ghostwriter, as it goes, but obviously any will do) to make notes and draft douments but when I need to remind myself of something, I just add something like;
 
 ```
-=b:n-p:2-enh-pho= Call Fred about making it do XYZ in a better way
+=b:n-p:2-prj:ABC-enh-pho= Call Fred about making it do XYZ in a better way
 ```
 
-..on a line on it's own and continue typing without breaking my stride to open up Evernote, create a new note, find it now asks me what type of note, oh, that's new, no I don't want a task thanks, hit new note again, type in the text, add 5 different tags to make it a priority 2 'next' enhancement in the ABC project that involves a phone call, remember that there isn't a save button to press, then switch back to the document I'm writing and try to remember what I was going to write next.
-
-## Acknowledgements
-The delicious CSS-only tabs were gleefully lifted from https://codeconvey.com/simple-css-tabs-without-javascript/ - most impressive tabs without a hint of javascript or external dependency.
-
-The SVG files that it uses are taken from the Bootstrap icon collection, at https://icons.getbootstrap.com/?#icons.
+..on a line on it's own and continue typing without breaking my stride to open up Evernote, create a new note, find it now asks me what type of note, oh, that's new, no I don't want a task thanks, hit new note again, type in the text, add 5 different tags to make it a priority 2 'next' enhancement in the ABC project that involves a phone call, remember yet again that there isn't a save button to press, then switch back to the document I'm writing and try to remember what I was going to write next.
 
 ## Tags overview
 There will be a full explanation of each standard tag and how to add custom ones way below here, but as a brief introduction to how it works, take the example from above, namely;
@@ -36,7 +31,9 @@ There will be a full explanation of each standard tag and how to add custom ones
 ``` 
  =b:n-p:2-enh-pho= Call Fred about making it do XYZ in a better way
 ```
-Tags start and end with a selected string (by default both are '=' as they seem unused by Markdown, but they could be '>=>' and '<!=' or 'tagstart' and 'tagend' if you like. Tags are separated by hyphens and parameters are delimited by colons but again, any strings can be defined instead.
+Tags start and end with a selected string, by default both are '=' as they seem unused by Markdown, but they could be any characters, or strings; say '>=>' and '<!=' or 'tagstart' and 'tagend' if you prefer.
+
+Tags are separated by hyphens and parameters are delimited by colons but again, any strings can be defined instead.
 
  This is interpreted as below;
 
@@ -50,7 +47,10 @@ Tags start and end with a selected string (by default both are '=' as they seem 
 This results in a display in the output html along the lines of;
 ![Call Fred](./Screenshots/CallFredExample.png)
 
-To avoid having to add the project to eah item, it's best to set that as a context, so adding;
+Tags must begin as character 1 on the line, the system only looks for them starting there; at present anyway. The examples above have a sneaky space in front of them to stop them messing up my Jiminy outputs with reminders to call Fred. That preceding space makes them be ignored.
+
+## Contexts
+To avoid having to add the project to each item, it's best to set that as a context, so adding;
 
 ```
  =p:ABC-setctx= 
@@ -68,40 +68,52 @@ You can set any tag as a context, so;
 
 You can use the full tag name, eg 'bucket:\[bucket name]' or any synonym that you set up, I have a synonym of 'b' for bucket. Similarly, the 'Project' tag has a synonym of 'prj' but you can easily have 'p' as the synonym for project instead.
 
+This document has one at the beginning to set the context for items I want to remind me about things to do with it. No preceding space as that's the context I want anyway.
+
+```
+=ctx-prj:Jiminy-docu=
+```
+
+So all items I add in here are put in my 'Jiminy' project, and marked as relating to documentation.
+
 ## Outputs
 You can have any number of HTML and/or JSON output files, filtered on lists of project names or tags. The HTML files use a .html template file which you can completely customise with whatever styling you like.
 
-For example you might want one overall html for all items and that's it, or add one just for a specific project, plus one just for bugs and enhancement requests and another for all reminders and items with due dates.
+For example you might want one overall html for all items and that's it, or have a second output for a specific project, plus another just for bugs and enhancement requests and another for all reminders and items with due dates. 
 
-Each output can use either the standard template or a specific template just for that output.
+I'll add more filtering criteria but its easy to add a custom tag 'PutInOutputForFred', tag a bunch of items with it and make an output that just includes items with that tag.
 
-The JSON files aren't configurable, you just get a .json with all the item and tag information for each subset of items.
+Each output can use either the standard html template or a specific template just for that output.
 
-I wanted something I could view or copy anywhere, so the HTML is completely self-contained and not dependent on any external files or internet resources. 
+The JSON file outputs aren't configurable other than filtering which items are written, you just get a standard (indented so human-readable) .json with all the item and tag information.
 
-The CSS is completely inline and the icons are SVGs which are read-in and cutomised at run time; so the html is completely portable can be moved or sent wherever and still look the same.
+I wanted a system where the output is entirely portable and could be viewed or copied anywhere, emailed to somebody, chucked onto a phone etc. so the HTML is completely self-contained in a single file, not dependent on any external files or internet connection. 
 
-Ath the time of writing, it doesn't even use any javascript.
+The CSS is completely inline and the icons are SVGs which are read-in, included in the file as html statements and customised for their base size and colour at output generation time.
+
+At the time of writing, it doesn't even use any javascript.
 
 ## Updating source tags from the html display
-There is not updating of the source tags from the html. You must go to the source, change it there and the output is regenerated. 
+There is not updating of the source tags from the html. You must go to the source, change it there and refresh the browser to see the updated, regenerated html file. 
 
-Obviously having an html page writing to local files willy nilly is theoretically impossible and philosophically undesirable, so while I have mulled over ideas about how to get around this, having it write back to the source files isn't something I plan to make it do.
+Obviously having an html page writing to local files willy nilly is theoretically impossible and philosophically undesirable, so while I have mulled over ideas about how to get around this, having it write back to the source files isn't something I plan to try make it do.
 
-At some point I might put a WPF front end on it, than might revisit that decision.
+The upshot being there is no "I've done this one" or "Move this reminder to tomorrow" functionality in the output.
+
+At some point I might put a WPF front end on it, then might revisit that decision.
 
 ## Configuration file
-Everything is defined in a fairly large appsettings.json. Initially there is no such file, it gets created on first startup and will fail spectacularly as it has no idea what your directories are called etc. 
+Everything is defined in a fairly large appsettings.json. Initially there is no such file, it gets created on first run and then Jiminy will fail spectacularly as it has no idea what your directories are called or where things are. 
 
-It will report the errors and die, but leave you with a full template appsettings.json to customise. If you ever need to regenerate the default template, delete or rename he existing one and restart it.
+It will report the errors and die, but leave you with a template appsettings.json to customise. If you ever need to regenerate the default template, delete or rename the existing one and restart Jiminy.
 
 ## Sample appsettings.json
 
-There's a lot of stuff in here, most of which can happily be left alone, but allows you to alter a lot of things about how it interprets tags it finds in source files and what output it produces.
+There's a lot of stuff in here, most of which can happily be left alone but if delved into, allows you to alter a lot of things about how it interprets tags it finds in source files and what output it produces.
 
-The main one to start with is the 'MonitoredDirectories' settings
+The main one to start with is the 'MonitoredDirectories' settings.
 
-A good deal of additional documentation is required here
+A good deal of additional documentation is required here...
 
 =b:eve= Fill out tag customisation section.
 
@@ -579,3 +591,9 @@ A good deal of additional documentation is required here
 
 
 
+## Acknowledgements
+The delicious CSS-only tabs were gleefully lifted from https://codeconvey.com/simple-css-tabs-without-javascript/ - most impressive tabs without a hint of javascript or external dependency.
+
+The SVG files that it uses are taken from the Bootstrap icon collection, at https://icons.getbootstrap.com/?#icons.
+
+=b:eve= Move this section up near the start when the structure has settled down.
