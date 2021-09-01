@@ -1,5 +1,6 @@
 ﻿using Jiminy.Helpers;
 using System.Linq;
+using System.Text.Json.Serialization;
 using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Classes
@@ -16,7 +17,10 @@ namespace Jiminy.Classes
 
         public int? LineNumber { get; set; }        
         public string? FullText { get; set; }
+
+        [JsonIgnore]
         public string? RawTagSet { get; set; }
+
         public string? FullFileName { get; set; }
         
         public List<string> Warnings { get; private set; } = new();
@@ -26,22 +30,34 @@ namespace Jiminy.Classes
                 
         public bool IsCompleted => _tagInstances.Tags.Any(_ => _.Type == enTagType.Completed);
 
+        [JsonIgnore]
         public TagInstance? Due => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Due);
+
         public DateTime? DueDateTime => Due?.DateTimeValue;
 
+        [JsonIgnore]
         public TagInstance? Reminder => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Reminder);
+
         public DateTime? ReminderDateTime => Reminder?.DateTimeValue;
 
+        [JsonIgnore]
         public TagInstance? Repeat => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Repeating);
+
         public string? RepeatName => Repeat?.RepeatName;
 
+        [JsonIgnore]
         public TagInstance? Bucket => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Bucket);
+
         public string? BucketName => Bucket?.BucketName;
 
+        [JsonIgnore]
         public TagInstance? Project => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Project);
-        public string? ProjectName => Project?.ProjectName;
 
+        public string? ProjectName => Project?.ProjectName;
+        
+        [JsonIgnore]
         public TagInstance? Priority => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Priority);
+        
         public string? PriorityName => Priority?.PriorityName;
         public int? PriorityNumber => Priority?.PriorityNumber;
 

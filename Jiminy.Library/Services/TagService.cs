@@ -84,7 +84,7 @@ namespace Jiminy.Utilities
                 if (!item.HasTagInstance(enTagType.Priority))
                 {
                     var td = _appSettings.TagSettings.Defintions.Get("Priority");
-                    var pri = _appSettings.PrioritySettings.Defintions.Priorities.OrderByDescending(_ => _.Number).FirstOrDefault();
+                    var pri = _appSettings.PrioritySettings.Defintions.Items.OrderByDescending(_ => _.Number).FirstOrDefault();
                     if (td is not null && pri is not null)
                     {
                         item.AddTagInstance(new TagInstance(td, priorityName: pri.Name, priorityNumber: pri.Number));

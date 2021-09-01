@@ -41,7 +41,7 @@ namespace Jiminy.Classes
 
     public class TagDefinitionList
     {
-        public List<TagDefinition> Tags { get; set; } = new();
+        public List<TagDefinition> Items { get; set; } = new();
 
         public bool Exists(string name)
         {
@@ -50,11 +50,11 @@ namespace Jiminy.Classes
 
         public TagDefinition? Get(string name, bool allowPartial = false)
         {
-            var found = Tags.FirstOrDefault(_ => _.Name == name);
+            var found = Items.FirstOrDefault(_ => _.Name == name);
 
             if (found is null)
             {
-                foreach (var td in Tags.Where(_ => _.Synonyms.Any()))
+                foreach (var td in Items.Where(_ => _.Synonyms.Any()))
                 {
                     if (td.Synonyms.Any(_ => _ == name))
                     {
@@ -66,7 +66,7 @@ namespace Jiminy.Classes
 
             if (found is null && allowPartial)
             {
-                found = Tags.FirstOrDefault(_ => _.Name.ToLower().StartsWith(name.ToLower()));
+                found = Items.FirstOrDefault(_ => _.Name.ToLower().StartsWith(name.ToLower()));
 
                 //if (found is null)
                 //{
@@ -88,12 +88,12 @@ namespace Jiminy.Classes
         {
             Result result = new();
 
-            foreach (var td in Tags)
+            foreach (var td in Items)
             {
                 result.SubsumeResult(td.Validate("Tag"));
             }
 
-            var duplicateNames = Tags.GroupBy(_ => _.Name).Where(g => g.Count() > 1).Select(y => y).ToList();
+            var duplicateNames = Items.GroupBy(_ => _.Name).Where(g => g.Count() > 1).Select(y => y).ToList();
 
             foreach (var dn in duplicateNames)
             {

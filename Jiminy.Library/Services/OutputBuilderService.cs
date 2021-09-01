@@ -2,40 +2,41 @@
 using Jiminy.Helpers;
 using System.Drawing;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Utilities
 {
-    internal class HtmlBuilderService : IDisposable
+    internal class OutputBuilderService : IDisposable
     {
         private readonly AppSettings _appSettings;
         private readonly TagService _tagService;
 
-        public HtmlBuilderService(AppSettings appSettings)
+        public OutputBuilderService(AppSettings appSettings)
         {
             _appSettings = appSettings;
             _tagService = new TagService(appSettings);
         }
 
-        internal async Task<Result> BuildHtmlPage(AppSettings appSettings, ItemRegistry itemRegistry, List<LogEntry> logEntries, string htmlTemplateFileName, string htmlOutputFileName)
+        internal async Task<Result> BuildHtml(ItemRegistry itemRegistry, List<LogEntry> logEntries, OutputSpecification of)
         {
-            Result result = new("BuildHtmlPage");
+            Result result = new("BuildHtml");
 
-            // The string handling is quite heavy here, use a stringbuilder ? TODO
-
-            if (File.Exists(htmlTemplateFileName))
+            if (File.Exists(_appSettings.HtmlSettings.HtmlTemplateFileName))
             {
-                string html = await File.ReadAllTextAsync(htmlTemplateFileName);
+                string html = await File.ReadAllTextAsync(_appSettings.HtmlSettings.HtmlTemplateFileName);
                 int contentStartIdx = html.IndexOf(Constants.HTML_PLACEHOLDER_CONTENT);
                 int contentEndIdx = contentStartIdx + Constants.HTML_PLACEHOLDER_CONTENT.Length;
 
                 if (contentStartIdx == -1 || contentEndIdx == -1)
                 {
-                    result.AddError($"Cannot find content placeholder '{Constants.HTML_PLACEHOLDER_CONTENT}' in template file '{htmlTemplateFileName}'");
+                    result.AddError($"Cannot find content placeholder '{Constants.HTML_PLACEHOLDER_CONTENT}' in template file '{_appSettings.HtmlSettings.HtmlTemplateFileName}'");
                 }
 
                 if (result.HasNoErrorsOrWarnings)
                 {
+                    // TODO this is happening per output, just do it once
                     foreach (var item in itemRegistry.Items)
                     {
                         _tagService.ProcessEmbeddedUrls(item, "<span class='card-text-link-placeholder'>[link]</span>", false);
@@ -44,15 +45,18 @@ namespace Jiminy.Utilities
                     StringBuilder sbTabHeaders = new(1000);
                     StringBuilder sbTabContent = new(1000);
 
+                    bool activeTab = true;
+
                     if (itemRegistry.DatedItems.Any)
                     {
                         // Reminders tab
-                        sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Reminders", true));
+                        sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Reminders", activeTab));
                         sbTabContent.Append(GenerateRemindersTabContent(itemRegistry));
+                        activeTab = false;
                     }
 
                     // Projects tab wih sub-tabs for each project
-                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Projects"));
+                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Projects", activeTab));
                     sbTabContent.Append(GenerateProjectTabCollectionContent(itemRegistry));
 
                     // All buckets tab
@@ -73,19 +77,20 @@ namespace Jiminy.Utilities
 
                     StringBuilder sbContent = new(8000);
 
+                    string? titlesHtml = GenerateTitlesHtml(itemRegistry, of);
                     string? warningsHtml = GenerateWarningsHtml(itemRegistry);
 
                     sbContent.Append(html.AsSpan(0, contentStartIdx));
-                    sbContent.Append($"<div class='container'>{warningsHtml}<div class='tab-wrap'>");
+                    sbContent.Append($"<div class='container'>{titlesHtml}{warningsHtml}<div class='tab-wrap'>");
                     sbContent.Append(sbTabHeaders);
                     sbContent.Append(sbTabContent);
                     sbContent.Append("</div></div>");
                     sbContent.Append(html.AsSpan(contentEndIdx));
 
-                    if (File.Exists(htmlOutputFileName))
-                        File.Delete(htmlOutputFileName);
+                    if (File.Exists(of.HtmlPath))
+                        File.Delete(of.HtmlPath);
 
-                    await File.WriteAllTextAsync(htmlOutputFileName, sbContent.ToString());
+                    await File.WriteAllTextAsync(of.HtmlPath!, sbContent.ToString());
                 }
                 else
                 {
@@ -94,10 +99,20 @@ namespace Jiminy.Utilities
             }
             else
             {
-                result.AddError($"Html template file '{htmlTemplateFileName}' does not exist");
+                result.AddError($"Html template file '{_appSettings.HtmlSettings.HtmlTemplateFileName}' does not exist");
             }
 
             return result;
+        }
+
+        private string? GenerateTitlesHtml(ItemRegistry itemRegistry, OutputSpecification of)
+        {
+            StringBuilder sb = new();
+
+            sb.Append($"<div class='header-title'>{of.Title}");
+            sb.Append("</div>");
+
+            return sb.ToString();
         }
 
         private string? GenerateWarningsHtml(ItemRegistry itemRegistry)
@@ -114,7 +129,7 @@ namespace Jiminy.Utilities
                 {
                     sb.Append("<div class='item'>");
                     sb.Append($"<div>{item.FullFileName} line {item.LineNumber} has invalid tagset '{item.RawTagSet}'</div>");
-                    
+
                     foreach (var warn in item.Warnings)
                     {
                         sb.Append($"<div class='text'>{warn}</div>");
@@ -127,6 +142,67 @@ namespace Jiminy.Utilities
             }
 
             return sb.ToString();
+        }
+
+        internal async Task<Result> BuildOutputs(ItemRegistry itemRegistry, List<LogEntry> recentLogEntries)
+        {
+            Result result = new("BuildOutputs");
+
+            foreach (var outputSpec in _appSettings.HtmlSettings.Outputs.Where(_ => _.IsEnabled))
+            {
+                ItemRegistry itemReg = itemRegistry.GenerateRegistryForOutputFile(outputSpec);
+
+                if (itemReg.Items.Any())
+                {
+                    if (outputSpec.HtmlPath.NotEmpty())
+                    {
+                        Result buildResult = await BuildHtml(itemReg, recentLogEntries, outputSpec);
+
+                        if (buildResult.HasNoErrors)
+                        {
+                            buildResult.AddSuccess($"{DateTime.Now.ToString(Constants.DATE_FORMAT_TIME_ONLY_SECONDS)} Refreshed HTML output '{outputSpec.HtmlPath}'");
+                        }
+
+                        result.SubsumeResult(buildResult);
+                    }
+
+                    if (outputSpec.JsonPath.NotEmpty())
+                    {
+                        Result buildResult = await BuildJson(itemReg, recentLogEntries, outputSpec.JsonPath!);
+
+                        if (buildResult.HasNoErrors)
+                        {
+                            buildResult.AddSuccess($"{DateTime.Now.ToString(Constants.DATE_FORMAT_TIME_ONLY_SECONDS)} Refreshed JSON output '{outputSpec.JsonPath}'");
+                        }
+
+                        result.SubsumeResult(buildResult);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private async Task<Result> BuildJson(ItemRegistry itemReg, List<LogEntry> recentLogEntries, string jsonPath)
+        {
+            Result result = new("BuildJson");
+
+            if (File.Exists(jsonPath))
+            {
+                File.Delete(jsonPath);
+            }
+
+            string json = JsonSerializer.Serialize(
+                value: itemReg,
+                options: new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+                });
+
+            await File.WriteAllTextAsync(jsonPath, json);
+
+            return result;
         }
 
         private string GenerateRemindersTabContent(ItemRegistry itemRegistry)
@@ -309,7 +385,7 @@ namespace Jiminy.Utilities
 
             sb.Append("<div class='card-grid-container'>");
 
-            foreach (var bucket in _appSettings.BucketSettings.Defintions.Buckets.OrderBy(_ => _.DisplayOrder))
+            foreach (var bucket in _appSettings.BucketSettings.Defintions.Items.OrderBy(_ => _.DisplayOrder))
             {
                 sb.Append(GenerateItemCardSet(
                     title: bucket.Name,
@@ -325,12 +401,12 @@ namespace Jiminy.Utilities
             var noBucketItems = new ItemSubSet(projectItems.Items.Where(_ => _.BucketName is null));
 
             sb.Append(GenerateItemCardSet(
-                title: "No Bucket", 
-                items: noBucketItems, 
-                showText: true, 
-                showPriority: true, 
-                showLinks: true, 
-                suppressProjectDisplay: project is not null, 
+                title: "No Bucket",
+                items: noBucketItems,
+                showText: true,
+                showPriority: true,
+                showLinks: true,
+                suppressProjectDisplay: project is not null,
                 subHeaderHtml: GenerateTabBodyHeader("No bucket", subHeader: true)));
 
             sb.Append("</div>");
@@ -350,7 +426,7 @@ namespace Jiminy.Utilities
             {
                 sb.Append("<div class='card-grid-container'>");
 
-                foreach (var bucket in _appSettings.BucketSettings.Defintions.Buckets.OrderBy(_ => _.DisplayOrder))
+                foreach (var bucket in _appSettings.BucketSettings.Defintions.Items.OrderBy(_ => _.DisplayOrder))
                 {
                     sb.Append(GenerateItemCardSet(
                         title: bucket.Name,
@@ -393,7 +469,7 @@ namespace Jiminy.Utilities
 
             sb.Append("<div class='card-grid-container'>");
 
-            foreach (var pri in _appSettings.PrioritySettings.Defintions.Priorities.OrderBy(_ => _.Number))
+            foreach (var pri in _appSettings.PrioritySettings.Defintions.Items.OrderBy(_ => _.Number))
             {
                 sb.Append(GenerateItemCardSet(
                     title: pri.Name,
@@ -424,7 +500,7 @@ namespace Jiminy.Utilities
 
             sb.Append("<div class='card-grid-container'>");
 
-            foreach (var rep in _appSettings.RepeatSettings.Defintions.Repeats.OrderBy(_ => _.DisplayOrder))
+            foreach (var rep in _appSettings.RepeatSettings.Defintions.Items.OrderBy(_ => _.DisplayOrder))
             {
                 sb.Append(GenerateItemCardSet(
                     title: rep.Name,
@@ -545,14 +621,14 @@ namespace Jiminy.Utilities
             sb.Append($"</div>");
 
             sb.Append(item.Warnings.Join("<div class='item-warnings'>", "<div>", "</div>", "</div>", 1000));
-            
+
             if (_appSettings.HtmlSettings.ShowDiagnostics)
             {
                 List<string> diags = new();
                 diags.Add($"Raw TagSet '{item.RawTagSet}'");
                 diags.AddRange(item.Diagnostics);
                 diags.AddRange(item.TagInstances.Select(_ => _.ToString(_appSettings.HtmlSettings.VerboseDiagnostics)));
-                sb.Append(diags.Join("<div class='item-diagnostics'>", "<div>", "</div>",  "</div>", 1000));
+                sb.Append(diags.Join("<div class='item-diagnostics'>", "<div>", "</div>", "</div>", 1000));
             }
 
             sb.Append($"</div>");

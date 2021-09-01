@@ -10,7 +10,7 @@ namespace Jiminy.Classes
 
     public class PriorityDefinitionList
     {
-        public List<PriorityDefinition> Priorities { get; set; } = new();
+        public List<PriorityDefinition> Items { get; set; } = new();
 
         public bool Exists(string name)
         {
@@ -22,28 +22,28 @@ namespace Jiminy.Classes
             if (name.IsEmpty())
                 return null;
 
-            var found = Priorities.FirstOrDefault(_ => _.Name.ToLower() == name);
+            var found = Items.FirstOrDefault(_ => _.Name.ToLower() == name);
 
             if (found is null && allowPartial)
             {
-                found = Priorities.FirstOrDefault(_ => _.Name.ToLower().StartsWith(name!));
+                found = Items.FirstOrDefault(_ => _.Name.ToLower().StartsWith(name!));
             }
 
             return found;
         }
 
-        public PriorityDefinition? Get(int number) => Priorities.FirstOrDefault(_ => _.Number == number);
+        public PriorityDefinition? Get(int number) => Items.FirstOrDefault(_ => _.Number == number);
 
         public Result Validate()
         {
             Result result = new();
 
-            foreach (var bu in Priorities)
+            foreach (var bu in Items)
             {
                 result.SubsumeResult(bu.Validate("Priority"));
             }
 
-            var duplicateNames = Priorities.GroupBy(_ => _.Name).Where(g => g.Count() > 1).Select(y => y).ToList();
+            var duplicateNames = Items.GroupBy(_ => _.Name).Where(g => g.Count() > 1).Select(y => y).ToList();
 
             foreach (var dn in duplicateNames)
             {

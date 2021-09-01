@@ -9,7 +9,7 @@ namespace Jiminy.Classes
 
     public class BucketDefinitionList
     {
-        public List<BucketDefinition> Buckets { get; set; } = new();
+        public List<BucketDefinition> Items { get; set; } = new();
 
         public bool Exists(string name)
         {
@@ -21,11 +21,11 @@ namespace Jiminy.Classes
             if (name is null)
                 return null;
 
-            var found = Buckets.FirstOrDefault(_ => _.Name == name);
+            var found = Items.FirstOrDefault(_ => _.Name == name);
 
             if (found is null)
             {
-                foreach (var td in Buckets.Where(_ => _.Synonyms.Any()))
+                foreach (var td in Items.Where(_ => _.Synonyms.Any()))
                 {
                     if (td.Synonyms.Any(_ => _ == name))
                     {
@@ -37,7 +37,7 @@ namespace Jiminy.Classes
 
             if (found is null && allowPartial)
             {
-                found = Buckets.FirstOrDefault(_ => _.Name.ToLower().StartsWith(name.ToLower()));
+                found = Items.FirstOrDefault(_ => _.Name.ToLower().StartsWith(name.ToLower()));
 
                 //if (found is null)
                 //{
@@ -59,12 +59,12 @@ namespace Jiminy.Classes
         {
             Result result = new();
 
-            foreach (var bu in Buckets)
+            foreach (var bu in Items)
             {
                 result.SubsumeResult(bu.Validate("Bucket"));
             }
 
-            var duplicateNames = Buckets.GroupBy(_ => _.Name).Where(g => g.Count() > 1).Select(y => y).ToList();
+            var duplicateNames = Items.GroupBy(_ => _.Name).Where(g => g.Count() > 1).Select(y => y).ToList();
 
             foreach (var dn in duplicateNames)
             {

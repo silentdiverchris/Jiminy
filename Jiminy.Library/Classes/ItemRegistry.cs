@@ -11,7 +11,17 @@ namespace Jiminy.Classes
 
         private List<Item> _items = new();
 
-        internal List<Item> Items => _items;
+        public ItemRegistry()
+        {
+
+        }
+
+        public ItemRegistry(ItemSubSet items)
+        {
+            _items.AddRange(items.Items);
+        }
+
+        public List<Item> Items => _items;
 
         // Some items get read an awful lot when generating the
         // report, so we cache filtered lists for them
@@ -73,6 +83,28 @@ namespace Jiminy.Classes
 
         //internal List<string> FoundInFiles => _items.Select(_ => _.FullFileName).Distinct().OrderBy(_ => _).Select(_ => new Item { FullFileName = _ });
 
+        internal ItemRegistry GenerateRegistryForOutputFile(OutputSpecification of)
+        {
+            // If there are no filters, just return the whole registry
+
+            if (of.IncludeProjectNames.Any())  // || of.IncludeTagNames.Any())
+            {
+                ItemSubSet items = new ItemSubSet(_items
+                    .Where(_ => 
+                        of.IncludeProjectNames.Contains(_.ProjectName!)));
+
+                var newReg = new ItemRegistry(items);
+
+                newReg.RefreshCaches();
+
+                return newReg;
+            }
+            else
+            {
+                return this;
+            }
+        }
+
         internal bool HasItemsFromFilePath(string filePath)
         {
             return _items.Any(_ => _.FullFileName == filePath);
@@ -105,16 +137,21 @@ namespace Jiminy.Classes
 
                 _items.AddRange(items);
 
-                var projectNames = _items.Where(_ => _.ProjectName.NotEmpty()).Select(_ => _.ProjectName).Distinct().ToList();
-
-                _projectRegistry = new(projectNames!);
-
-                // Force regeneration of cached lists
-
-                _openItems = null;
-                _projectItems = null;
-                _reminderItems = null;
+                RefreshCaches();
             }
+        }
+
+        private void RefreshCaches()
+        {
+            var projectNames = _items.Where(_ => _.ProjectName.NotEmpty()).Select(_ => _.ProjectName).Distinct().ToList();
+
+            _projectRegistry = new(projectNames!);
+
+            // Force regeneration of cached lists
+
+            _openItems = null;
+            _projectItems = null;
+            _reminderItems = null;
         }
     }
 }

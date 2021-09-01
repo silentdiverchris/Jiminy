@@ -40,18 +40,56 @@ namespace Jiminy.Utilities
                     ShowDiagnostics = true,
                     VerboseDiagnostics = false,
                     HtmlTemplateFileName = @"C:\Personal\Jiminy\HtmlTemplate.html",
-                    HtmlOutputFileName = @"C:\Personal\Jiminy\HtmlOutput.html"
+                    Outputs = new List<OutputSpecification>
+                    {
+                        new OutputSpecification {
+                            IsEnabled = true,
+                            Title = "All Items",
+                            HtmlPath = @"C:\Personal\Jiminy\Output.html",
+                            //JsonPath = @"C:\Personal\Jiminy\Output.json"
+                        },
+                        new OutputSpecification {
+                            IsEnabled = true,
+                            Title = "SingLink Items",
+                            HtmlPath = @"C:\Personal\Jiminy\SingLink.html",
+                            //JsonPath = @"C:\Personal\Jiminy\SingLink.json",
+                            //IncludeTagNames = new List<string>
+                            //{
+                            //    "Bug",
+                            //    "Enhancement"
+                            //},
+                            IncludeProjectNames = new List<string>
+                            {
+                                "SingLink"
+                            }
+                        },
+                        new OutputSpecification { 
+                            IsEnabled = true,
+                            Title = "Respondent Items",
+                            HtmlPath = @"C:\Personal\Jiminy\Respondent.html",
+                            //JsonPath = @"C:\Personal\Jiminy\Respondent.json",
+                            //IncludeTagNames = new List<string>
+                            //{
+                            //    "Bug",
+                            //    "Enhancement"
+                            //},
+                            IncludeProjectNames = new List<string>
+                            {
+                                "Respondent"
+                            }
+                        }
+                    }
                 },
                 RepeatSettings = new RepeatSettings
                 {
                     Defintions = new RepeatDefinitionList
                     {
-                        Repeats = new List<RepeatDefinition>
+                        Items = new List<RepeatDefinition>
                         {
-                            new RepeatDefinition { Name = "Daily", NumberOfDays = 1, DisplayOrder = 1, IconFileName = "repeating.svg", Colour = "red", Description = "This items repeats daily"},
-                            new RepeatDefinition { Name = "Weekly", NumberOfWeeks = 1, DisplayOrder = 2, IconFileName = "repeating.svg", Colour = "green", Description = "This items repeats weekly"},
-                            new RepeatDefinition { Name = "Monthly", NumberOfMonths = 1, DisplayOrder = 3, IconFileName = "repeating.svg", Colour = "green", Description = "This items repeats monthly"},
-                            new RepeatDefinition { Name = "Yearly", NumberOfYears = 1, DisplayOrder = 4, IconFileName = "repeating.svg", Colour = "green", Description = "This items repeats yearly"}
+                            new RepeatDefinition { Name = "Daily", NumberOfDays = 1, DisplayOrder = 1, IconFileName = "repeating.svg", Colour = "red", Description = "This item repeats daily"},
+                            new RepeatDefinition { Name = "Weekly", NumberOfWeeks = 1, DisplayOrder = 2, IconFileName = "repeating.svg", Colour = "green", Description = "This item repeats weekly"},
+                            new RepeatDefinition { Name = "Monthly", NumberOfMonths = 1, DisplayOrder = 3, IconFileName = "repeating.svg", Colour = "green", Description = "This item repeats monthly"},
+                            new RepeatDefinition { Name = "Yearly", NumberOfYears = 1, DisplayOrder = 4, IconFileName = "repeating.svg", Colour = "green", Description = "This item repeats yearly"}
                         }
                     }
                 },
@@ -59,14 +97,14 @@ namespace Jiminy.Utilities
                 {
                     Defintions = new BucketDefinitionList
                     {
-                        Buckets = new List<BucketDefinition>
+                        Items = new List<BucketDefinition>
                         {
                             new BucketDefinition { Name = "Incoming", DisplayOrder = 1, IconFileName = "inbox.svg", Colour = "red", Description = "The place where new items go when they have no home"},
                             new BucketDefinition { Name = "Next", DisplayOrder = 2, IconFileName = "next.svg", Colour = "purple", Description = "Items to do next"},
-                            new BucketDefinition { Name = "Soon", DisplayOrder = 3, IconFileName = "soon.svg", Colour = "darkgrey", Description = "Items to do soon"},
-                            new BucketDefinition { Name = "Maybe", DisplayOrder = 4, Colour = "green", IconFileName = "maybe.svg", Description = "Items that may or may not end up happening"},
-                            new BucketDefinition { Name = "Eventually", DisplayOrder = 5, IconFileName = "eventually.svg", Colour = "darkgrey", Description = "Items to do eventually"},
-                            new BucketDefinition { Name = "Waiting", DisplayOrder = 6, Colour = "darkgrey", IconFileName = "waiting.svg", Description = "Items that are waiting on other items or something else"}
+                            new BucketDefinition { Name = "Soon", DisplayOrder = 3, IconFileName = "soon.svg", Colour = "blue", Description = "Items to do soon"},
+                            new BucketDefinition { Name = "Waiting", DisplayOrder = 4, Colour = "darkgrey", IconFileName = "waiting.svg", Description = "Items that are waiting on other items or something else"},
+                            new BucketDefinition { Name = "Maybe", DisplayOrder = 5, Colour = "green", IconFileName = "maybe.svg", Description = "Items that may or may not end up happening"},
+                            new BucketDefinition { Name = "Eventually", DisplayOrder = 6, IconFileName = "eventually.svg", Colour = "darkgrey", Description = "Items to do eventually"}
                         }
                     }
                 },
@@ -74,7 +112,7 @@ namespace Jiminy.Utilities
                 {
                     Defintions = new PriorityDefinitionList
                     {
-                        Priorities = new List<PriorityDefinition>
+                        Items = new List<PriorityDefinition>
                         {
                             new PriorityDefinition { Name = "High", Number = 1, IconFileName = "priority-high.svg", Colour = "orange"},
                             new PriorityDefinition { Name = "Medium", Number = 2, IconFileName = "priority-medium.svg", Colour = "darkgrey"},
@@ -90,7 +128,7 @@ namespace Jiminy.Utilities
                     Delimiter = ":",
                     Defintions = new TagDefinitionList
                     {
-                        Tags = new List<TagDefinition>
+                        Items = new List<TagDefinition>
                         {
                             new TagDefinition { Type = enTagType.Completed, Name = "Completed", DisplayOrder = 1, Synonyms = new List<string>{ "closed", "x" }, Description = "This item is completed", IconFileName = "completed.svg" },
                             new TagDefinition { Type = enTagType.Link, Name = "Link", DisplayOrder = 2, IconFileName = "link.svg", Colour = "blue", Synonyms = new List<string>{ "url" }, Description = "A link to a URL" },
@@ -141,17 +179,17 @@ namespace Jiminy.Utilities
 
             if (result.HasNoErrors)
             {
-                foreach (var bucket in settings.BucketSettings.Defintions.Buckets.Where(_ => _.IconFileName is not null))
+                foreach (var bucket in settings.BucketSettings.Defintions.Items.Where(_ => _.IconFileName is not null))
                 {
                     imageFilesToCache.Add(bucket.IconFileName!);
                 }
 
-                foreach (var priority in settings.PrioritySettings.Defintions.Priorities.Where(_ => _.IconFileName is not null))
+                foreach (var priority in settings.PrioritySettings.Defintions.Items.Where(_ => _.IconFileName is not null))
                 {
                     imageFilesToCache.Add(priority.IconFileName!);
                 }
 
-                foreach (var td in settings.TagSettings.Defintions.Tags.Where(_ => _.IconFileName is not null))
+                foreach (var td in settings.TagSettings.Defintions.Items.Where(_ => _.IconFileName is not null))
                 {
                     imageFilesToCache.Add(td.IconFileName!);
                 }

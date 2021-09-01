@@ -118,34 +118,22 @@ namespace Jiminy.Services
 
                 if (newScansDone)
                 {
-                    string htmlTemplateFileName = _appSettings.HtmlSettings.HtmlTemplateFileName.Contains(Path.DirectorySeparatorChar)
-                        ? _appSettings.HtmlSettings.HtmlTemplateFileName
-                        : Path.Join(AppDomain.CurrentDomain.BaseDirectory, _appSettings.HtmlSettings.HtmlTemplateFileName);
-
-                    string htmlOutputFileName = _appSettings.HtmlSettings.HtmlOutputFileName.Contains(Path.DirectorySeparatorChar)
-                        ? _appSettings.HtmlSettings.HtmlOutputFileName
-                        : Path.Join(AppDomain.CurrentDomain.BaseDirectory, _appSettings.HtmlSettings.HtmlOutputFileName);
-
                     Result htmlBuildResult = new();
 
-                    if (File.Exists(htmlTemplateFileName))
+                    if (File.Exists(_appSettings.HtmlSettings.HtmlTemplateFileName))
                     {
-                        htmlBuildResult.AddInfo($"Reading template from '{htmlTemplateFileName}'");
+                        htmlBuildResult.AddInfo($"Reading template from '{_appSettings.HtmlSettings.HtmlTemplateFileName}'");
+
                         await _logService.ProcessResult(htmlBuildResult);
 
-                        using (var builder = new HtmlBuilderService(_appSettings))
+                        using (var builder = new OutputBuilderService(_appSettings))
                         {
-                            htmlBuildResult.SubsumeResult(await builder.BuildHtmlPage(_appSettings, _itemRegistry, _recentLogEntries, htmlTemplateFileName, htmlOutputFileName));
-                        }
-
-                        if (htmlBuildResult.HasNoErrors)
-                        {
-                            htmlBuildResult.AddSuccess($"{DateTime.Now.ToString(Constants.DATE_FORMAT_TIME_ONLY_SECONDS)} Refreshed output '{_appSettings.HtmlSettings.HtmlOutputFileName}'");
+                            htmlBuildResult.SubsumeResult(await builder.BuildOutputs(_itemRegistry, _recentLogEntries));
                         }
                     }
                     else
                     {
-                        htmlBuildResult.AddError($"Template '{htmlTemplateFileName}' does not exist");
+                        htmlBuildResult.AddError($"Template '{_appSettings.HtmlSettings.HtmlTemplateFileName}' does not exist");
                     }
 
                     await _logService.ProcessResult(htmlBuildResult);
@@ -157,7 +145,7 @@ namespace Jiminy.Services
 #else
                 int pauseMs = _appSettings.LatencySeconds * 1000;
 #endif
-                for (int i = 1; i < 10 ; i++)
+                for (int i = 1; i < 10; i++)
                 {
                     Thread.Sleep(pauseMs / 10);
 

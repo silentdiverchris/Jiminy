@@ -1,5 +1,6 @@
 ﻿using Jiminy.Helpers;
 using System.Text;
+using System.Text.Json.Serialization;
 using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Classes
@@ -26,7 +27,9 @@ namespace Jiminy.Classes
             Url = url;
         }
 
+        [JsonIgnore]
         public TagDefinition Definition { get; private set; }
+
         public string? PriorityName { get; private set; }
         public int? PriorityNumber { get; private set; }
         public string? BucketName {  get; private set; }
