@@ -33,12 +33,12 @@ namespace Jiminy.Utilities
                 },
                 MonitoredDirectories = new List<MonitoredDirectory>
                 {
-                    new MonitoredDirectory(@"C:\Personal", recursive: true),
+                    new MonitoredDirectory(@"C:\Personal", recursive: true, isActive: true),
                     new MonitoredDirectory(@"C:\Dev", recursive: true, isActive: false)
                 },
                 HtmlSettings = new HtmlSettings
                 {
-                    ShowDiagnostics = true,
+                    ShowDiagnostics = false,
                     VerboseDiagnostics = false,
                     HtmlTemplateFileName = @"C:\Personal\Jiminy\HtmlTemplate.html",
                     Outputs = new List<OutputSpecification>
@@ -88,6 +88,9 @@ namespace Jiminy.Utilities
                         }
                     }
                 },
+
+                // Supported colour names https://www.w3schools.com/cssref/css_colors.asp
+
                 RepeatSettings = new RepeatSettings
                 {
                     Defintions = new RepeatDefinitionList
@@ -153,6 +156,7 @@ namespace Jiminy.Utilities
                             new TagDefinition { Type = enTagType.Custom, Name = "Conversation", DisplayOrder = 9, Description = "Talk to somebody", GenerateView = true, IconFileName = "conversation.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Phone call", DisplayOrder = 10, Description = "Phone call required", GenerateView = true, IconFileName = "phone.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Question", DisplayOrder = 10, Description = "Question", IconFileName = "question.svg" },
+                            new TagDefinition { Type = enTagType.Custom, Name = "Document", DisplayOrder = 10, Description = "Related to documentation", Colour ="SlateGray", IconFileName = "document.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Video call", DisplayOrder = 10, Description = "Video call", IconFileName = "video-call.svg" }
                         }
                     }
