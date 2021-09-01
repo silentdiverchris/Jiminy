@@ -20,6 +20,7 @@
         body {
             font-family: Calibri;
             background-color: lightsteelblue;
+            font-size: 14px;
         }
 
         .page {
@@ -34,17 +35,17 @@
             margin-bottom: 0px;
         }
 
-        .item-file-name {
+/*        .item-file-name {
             text-align: left;
-        }
+        }*/
 
         .item-text {
-            text-align: left;
+            /*text-align: left;*/
             margin: 0px;
-            font-size: 1.2em;
+            /*font-size: 1.0em;*/
         }
 
-        .header-title,
+        .page-header,
         .item-warnings,
         .item-diagnostics,
         .header-warnings {
@@ -58,13 +59,23 @@
             border-radius: 5px;
         }
 
-        .header-title {
-            flex-direction: row;
+        .page-header {
+            flex-direction: column;
             justify-content: center;
-            font-size: 1.5em;
+            align-content: center;
             color: unset;
             border: none;
             background-color: lightgray;
+        }
+
+        .header-title {
+            align-self: center;
+            font-size: 1.8em;
+        }
+
+        .header-subtitle {
+            align-self: center;
+            /*font-size: 1.0em;*/
         }
 
         .item-warnings,
@@ -105,12 +116,12 @@
         }
 
             .tab-header .prefix {
-                font-size: 0.8em;
+                /*font-size: 0.8em;*/
                 margin-right: 5px;
             }
 
             .tab-header .name {
-                font-size: 1.2em;
+                font-size: 1.4em;
             }
 
         .tab-body-header {

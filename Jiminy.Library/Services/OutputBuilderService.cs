@@ -23,9 +23,11 @@ namespace Jiminy.Utilities
         {
             Result result = new("BuildHtml");
 
-            if (File.Exists(_appSettings.HtmlSettings.HtmlTemplateFileName))
+            string? templateFile = of.OverrideHtmlTemplateFileName ?? _appSettings.HtmlSettings.HtmlTemplateFileName;
+
+            if (File.Exists(templateFile))
             {
-                string html = await File.ReadAllTextAsync(_appSettings.HtmlSettings.HtmlTemplateFileName);
+                string html = await File.ReadAllTextAsync(templateFile);
                 int contentStartIdx = html.IndexOf(Constants.HTML_PLACEHOLDER_CONTENT);
                 int contentEndIdx = contentStartIdx + Constants.HTML_PLACEHOLDER_CONTENT.Length;
 
@@ -109,7 +111,13 @@ namespace Jiminy.Utilities
         {
             StringBuilder sb = new();
 
-            sb.Append($"<div class='header-title'>{of.Title}");
+            sb.Append($"<div class='page-header'><div class='header-title'>{of.Title}</div>");
+
+            if (of.ItemSelection is not null)
+            {
+                sb.Append($"<div class='header-subtitle'>{of.ItemSelection.GenerateTextDescription()}</div>");
+            }
+
             sb.Append("</div>");
 
             return sb.ToString();

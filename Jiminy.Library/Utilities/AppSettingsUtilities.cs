@@ -1,4 +1,5 @@
 ﻿using Jiminy.Classes;
+using Jiminy.Helpers;
 using System.Text.Json;
 using static Jiminy.Classes.Enumerations;
 
@@ -45,37 +46,44 @@ namespace Jiminy.Utilities
                         new OutputSpecification {
                             IsEnabled = true,
                             Title = "All Items",
-                            HtmlPath = @"C:\Personal\Jiminy\Output.html",
-                            //JsonPath = @"C:\Personal\Jiminy\Output.json"
+                            HtmlPath = @"C:\Personal\Jiminy\Output.html",                            
                         },
                         new OutputSpecification {
                             IsEnabled = true,
                             Title = "SingLink Items",
                             HtmlPath = @"C:\Personal\Jiminy\SingLink.html",
-                            //JsonPath = @"C:\Personal\Jiminy\SingLink.json",
-                            //IncludeTagNames = new List<string>
-                            //{
-                            //    "Bug",
-                            //    "Enhancement"
-                            //},
-                            IncludeProjectNames = new List<string>
+                            ItemSelection = new ItemSelection
                             {
-                                "SingLink"
+                                IncludeProjectNames = new List<string>
+                                {
+                                    "SingLink"
+                                }
                             }
                         },
-                        new OutputSpecification { 
+                        new OutputSpecification {
                             IsEnabled = true,
                             Title = "Respondent Items",
                             HtmlPath = @"C:\Personal\Jiminy\Respondent.html",
-                            //JsonPath = @"C:\Personal\Jiminy\Respondent.json",
-                            //IncludeTagNames = new List<string>
-                            //{
-                            //    "Bug",
-                            //    "Enhancement"
-                            //},
-                            IncludeProjectNames = new List<string>
+                            ItemSelection = new ItemSelection
                             {
-                                "Respondent"
+                                IncludeProjectNames = new List<string>
+                                {
+                                    "Respondent"
+                                }
+                            }
+                        },
+                        new OutputSpecification {
+                            IsEnabled = true,
+                            Title = "Bugs and Enhancements",
+                            HtmlPath = @"C:\Personal\Jiminy\BugsEnhancements.html",
+                            OverrideHtmlTemplateFileName = @"C:\Personal\Jiminy\BugsEnhancementsTemplate.html",
+                            ItemSelection = new ItemSelection
+                            {
+                                IncludeTagNames = new List<string>
+                                {
+                                    "Bug",
+                                    "Enhancement"
+                                }
                             }
                         }
                     }
@@ -215,6 +223,19 @@ namespace Jiminy.Utilities
                     else
                     {
                         result.AddError($"Icon file '{fn}' is not an svg");
+                    }
+                }
+
+                if (settings.HtmlSettings.HtmlTemplateFileName.IsEmpty() || !File.Exists(settings.HtmlSettings.HtmlTemplateFileName))
+                {
+                    result.AddError($"Template file '{settings.HtmlSettings.HtmlTemplateFileName}' does not exist");
+                }
+
+                foreach (var tfn in settings.HtmlSettings.Outputs.Select(_ => _.OverrideHtmlTemplateFileName))
+                {
+                    if (tfn.NotEmpty() && !File.Exists(tfn))
+                    {
+                        result.AddError($"Override template file '{tfn}' does not exist");
                     }
                 }
             }

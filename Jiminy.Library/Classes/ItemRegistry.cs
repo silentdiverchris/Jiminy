@@ -85,15 +85,39 @@ namespace Jiminy.Classes
 
         internal ItemRegistry GenerateRegistryForOutputFile(OutputSpecification of)
         {
-            // If there are no filters, just return the whole registry
+            // If there are no filters, just return the whole registry, otherwise
+            // build up a subset of this one
 
-            if (of.IncludeProjectNames.Any())  // || of.IncludeTagNames.Any())
+            if (of.ItemSelection is not null)
             {
-                ItemSubSet items = new ItemSubSet(_items
-                    .Where(_ => 
-                        of.IncludeProjectNames.Contains(_.ProjectName!)));
+                IEnumerable<Item>? items = null;
 
-                var newReg = new ItemRegistry(items);
+                if (of.ItemSelection.MustMatchAll)
+                {
+                    items = _items
+                        .Where(it =>
+                            (
+                                !of.ItemSelection.IncludeProjectNames.Any()
+                                ||
+                                of.ItemSelection.IncludeProjectNames.Contains(it.ProjectName!)
+                            )
+                            &&
+                            (
+                                !of.ItemSelection.IncludeTagNames.Any()
+                                ||
+                                of.ItemSelection.IncludeTagNames.Any(tn => it.TagInstances.Select(ti => ti.Type.ToString()).Contains(tn))
+                            ));
+                }
+                else
+                {
+                    items = _items
+                        .Where(it =>
+                            of.ItemSelection.IncludeProjectNames.Contains(it.ProjectName!)
+                            ||
+                            of.ItemSelection.IncludeTagNames.Any(tn => it.TagInstances.Select(ti => ti.DefinitionName).Contains(tn)));
+                }
+
+                ItemRegistry newReg = new ItemRegistry(new ItemSubSet(items));
 
                 newReg.RefreshCaches();
 
