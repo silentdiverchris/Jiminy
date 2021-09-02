@@ -1,4 +1,6 @@
-﻿namespace Jiminy.Classes
+﻿using System.Text.Json.Serialization;
+
+namespace Jiminy.Classes
 {
     /// <summary>
     /// A directory to be monitored, this is non-recursive, only the root files are monitored
@@ -27,7 +29,9 @@
 
         public string IncludeFileSpecification { get; set; } = "*.md";
 
+        [JsonIgnore]
         public bool Exists { get; set; } = true;
+
         public bool IsActive { get; set; } = true;
         public string Path { get; set; }
     }
