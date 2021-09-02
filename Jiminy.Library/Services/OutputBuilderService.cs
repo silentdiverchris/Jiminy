@@ -38,10 +38,10 @@ namespace Jiminy.Utilities
 
                 if (result.HasNoErrorsOrWarnings)
                 {
-                    // TODO this is happening per output, just do it once
+                    // TODO this is happening per output, just do it once whe the item is generated
                     foreach (var item in itemRegistry.Items)
                     {
-                        _tagService.ProcessEmbeddedUrls(item, "<span class='card-text-link-placeholder'>[link]</span>", false);
+                        _tagService.ProcessEmbeddedUrls(item, "", false); // "<span class='card-text-link-placeholder'>[link]</span>", false);
                     }
 
                     StringBuilder sbTabHeaders = new(1000);

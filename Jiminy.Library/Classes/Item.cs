@@ -16,10 +16,13 @@ namespace Jiminy.Classes
         public bool ClearsContext { get; set; } = false;
 
         public int? SourceLineNumber { get; set; }        
-        public string? FullText { get; set; }
+        //public string? FullText { get; set; }
 
         [JsonIgnore]
         public string? RawTagSet { get; set; }
+
+        [JsonIgnore]
+        public bool IncludeSubsequentLines { get; set; } = false;
 
         public string? SourceFileName { get; set; }
         
@@ -88,7 +91,7 @@ namespace Jiminy.Classes
                 
             if (ti is not null)
             {
-                _tagInstances.Add(ti);
+                _tagInstances.Add(ti, overwrite: false);
 
                 string diagText = $"Added {(fromContext ? "context " : "")}{(ti.Type == enTagType.Custom ? "custom " : "")}tag '{ti.DefinitionName}'";
 

@@ -98,22 +98,33 @@ namespace Jiminy.Classes
 
         public void Add(TagInstance ti, bool overwrite = false)
         {
-            var existing = Get(ti.DefinitionName);
-
-            if (existing is null)
+            if (ti.Type == enTagType.Link)
             {
+                // We can have as many of these as we like
+
                 Tags.Add(ti);
             }
             else
             {
-                if (overwrite)
+                // Only one of these is allowed
+
+                var existing = Get(ti.DefinitionName);
+
+                if (existing is null)
                 {
-                    Tags.Remove(existing);
                     Tags.Add(ti);
                 }
                 else
                 {
-                    throw new Exception($"TagInstanceList.Add cannot add tag '{ti.DefinitionName}' as it already exists and overwrite is false");
+                    if (overwrite)
+                    {
+                        Tags.Remove(existing);
+                        Tags.Add(ti);
+                    }
+                    else
+                    {
+                        throw new Exception($"TagInstanceList.Add cannot add tag '{ti.DefinitionName}' as it already exists and overwrite is false");
+                    }
                 }
             }
         }

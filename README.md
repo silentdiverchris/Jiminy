@@ -478,6 +478,7 @@ I was thinking of having a JavaScript button that just hides an item, or moves i
 How much use this would be depends on how often the output gets refreshed, though perhaps it could store the id of each hidden item in browser local storage or something and re-hide them on refresh if the source tags hadn't changed.
 
 =b:maybe-enh= Button to temporarily move an item to a 'Hidden' tab.
+=b:n-enh= Generate a unique id for each item from hash of full file path and line number, use as html element name on each item card, for use in hiding items and whatever else.
 
 ## Configuration file
 Everything is defined in a fairly large appsettings.json file in the directory the program runs from.

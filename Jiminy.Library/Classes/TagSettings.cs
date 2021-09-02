@@ -6,6 +6,8 @@
         public string Suffix { get; set; } = "=";
         public string Separator { get; set; } = "-";
         public string Delimiter { get; set; } = ":";
+        public string FromHere { get; set; } = ">";
+        public string ToHere { get; set; } = "<=";
 
         public TagDefinitionList Defintions { get; set; } = new();
 

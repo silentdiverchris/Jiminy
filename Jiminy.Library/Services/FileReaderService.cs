@@ -10,7 +10,7 @@ namespace Jiminy.Services
     {
         private readonly TagService _tagService;
 
-        //private readonly AppSettings _appSettings;
+        private readonly AppSettings _appSettings;
         private readonly LogService _logService;
 
         private List<Item> _tagSets = new();
@@ -19,7 +19,7 @@ namespace Jiminy.Services
             AppSettings appSettings,
             LogService logService)
         {
-            //_appSettings = appSettings;
+            _appSettings = appSettings;
             _logService = logService;
 
             _tagService = new TagService(appSettings);
@@ -31,11 +31,11 @@ namespace Jiminy.Services
 
             if (File.Exists(mf.FullName))
             {
-                string[] lines = File.ReadAllLines(mf.FullName);
+                FileContent fileContent = new(mf.FullName);
 
-                _logService.LogToConsole($"Read {lines.Length} lines from {mf.FullName}");
+                _logService.LogToConsole($"Read {fileContent.LineCount} lines from {fileContent.FullFileName}");
 
-                result.SubsumeResult(await InterpretLines(lines));
+                result.SubsumeResult(await InterpretFileContent(fileContent));
             }
             else
             {
@@ -50,60 +50,53 @@ namespace Jiminy.Services
             return result;
         }
 
-        private async Task<Result> InterpretLines(string[] lines)
+        private async Task<Result> InterpretFileContent(FileContent fileContent)
         {
             Result result = new("InterpretLines");
 
-            int lineNumber = 0;
             Item? contextItem = null;
 
-            foreach (string line in lines) // Don't filter out blank lines here or it breaks line numbering
+            FileLine? fileLine = fileContent.GetNextLine(skipEmptyLines: true);
+
+            while (fileLine is not null)
             {
-                lineNumber++;
+                Result extractResult = _tagService.InterpretLineContent(fileLine, out Item? item);
 
-                if (line.NotEmpty())
+                if (item is not null)
                 {
-                    Result extractResult = _tagService.ExtractTagSet(line, out Item? item);
-
-                    if (result.HasErrorsOrWarnings)
+                    if (item.IncludeSubsequentLines)
                     {
-                        await _logService.ProcessResult(extractResult);
+                        item.AssociatedText = fileContent.ConcatenateSubsequentLines(untilMarker: _appSettings.TagSettings.ToHere, prefix: "<div>", linePrefix: "<div>", lineSuffix: "</div>", suffix: "</div>");
                     }
 
-                    if (item is not null)
+                    if (item.SetsContext)
                     {
-                        item.FullText = line;
+                        item.Diagnostics.Add("Setting context");
 
-                        // If we have a context-setting tagset, overwrite unspecified
-                        // values in subsequent ones
-
-                        if (item.SetsContext)
-                        {
-                            item.Diagnostics.Add("Setting context");
-
-                            contextItem = item;
-                        }
-                        else if (item.ClearsContext)
-                        {
-                            item.Diagnostics.Add("Clearing context");
-
-                            contextItem = null;
-                        }
-                        else if (contextItem is not null)
-                        {
-                            ApplyContext(item, contextItem);
-                        }
-
-                        if (extractResult.TextSummary.NotEmpty())
-                        {
-                            item.Warnings.Add(extractResult.TextSummary);
-                        }
-
-                        item.SourceLineNumber = lineNumber;
-
-                        _tagSets.Add(item);
+                        contextItem = item;
                     }
+                    else if (item.ClearsContext)
+                    {
+                        item.Diagnostics.Add("Clearing context");
+
+                        contextItem = null;
+                    }
+                    else if (contextItem is not null)
+                    {
+                        ApplyContext(item, contextItem);
+                    }
+
+                    if (extractResult.TextSummary.NotEmpty())
+                    {
+                        item.Warnings.Add(extractResult.TextSummary);
+                    }
+
+                    _tagSets.Add(item);
                 }
+
+                await _logService.ProcessResult(extractResult);
+
+                fileLine = fileContent.GetNextLine(skipEmptyLines: true);
             }
 
             //foreach (var tagSet in _tagSets)
@@ -135,7 +128,7 @@ namespace Jiminy.Services
             {
                 item.AddTagInstance(contextItem.Repeat, true);
 
-                var ti = contextItem.GetTagInstance(enTagType.Repeating); 
+                var ti = contextItem.GetTagInstance(enTagType.Repeating);
 
                 if (ti is not null)
                 {

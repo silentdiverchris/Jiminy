@@ -14,11 +14,11 @@ namespace Jiminy.Utilities
             _appSettings = appSettings;
         }
 
-        internal Result ExtractTagSet(string line, out Item? item)
+        internal Result InterpretLineContent(FileLine fileLine, out Item? item)
         {
             // TODO test with multi-character prefix and suffix
 
-            Result result = new("ExtractTagSet");
+            Result result = new("InterpretLineContent");
 
             item = null;
 
@@ -26,44 +26,51 @@ namespace Jiminy.Utilities
             int idxEnd = -1;
             string tagString = "";
 
-            if (line.StartsWith(_appSettings.TagSettings.Prefix))
+            if (fileLine.Text.StartsWith(_appSettings.TagSettings.Prefix))
             {
-                idxStart = line.IndexOf(_appSettings.TagSettings.Prefix);
-                idxEnd = line.IndexOf(_appSettings.TagSettings.Suffix, idxStart + _appSettings.TagSettings.Prefix.Length);
+                idxStart = fileLine.Text.IndexOf(_appSettings.TagSettings.Prefix);
+                idxEnd = fileLine.Text.IndexOf(_appSettings.TagSettings.Suffix, idxStart + _appSettings.TagSettings.Prefix.Length);
             }
-            else if (line.EndsWith(_appSettings.TagSettings.Suffix))
+            else if (fileLine.Text.EndsWith(_appSettings.TagSettings.Suffix))
             {
-                idxEnd = line.Length - 1;
-                idxStart = line[..^1].LastIndexOf(_appSettings.TagSettings.Prefix);
+                idxEnd = fileLine.Text.Length - 1;
+                idxStart = fileLine.Text[..^1].LastIndexOf(_appSettings.TagSettings.Prefix);
             }
 
             if (idxStart >= 0 && idxEnd >= 0)
             {
                 if (idxEnd > 0)
                 {
-                    tagString = line.Substring(idxStart + 1, idxEnd - idxStart - 1);
+                    tagString = fileLine.Text.Substring(idxStart + 1, idxEnd - idxStart - 1);
                 }
                 else
                 {
-                    tagString = line[(idxStart + 1)..];
+                    tagString = fileLine.Text[(idxStart + 1)..];
                 }
 
                 string[] tagParts = tagString.Trim().Split(_appSettings.TagSettings.Separator);
 
                 result.SubsumeResult(ExtractTags(tagParts, out item));
-                
+
+                item.SourceLineNumber = fileLine.LineNumber;
+
+                if (fileLine.Text.EndsWith(_appSettings.TagSettings.FromHere))
+                {
+                    item.IncludeSubsequentLines = true;
+                }
+
                 item.RawTagSet = tagString;
 
                 if (idxEnd > 0)
                 {
-                    string lineWithoutTags = line.Replace(line[idxStart..(idxEnd + 1)], "").Trim();
+                    string lineWithoutTags = fileLine.Text.Replace(fileLine.Text[idxStart..(idxEnd + 1)], "").Trim();
                     string lineWithoutMarkdown = StripMarkdown(lineWithoutTags);
 
                     item.AssociatedText = lineWithoutMarkdown;
                 }
                 else
                 {
-                    string lineWithoutTags = line.Replace(line[idxStart..], "").Trim();
+                    string lineWithoutTags = fileLine.Text.Replace(fileLine.Text[idxStart..], "").Trim();
                     string lineWithoutMarkdown = StripMarkdown(lineWithoutTags);
 
                     item.AssociatedText = lineWithoutMarkdown;
@@ -466,7 +473,7 @@ namespace Jiminy.Utilities
                         {
                             if (ti.Definition.IconFileName is not null)
                             {
-                                iconText = $"<a class='card-link' href='{ti.Url}'>{ti.Url ?? "Missing URL"}</a>";
+                                iconText = ti.Url ?? "Missing Url"; // $"<a class='card-link' href='{ti.Url}' target='_blank'>{ti.Url ?? "Missing URL"}</a>";
                                 linkUrl = linkUrl ?? ti.Url;
                                 colourStr = ti.Definition.Colour;
                                 svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
