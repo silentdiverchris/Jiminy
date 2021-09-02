@@ -1,6 +1,7 @@
 ﻿using Jiminy.Classes;
 using Jiminy.Helpers;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Utilities
@@ -166,7 +167,7 @@ namespace Jiminy.Utilities
 
             string json = JsonSerializer.Serialize(
                 appSettings,
-                options: new JsonSerializerOptions { WriteIndented = true });
+                options: new JsonSerializerOptions { WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.Never });
 
             File.WriteAllText(fileName, json);
         }

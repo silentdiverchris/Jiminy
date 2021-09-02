@@ -74,7 +74,22 @@ Trying to interpret everything following an '=' found anywhere in a file as an i
 
 The examples above have a sneaky space in front of them to stop them messing up my Jiminy output with reminders to call Fred. That preceding space makes them be ignored.
 
-## Contexts
+## Item text
+All the text after the suffix, until the end of the line, is added to the item as the associated text. This text is displayed at the top of each item in the output.
+
+The text is added raw and as-is, so can include valid html, or invalid html for that matter; it's entirely up to your browser what it makes of it.
+
+As such, the below results in what you'd expect it to.
+
+```
+ =b:n-enh= Do these things;<ul><li>Thing 1</li><li style='color:blue'><b>Thing 2</b></li></ul>
+```
+
+Please note that failing to terminate an element, eg. leaving off the '\</ul>' in the above would not be caught by the parser, at least currently. This may well have some impact on the readability of the subsequent output ;).
+
+=b:may-enh= Provide a way to tell it to take the next line, or next N lines as part of the associated text.<br>Maybe with a new 'end of text' delimiter N lines further down to tell it where to stop.
+
+## Tag Context
 To avoid having to add the project or any other frequently used tag to each item, it's best to set that as a context, so adding;
 
 ```
@@ -83,17 +98,17 @@ To avoid having to add the project or any other frequently used tag to each item
 
 ..earlier in the file tells it to set the context that all subsequent items in this source file are for project ABC, so for the rest of the document I don't need to tell it which project items are for. You can set a context with 'setcontext', or the synonym 'ctx'.
 
-I could then override the context for a specific item, set the context to another project or or clear the context entirely with 'clearcontext', 'clear' or 'xctx', the default synonyms for the 'ClearContext' tag.
+You could then override the context for a specific item, change the context to another project or clear the context entirely with 'clearcontext', 'clear' or 'xctx', the default synonyms for the 'ClearContext' tag.
 
 You can use any set of tags as a context, so;
 
 ```
- =ctx-prj:ABC-b:wait-enh-pri:low-rem:3/nov-due:10/dec=
+ =setcontext-prj:ABC-b:wait-enh-pri:low-rem:3/nov-due:10/dec=
 ```
 
-..would set every subsequent item for project ABC, bucket 'Waiting', priority 'Low', mark it as an enhancement and set a reminder for the 3rd of November and a due date of 10th December.
+..would give every subsequent item tags for project ABC, bucket 'Waiting', priority 'Low', mark it as an enhancement, set a reminder for the 3rd of November and a due date of 10th December.
 
-You can use the full tag name, eg 'bucket:\[bucket name]' or any synonym that you set up, I have a synonym of 'b' for bucket. Similarly, the 'Project' tag has a synonym of 'prj' but you can easily have 'p' as the synonym for project instead of priority.
+You can use the full tag name, eg 'bucket:\[bucket name]' or any synonym that you set up, by default 'b' is a synonym for 'bucket'. Similarly, the 'Project' tag has a synonym of 'prj' but you can easily have 'p' as the synonym for project instead of priority.
 
 This document has a context setter at the beginning to set the context for items I want to remind me about things to do with the document, namely;
 
@@ -231,7 +246,7 @@ At the time of writing, it doesn't use any JavaScript.
       },
 ```
 
-## Customising the output
+### Customising the output
 The template HTML file mainly consists of two \<style> statements, the second is purely for the tabs so can be altered but with care. The tremendous CSS-only tab code was cheerfully robbed from [Code Convey](https://codeconvey.com/simple-css-tabs-without-javascript/).
 
 The first \<style> section contains all the styling that applies to the item content, and can be tweaked to your heart's content. 
@@ -332,6 +347,15 @@ The JSON file outputs aren't configurable other than filtering which items are w
     ...etc...
 ```
 
+### Output generation speed
+It will spot changed or created files in the monitored directories immediately and get to work on them within a second or two, so the output should be regenerated within a second or three unless it's a gargantuan file or has hundreds of items, I've not tested it with any monster files yet but it should be pretty snappy.
+
+Currently the code is half event based and half timer based, I need to clear that up so it's entirely event based.
+
+=p:1-b:n-enh= Ditch the timer loop in the monitor.
+
+There is a LatencySeconds setting that is intended to make it hang back for a second or few so as to allow for somebody saving a file repeatedly in a short period and not have Jiminy regenerate the output every single time.
+
 ## Icons & Colours
 Each tag and some properties within tags can have an icon associated with them, for example each priority level can have a different icon. The icons are all configurable, or you can dispense with them entirely.
 
@@ -427,12 +451,12 @@ Note that even though the tag on 'Something wrong here' wasn't valid, it still c
 ## Console application
 Currently it runs from a Windows console, you can see activity and progress messages displayed there. 
 
-At some point when it stabilises I may write a service shell for it, so it runs as a Windows Service but for now it's not really a priority.
+At some point when it stabilises I may write a service shell for it, so it runs as a Windows service but for now it's not really a priority.
 
-=b:eve-enh= Implement Jiminy as a Windows service
+=b:eve-enh:p:low= Implement Jiminy as a Windows service
 
 ## Updating source tags from the HTML display
-There is no updating of the source tags from the HTML. You must go to the source MarkDown file, change it there and refresh the browser to see the regenerated HTML file.
+There is no updating of the source tags from the HTML. You must go to the source file, change it there and refresh the browser to see the regenerated HTML file.
 
 The name of the source file and the line number the tag was found on are shown for each item. 
 
@@ -468,7 +492,9 @@ Since this is all based on good old text files, it would be easy to use a file s
 
 There's a lot of stuff in here, most of which can happily be left alone but if delved into, allows you to alter a lot of things about how it interprets tags it finds in source files and what output it produces.
 
-The main one to start with is the 'MonitoredDirectories' settings;
+The main one to start with is the 'MonitoredDirectories' settings.
+
+I've set the json serialiser to include all values in the below and the default file that is created, it makes for a rather larger file but is much easier to see what options are available if all the defaults are shown too.
 
 A good deal of additional documentation is required here...
 
