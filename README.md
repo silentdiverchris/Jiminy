@@ -24,15 +24,15 @@ The SVG files that it uses are taken from the [Bootstrap icon collection](https:
 
 ## Example of use
 
-This means I can keep using my favourite Markdown editor (which is the splendid [GhostWriter](https://wereturtle.github.io/ghostwriter/), but any will do) to make notes and draft documents but when I need to remind myself of something, I just add something like;
+The idea is that I can keep using my favourite Markdown editor (the splendid [GhostWriter](https://wereturtle.github.io/ghostwriter/), but any will do) to make notes and draft documents but when I need to remind myself of something, I add a line such as;
 
 ```
  =b:n-p:2-prj:ABC-enh-pho= Call Fred about making it do XYZ in a better way
 ```
 
-..on a line on it's own and continue typing without breaking my stride to open up EverNote, click a button to create a new note, find it now asks me what type of note, oh, that's new, no I don't want a task thanks, hit new note again, type in the title, tab and add the text, then add 5 different tags to make it a priority 2 'next' enhancement in the ABC project that involves a phone call, remember yet again that there isn't a save button to press, then switch back to the document I'm writing and try to remember what I was planning to write next.
+..and continue typing without breaking my stride to open up EverNote, click a button to create a new note, find that it now asks me what type of note, oh, that's new, no I don't want a task thanks, hit new note again, type in the title, tab and add the text, then add 5 different tags to make it a priority 2 'next' enhancement in the ABC project that involves a phone call, remember yet again that there isn't a save button to press, then switch back to the document I'm writing and try to remember what I was planning to write next.
 
-This way I have no context switching or little surpises when EverNote decide it'd be just spiffing to add a new feature I don't want into a well-established workflow, I just keep typing and Jiminy tells me what I need to remember later.
+This way I have no context switching or little surpises when EverNote decides it'd be just spiffing to add a new feature I don't want into a well-established workflow, I just keep typing and Jiminy tells me what I need to remember later.
 
 ## Tags overview
 Tags are the way you tell Jiminy everything about an item. There will be a full explanation of each standard tag and how to add custom ones somewhere below this section but as a brief introduction to how it works, take the example from above, namely;
@@ -45,7 +45,7 @@ Tags start and end with a selected string, by default both are '=' as they seem 
 
 Tags are separated by hyphens and parameters are delimited by colons but again, any strings can be defined instead. I chose these because they easily typed without pressing shift and visually separate the tags nicely.
 
-The default definitions are below;
+The default definitions are;
 
 ```
 "TagSettings": {
@@ -56,46 +56,46 @@ The default definitions are below;
     ...etc...
 ```
 
- This tag set is interpreted as below;
+ This tag set is interpreted as;
 
 |Tag|Short for|Meaning|
 |-|-|-|
 |b:n|bucket:next|This item goes into the 'Next' GTD bucket; aka 'GTD list', but I prefer bucket, you can customise the settings to make them be called lists if you like.|
-|p:2|priority:2|Priority 2 item, this could have been 'p:med', 'pri:medium' etc. Priorities can be indicated by number or name, and you can redefine the priority list as you like.|
-|enh|enhancement|Custom tag to indicate an enhancement, you can have as many custom tags as you like.|
-|pho|phone|Custom tag to indicate this item needs a phone call to get done, you can have it make lists of specific tags so for example could have a list of all the phone calls you need to make, or all items that require you to be in a specific place to do, essentially the GTD context concept.|
+|p:2|priority:2|Priority 2 item, this could have been 'p:med', 'pri:medium' etc. Priorities can be indicated by number or name, you can redefine the priority list as you like but by default there are 1, 2 & 3 for high, medium and low.|
+|enh|enhancement|Custom tag to indicate an enhancement, you can have as many custom tags as you like and add a custom icon and colouring for each.|
+|pho|phone|Custom tag to indicate this item needs a phone call to get done. You can have it make lists of specific tags so for example could have a list of all the phone calls you need to make, or all items that require you to be in a specific place to do. Essentially the GTD 'context' concept.|
 
 This tag set results in a display in the output HTML along the lines of;
 ![Call Fred](./Screenshots/CallFredExample.png)
 
-Tags must begin as character 1 on the line, the system only looks for them starting there, at present anyway. 
+Tags must begin as character 1 on the line, the system only looks for the starting prefix there, at present anyway. 
 
 Trying to interpret everything following an '=' found anywhere in a file as an item doesn't sound entirely wise, so there would clearly need to be more distinct delimiters, and it'd slow things down a fair bit of course.
 
-The examples above have a sneaky space in front of them to stop them messing up my Jiminy outputs with reminders to call Fred. That preceding space makes them be ignored.
+The examples above have a sneaky space in front of them to stop them messing up my Jiminy output with reminders to call Fred. That preceding space makes them be ignored.
 
 ## Contexts
-To avoid having to add the project, or any other frequently used tag to each item, it's best to set that as a context, so adding;
+To avoid having to add the project or any other frequently used tag to each item, it's best to set that as a context, so adding;
 
 ```
  =p:ABC-setctx= 
 ```
 
-..earlier in the file tells it to set the context that all subsequent items in this source file are for project ABC, so for the rest of the document I don't need to tell it which project items are for.
+..earlier in the file tells it to set the context that all subsequent items in this source file are for project ABC, so for the rest of the document I don't need to tell it which project items are for. You can set a context with 'setcontext', or the synonym 'ctx'.
 
-I could override the context for a specific item, set the context to another projector or clear the context entirely with 'clear' or 'xctx'.
+I could then override the context for a specific item, set the context to another project or or clear the context entirely with 'clearcontext', 'clear' or 'xctx', the default synonyms for the 'ClearContext' tag.
 
-You can set any tag as a context, so;
+You can use any set of tags as a context, so;
 
 ```
  =ctx-prj:ABC-b:wait-enh-pri:low-rem:3/nov-due:10/dec=
 ```
 
-..would set every subsequent item for project ABC, bucket 'Waiting', priority 'low', mark it as an enhancement and set a reminder for the 3rd of November and a due date of 10th December.
+..would set every subsequent item for project ABC, bucket 'Waiting', priority 'Low', mark it as an enhancement and set a reminder for the 3rd of November and a due date of 10th December.
 
-You can use the full tag name, eg 'bucket:\[bucket name]' or any synonym that you set up, I have a synonym of 'b' for bucket. Similarly, the 'Project' tag has a synonym of 'prj' but you can easily have 'p' as the synonym for project instead.
+You can use the full tag name, eg 'bucket:\[bucket name]' or any synonym that you set up, I have a synonym of 'b' for bucket. Similarly, the 'Project' tag has a synonym of 'prj' but you can easily have 'p' as the synonym for project instead of priority.
 
-This document has one at the beginning to set the context for items I want to remind me about things to do with it. No preceding space as that's the context I want anyway.
+This document has a context setter at the beginning to set the context for items I want to remind me about things to do with the document, namely;
 
 ```
 =ctx-prj:Jiminy-docu=
@@ -105,7 +105,7 @@ So all items I add in here are put in my 'Jiminy' project, and marked as relatin
 
 ## Tag names & synonyms
 
-All the tag names and synonyms for them are customisable, in the default settings fragment below, you can add a tag to mark an item as complete with 'completed', 'closed' or 'x'. Bucket has a synonym of 'b' and priority 'p', you can have as many synonyms as you like.
+All the tag names and the synonyms for them are customisable. The default settings fragment below shows you can add a tag to mark an item as complete with 'completed', 'closed' or 'x'. Bucket has a synonym of 'b' and priority 'p' or 'pri', you can have as many synonyms as you like.
 
 On startup, if any names or synonyms clash, it will complain and refuse to run.
 
@@ -148,7 +148,7 @@ On startup, if any names or synonyms clash, it will complain and refuse to run.
           "Type": 2,
           "GenerateView": true,
           "Synonyms": [
-            "p"
+            "p", "pri"
           ],
           "Code": "priority",
           "IsCustomTag": false,
@@ -196,8 +196,6 @@ I'll add more filtering criteria but with existing functionality its easy to jus
 
 Each output can use either the standard HTML template or a specific template just for that output.
 
-The JSON file outputs aren't configurable other than filtering which items are written, you just get a standard (indented so human-readable) .JSON with all the item and tag information.
-
 I wanted a system where the output is entirely portable and could be viewed or copied anywhere, emailed to somebody, chucked onto a phone etc. so the HTML is completely self-contained in a single file, not dependent on any external files or internet connection. 
 
 The CSS is completely in-line and the icons are SVGs which are read in on startup, included in the file as HTML statements and customised for their base size and colour at output generation time.
@@ -234,15 +232,15 @@ At the time of writing, it doesn't use any JavaScript.
 ```
 
 ## Customising the output
-The template HTML file mainly consists of two \<style> statements, the second is purely for the tabs so can be altered but with care. 
+The template HTML file mainly consists of two \<style> statements, the second is purely for the tabs so can be altered but with care. The tremendous CSS-only tab code was cheerfully robbed from [Code Convey](https://codeconvey.com/simple-css-tabs-without-javascript/).
 
-The tremendous CSS-only tab code was cheerfully robbed from [Code Convey](https://codeconvey.com/simple-css-tabs-without-javascript/).
-
-The first one has all the styling that applies to the item content, and can be tweaked to your heart's content. 
+The first \<style> section contains all the styling that applies to the item content, and can be tweaked to your heart's content. 
 
 The HTML within the \<body> element  is generated entirely by code and is inserted into the template where it finds '[ContentPlaceholder]'.
 
 The generated HTML uses classes everywhere to allow extra customisation. You can add more HTML around the placeholder to slot the output into a larger document, or whatever.
+
+Below is the \<body> section of the default template;
 
 ```
 ...head stuff...
@@ -258,7 +256,12 @@ The generated HTML uses classes everywhere to allow extra customisation. You can
 
 If the item data needs to be played with more extensively you can always use the JSON output instead.
 
-### Sample JSON output
+### JSON output
+
+The JSON file outputs aren't configurable other than filtering which items are written, you just get a standard (indented so human-readable) .JSON with all the item and tag information.
+
+=b:next-bug= Don't write diagnostics to JSON output if ShowDiagnostics setting is false
+
 ```
 {
   "Items": [
@@ -330,13 +333,15 @@ If the item data needs to be played with more extensively you can always use the
 ```
 
 ## Icons & Colours
-Each tag, and some properties within tags can have an icon associated with them. The icons are all configurable or you can dispense with them entirely.
+Each tag and some properties within tags can have an icon associated with them, for example each priority level can have a different icon. The icons are all configurable, or you can dispense with them entirely.
 
-The icons must be SVG files, and are stored in a local directory indicated by the MediaDirectoryPath setting and named in the settings. The reason being that they are read in by the system and added to the output in html format, so the SVG files are not needed to view the output, just when it is generated.
+The icons must be SVG files, the reason being that they are read in by the system and added to the output in html format, so the SVG files are not needed to view the output, just when it is generated.
 
-The system also sets the fill colour of the icons according to the properties of the item, so for example in the standard settings, the icon for priority is automatically filled with colour 'orange' as that is what the settings tell it to do, but filled with 'darkgrey' for medium and low priority, see below for partial settings JSON.
+The SVG files are stored in a local directory indicated by the MediaDirectoryPath setting and named in the settings.
 
-The colours are the standard [CSS colour names](https://www.w3schools.com/cssref/css_colors.asp), so any valid CSS colour name is supported, or you can supply a hex value.
+The system sets the fill colour of the icons according to the properties of the item, so for example in the standard settings, the icon for high priority items is automatically filled with colour 'orange' but filled with 'darkgrey' for medium and low priority, see the relevant settings fragment below.
+
+Colours are identified by the standard [CSS colour names](https://www.w3schools.com/cssref/css_colors.asp), so any valid CSS colour name is supported, or you can supply a hex value.
 
 ```
 "TagSettings": {
@@ -353,7 +358,7 @@ The colours are the standard [CSS colour names](https://www.w3schools.com/cssref
           "IsStandardTag": true,
           "Name": "Priority",
           "IconFileName": "priority-medium.svg",
-          "Colour": null,
+          "Colour": blue,
           "DisplayOrder": 3,
           "Description": "The priority of this item"
         },
@@ -395,7 +400,7 @@ The colours are the standard [CSS colour names](https://www.w3schools.com/cssref
 ```
 
 ## Errors & Diagnostics
-If you give it a tag or parameter that it doesn't recognise, it will report it right at he top of the HTML output where you can't miss it, so;
+If you give it a tag or parameter that it doesn't recognise, it will report it right at the top of the HTML output where you can't miss it, so;
 
 ```
  =badtag:wrong= Something wrong here
@@ -407,12 +412,13 @@ If you give it a tag or parameter that it doesn't recognise, it will report it r
 If you can't work out what you're doing wrong with a tag, turn on diagnostics;
 ```
 "HtmlSettings": {
-    "ShowDiagnostics": false,
+    "ShowDiagnostics": true,
     "VerboseDiagnostics": false,
     "HtmlTemplateFileName": "C:\\Personal\\Jiminy\\HtmlTemplate.html",
     ..etc..
 ```
-...and you'll get a full report in the output of what it did when interpreting each tag set;
+
+...and each item display will include a full report of what it did when interpreting each tag set and the tags it decided to apply, as below.
 
 ![Diagnostics sample](./Screenshots/DiagnosticsSample.png)
 
@@ -421,29 +427,35 @@ Note that even though the tag on 'Something wrong here' wasn't valid, it still c
 ## Console application
 Currently it runs from a Windows console, you can see activity and progress messages displayed there. 
 
-At some point I may write a service shell for it, so it runs as a Windows Service.
+At some point when it stabilises I may write a service shell for it, so it runs as a Windows Service but for now it's not really a priority.
+
+=b:eve-enh= Implement Jiminy as a Windows service
 
 ## Updating source tags from the HTML display
-There is no updating of the source tags from the HTML. You must go to the source MarkDown file, change it there and refresh the browser to see the regenerated HTML file. 
+There is no updating of the source tags from the HTML. You must go to the source MarkDown file, change it there and refresh the browser to see the regenerated HTML file.
 
-Obviously having an HTML page writing to local files is theoretically impossible and philosophically undesirable, and even I were to wangle a hack to get around this, having it write back to the source files is fraught with problems when the files may well be open in a MarkDown editor and just get overwritten etc.
+The name of the source file and the line number the tag was found on are shown for each item. 
 
-The upshot being there is no "This item is completed", "Move this to the waiting bucket" or "Set a reminder for tomorrow" functionality in the HTML output.
+Having an HTML page writing to local files is theoretically not possible or at least philosophically unthinkable, and even I were to wangle some kind of hack to get around this, having it write back to the source files is fraught with problems; apart from anything else the source file may well be open in a MarkDown editor and the changes would just get overwritten.
 
-At some point I might put a WPF front end on it, then might revisit that decision, but probably not, there would still be the problem of the changes being overwritten.
+The upshot being that there is no "This item is completed", "Move this to the waiting bucket" or "Set a reminder for tomorrow" functionality in the HTML output.
 
-Perhaps a JavaScript button could pop up a dialogue where changes were made and the the changed tag text put the clipboard so it could be pasted into the Markdown. That would save some typing, but at the cost of clicking checkboxes, selecting from dropdowns etc. which can often be slower / more disruptive to the 'flow'.
+At some point I might put a WPF front end on it, then might revisit that decision but probably not, there would still be the problem of the changes being overwritten.
 
-I was thinking of having a JavaScript button that just hides an item, or moves it to a 'Hidden' tab though it'd just reappear when the browser refreshes, could be good for popping off items and marking dailies as done, depends on how often the output gets refreshed whether this would be much use.
+Perhaps a JavaScript button could pop up a dialogue where changes were made and the the changed tag text put the clipboard so it could be pasted into the Markdown. That would save some typing, but at the cost of clicking checkboxes, selecting from dropdowns etc. which would be slower and more disruptive to the 'flow'. The main problem is getting to the correct line in the source file to make the change and it wouldn't help with that.
+
+I was thinking of having a JavaScript button that just hides an item, or moves it to a 'Hidden' tab. It'd just reappear when the browser refreshes but, could be good for popping off items and marking dailies as done
+
+How much use this would be depends on how often the output gets refreshed, though perhaps it could store the id of each hidden item in browser local storage or something and re-hide them on refresh if the source tags hadn't changed.
 
 =b:maybe-enh= Button to temporarily move an item to a 'Hidden' tab.
 
 ## Configuration file
-Everything is defined in a fairly large appsettings.JSON file in the directory the program runs from.
+Everything is defined in a fairly large appsettings.json file in the directory the program runs from.
 
-Initially there is no such file, the first time Jiminy runs it will create a default, template version of it and then fail spectacularly because it has no idea what your directories are called. You can then customise the settings as you wish.
+Initially there is no such file, the first time Jiminy runs it will create a default version of it and then fail spectacularly because it has no idea what your directories are called. You can then customise the settings as you wish.
 
-If you ever need to regenerate the default template appsettings.JSON, delete or rename the existing one and restart Jiminy.
+If you ever need to regenerate the default appsettings.json, delete or rename the existing one and restart Jiminy.
 
 ## Synchronising between machines
 One of the benefits of EverNote, OneNote etc is the way they synchronise between PC, Laptop, phone etc. 
