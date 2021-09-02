@@ -24,7 +24,7 @@ namespace Jiminy.Utilities
             var appSettings = new AppSettings
             {
                 MediaDirectoryPath = @"C:\Personal\Jiminy\Media",
-                IgnoreFileSpecifications = new List<string> { "readme.*", "README.*", "LICENCE.*" },
+                IgnoreFileSpecifications = new List<string> { "LICENCE.*" }, // "readme.*", "README.*", 
                 LogSettings = new LogSettings
                 {
                     VerboseConsole = true,
@@ -35,11 +35,12 @@ namespace Jiminy.Utilities
                 MonitoredDirectories = new List<MonitoredDirectory>
                 {
                     new MonitoredDirectory(@"C:\Personal", recursive: true, isActive: true),
-                    new MonitoredDirectory(@"C:\Dev", recursive: true, isActive: false)
+                    new MonitoredDirectory(@"C:\Dev\Archivist", recursive: false, isActive: true),
+                    new MonitoredDirectory(@"C:\Dev\Jiminy", recursive: false, isActive: true)
                 },
                 HtmlSettings = new HtmlSettings
                 {
-                    ShowDiagnostics = true,
+                    ShowDiagnostics = false,
                     VerboseDiagnostics = false,
                     HtmlTemplateFileName = @"C:\Personal\Jiminy\HtmlTemplate.html",
                     Outputs = new List<OutputSpecification>
@@ -50,7 +51,7 @@ namespace Jiminy.Utilities
                             HtmlPath = @"C:\Personal\Jiminy\Output.html",                            
                         },
                         new OutputSpecification {
-                            IsEnabled = true,
+                            IsEnabled = false,
                             Title = "SingLink Items",
                             HtmlPath = @"C:\Personal\Jiminy\SingLink.html",
                             ItemSelection = new ItemSelection
@@ -62,10 +63,10 @@ namespace Jiminy.Utilities
                             }
                         },
                         new OutputSpecification {
-                            IsEnabled = true,
+                            IsEnabled = false,
                             Title = "Jiminy Items",
                             HtmlPath = @"C:\Personal\Jiminy\Jiminy.html",
-                            JsonPath = @"C:\Personal\Jiminy\Jiminy.json",
+                            //JsonPath = @"C:\Personal\Jiminy\Jiminy.json",
                             ItemSelection = new ItemSelection
                             {
                                 IncludeProjectNames = new List<string>
@@ -75,7 +76,7 @@ namespace Jiminy.Utilities
                             }
                         },
                         new OutputSpecification {
-                            IsEnabled = true,
+                            IsEnabled = false,
                             Title = "Bugs and Enhancements",
                             HtmlPath = @"C:\Personal\Jiminy\BugsEnhancements.html",
                             OverrideHtmlTemplateFileName = @"C:\Personal\Jiminy\BugsEnhancementsTemplate.html",

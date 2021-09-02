@@ -633,9 +633,16 @@ namespace Jiminy.Utilities
             if (_appSettings.HtmlSettings.ShowDiagnostics)
             {
                 List<string> diags = new();
+
                 diags.Add($"Raw TagSet '{item.RawTagSet}'");
+                
                 diags.AddRange(item.Diagnostics);
-                diags.AddRange(item.TagInstances.Select(_ => _.ToString(_appSettings.HtmlSettings.VerboseDiagnostics)));
+
+                if (_appSettings.HtmlSettings.VerboseDiagnostics)
+                {
+                    diags.AddRange(item.TagInstances.Select(_ => _.ToString(_appSettings.HtmlSettings.VerboseDiagnostics)));
+                }
+
                 sb.Append(diags.Join("<div class='item-diagnostics'>", "<div>", "</div>", "</div>", 1000));
             }
 

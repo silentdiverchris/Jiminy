@@ -73,11 +73,24 @@ namespace Jiminy.Classes
             return _tagInstances.Tags.Any(_ => _.Type == type);
         }
 
-        internal void AddTagInstance(TagInstance? ti)
+        internal void AddTagInstance(TagInstance? ti, bool fromContext = false)
         {
+            if (ti is null)
+            {
+                return;
+            }
+
+            // These shouldn't have got this far but just in case
+            if (ti.Definition.Type == enTagType.ClearContext || ti.Definition.Type == enTagType.ClearContext)
+            {
+                throw new Exception($"AddTagInstance given tag type '{ti.Definition.Type}'");
+            }
+                
             if (ti is not null)
             {
                 _tagInstances.Add(ti);
+
+                string diagText = $"Added {(fromContext ? "context " : "")}{(ti.Type == enTagType.Custom ? "custom " : "")}tag '{ti.DefinitionName}'";
 
                 switch (ti.Type)
                 {
@@ -90,6 +103,57 @@ namespace Jiminy.Classes
                             break;
                         }
                 }
+
+                switch (ti.Type)
+                {
+                    case enTagType.Due:
+                    case enTagType.Reminder:
+                        {
+                            diagText += $", '{ti.DateTimeValue.DisplayFriendly()}'";
+                            break;
+                        }
+                    case enTagType.Repeating:
+                        {
+                            diagText += $", '{ti.RepeatName}'";
+                            break;
+                        }
+                    case enTagType.Completed:
+                        {
+                            break;
+                        }
+                    case enTagType.Bucket:
+                        {
+                            diagText += $", '{ti.BucketName}'";
+                            break;
+                        }
+                    case enTagType.Link:
+                        {
+                            diagText += $", '{ti.Url}'";
+                            break;
+                        }
+                    case enTagType.Project:
+                        {
+                            diagText += $", '{ti.ProjectName}'";
+                            break;
+                        }
+                    case enTagType.Priority:
+                        {
+                            diagText += $", '{ti.PriorityName}'";
+                            break;
+                        }
+                    case enTagType.Custom:
+                        {
+                            // Nothing to add
+                            break;
+                        }
+                    default:
+                        {
+                            diagText = $"AddTagInstance found unsupported tag '{ti.DefinitionName}'";
+                            break;
+                        }
+                }
+
+                Diagnostics.Add(diagText);
             }
         }
 

@@ -45,7 +45,14 @@ namespace Jiminy.Classes
         {
             StringBuilder sb = new();
 
-            sb.Append($"Tag:{Type}");
+            if (Type == enTagType.Custom)
+            {
+                sb.Append($"Custom Tag:{DefinitionName}");
+            }
+            else 
+            {
+                sb.Append($"Tag:{Type}");
+            }
 
             if (BucketName.NotEmpty())
                 sb.Append($" bucket {BucketName}");
@@ -65,10 +72,10 @@ namespace Jiminy.Classes
             if (verbose)
             {
                 if (Definition.IconFileName is not null)
-                    sb.Append($" icon {Definition.IconFileName}");
+                    sb.Append($" (icon {Definition.IconFileName})");
 
                 if (Definition.Colour is not null)
-                    sb.Append($" colour {Definition.Colour}");
+                    sb.Append($" (colour {Definition.Colour})");
             }
 
             return sb.ToString();

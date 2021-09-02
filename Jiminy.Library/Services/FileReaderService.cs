@@ -118,32 +118,36 @@ namespace Jiminy.Services
         {
             if (item.Project is null && contextItem.Project is not null)
             {
-                item.Diagnostics.Add($"Applying context project '{contextItem.ProjectName}'");
-                item.AddTagInstance(contextItem.Project);
+                item.AddTagInstance(contextItem.Project, true);
             }
 
             if (item.BucketName is null && contextItem.Bucket is not null)
             {
-                item.Diagnostics.Add($"Applying context bucket '{contextItem.BucketName}'");
-                item.AddTagInstance(contextItem.Bucket);
+                item.AddTagInstance(contextItem.Bucket, true);
             }
 
             if (item.PriorityNumber is null && contextItem.Priority is not null)
             {
-                item.Diagnostics.Add($"Applying context priority '{contextItem.PriorityName}'");
-                item.AddTagInstance(contextItem.Priority);
+                item.AddTagInstance(contextItem.Priority, true);
             }
 
             if (item.RepeatName is null && contextItem.Repeat is not null)
             {
-                item.Diagnostics.Add($"Applying context repeat '{contextItem.RepeatName}'");
-                item.AddTagInstance(contextItem.Repeat);
+                item.AddTagInstance(contextItem.Repeat, true);
 
                 var ti = contextItem.GetTagInstance(enTagType.Repeating); 
 
                 if (ti is not null)
                 {
-                    item.AddTagInstance(ti);
+                    item.AddTagInstance(ti, true);
+                }
+            }
+
+            foreach (var contextCustomTag in contextItem.TagInstances.Where(_ => _.Type == enTagType.Custom))
+            {
+                if (!item.TagInstances.Any(_ => _.Type == contextCustomTag.Type))
+                {
+                    item.AddTagInstance(contextCustomTag, true);
                 }
             }
         }

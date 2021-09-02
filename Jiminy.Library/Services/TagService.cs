@@ -69,30 +69,35 @@ namespace Jiminy.Utilities
                     item.AssociatedText = lineWithoutMarkdown;
                 }
 
-                // If not in a bucket, put it in the incoming one, if it exists
-                if (!item.HasTagInstance(enTagType.Bucket))
-                {
-                    var td = _appSettings.TagSettings.Defintions.Get("Bucket");
-                    var bucket = _appSettings.BucketSettings.Defintions.Get("Incoming");
-                    if (td is not null && bucket is not null)
-                    {
-                        item.AddTagInstance(new TagInstance(td, bucketName: bucket.Name));
-                    }
-                }
-
-                // If no priority item, add one with the lowest defined priority
-                if (!item.HasTagInstance(enTagType.Priority))
-                {
-                    var td = _appSettings.TagSettings.Defintions.Get("Priority");
-                    var pri = _appSettings.PrioritySettings.Defintions.Items.OrderByDescending(_ => _.Number).FirstOrDefault();
-                    if (td is not null && pri is not null)
-                    {
-                        item.AddTagInstance(new TagInstance(td, priorityName: pri.Name, priorityNumber: pri.Number));
-                    }
-                }
+                ApplyMissingTags(item);
             }
 
             return result;
+        }
+
+        private void ApplyMissingTags(Item item)
+        {
+            // If not in a bucket, put it in the incoming one, if it exists
+            if (!item.HasTagInstance(enTagType.Bucket))
+            {
+                var td = _appSettings.TagSettings.Defintions.Get("Bucket");
+                var bucket = _appSettings.BucketSettings.Defintions.Get("Incoming");
+                if (td is not null && bucket is not null)
+                {
+                    item.AddTagInstance(new TagInstance(td, bucketName: bucket.Name));
+                }
+            }
+
+            // If no priority item, add one with the lowest defined priority
+            if (!item.HasTagInstance(enTagType.Priority))
+            {
+                var td = _appSettings.TagSettings.Defintions.Get("Priority");
+                var pri = _appSettings.PrioritySettings.Defintions.Items.OrderByDescending(_ => _.Number).FirstOrDefault();
+                if (td is not null && pri is not null)
+                {
+                    item.AddTagInstance(new TagInstance(td, priorityName: pri.Name, priorityNumber: pri.Number));
+                }
+            }
         }
 
         private static string StripMarkdown(string text)
@@ -168,7 +173,6 @@ namespace Jiminy.Utilities
                             case enTagType.Custom:
                                 {
                                     item.AddTagInstance(new TagInstance(td));
-                                    item.Diagnostics.Add($"Added custom tag '{td.Name}'");
                                     break;
                                 }
                             case enTagType.Bucket:
@@ -180,7 +184,6 @@ namespace Jiminy.Utilities
                                     if (bd is not null)
                                     {
                                         item.AddTagInstance(new TagInstance(td, bucketName: bd.Name));
-                                        item.Diagnostics.Add($"Set bucket to '{bd.Name}'");
                                     }
                                     else
                                     {
@@ -198,7 +201,6 @@ namespace Jiminy.Utilities
                                     if (rd is not null)
                                     {
                                         item.AddTagInstance(new TagInstance(td, repeatName: rd.Name));
-                                        item.Diagnostics.Add($"Set repeat to '{rd.Name}'");
                                     }
                                     else
                                     {
@@ -253,7 +255,6 @@ namespace Jiminy.Utilities
                                         dt = DateTime.Now;
                                     }
 
-                                    item.Diagnostics.Add($"Setting {td.Type.ToString().ToLower()} to '{dt.DisplayFriendly()}'");
                                     item.AddTagInstance(new TagInstance(td, dateTime: dt));
 
                                     break;
@@ -283,7 +284,6 @@ namespace Jiminy.Utilities
                                     if (pri is not null)
                                     {
                                         item.AddTagInstance(new TagInstance(td, priorityName: pri.Name, priorityNumber: pri.Number));
-                                        item.Diagnostics.Add($"Setting priority to '{pri.Name}'");
                                     }
                                     else
                                     {
@@ -296,7 +296,6 @@ namespace Jiminy.Utilities
                                 {
                                     if (tagParam.Length > 0)
                                     {
-                                        item.Diagnostics.Add($"Setting project to '{tagParam}'");
                                         item.AddTagInstance(new TagInstance(td, projectName: tagParam));
                                     }
                                     else
@@ -308,7 +307,6 @@ namespace Jiminy.Utilities
                                 }
                             case enTagType.Completed:
                                 {
-                                    item.Diagnostics.Add($"Setting to completed");
                                     item.AddTagInstance(new TagInstance(td));
 
                                     break;

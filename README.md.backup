@@ -9,13 +9,15 @@ Over the years I've used numerous systems to organise the things I needed to do,
 
 While they are all capable, pretty and/or useful in their own ways, I found each to be variously annoying, bloated, awkward, tying me into their way of working, or otherwise not ideal.
 
-I want something that is super-simple to add items to, where I can just dump in a note, reminder or other to-do item that I need to be nudged about, then find them all magically in one place in a nice structure that helps me prioritise and schedule getting on with them.
+I want something that is very simple and quick to add items to, where I can just dump  a note, reminder or other to-do item that I need to be nudged about into whatever I'm typing into, then via some unbidden sorcery find them all in one place in a nice structure that helps me prioritise and schedule getting on with them.
 
-I also want something that can be backed up easily, and where the backups are easily readable and greppable, and selectively copy-pastable; not an obscure .unreadablebyhumans format.
+I also want something that can be backed up easily, where the backups are easily readable and greppable, and be selectively restored or the content copy-pasted; not an obscure .unreadablebymerehumans format that I won't be able to open in 10 years.
 
 Since I use MarkDown for making notes anyway, and a lot of my to-dos in other systems just referenced those .md files (or worse, duplicated chunks of them), I figured why not just add the to-do items (I'll just call them 'items' hereafter) directly to the MarkDown in such a way that they can be easily recognised and dug out by software.
 
-So my solution is to go back to good old text files in directories for my to-do system, just like my old method from 20 years ago of having a 'todo.txt' in each folder, but now with MarkDown as the glue that holds everything together and a system that gathers all the items in one place, reminds me about things and makes it easy to work out what's important while keeping a complete set of everything I want to get done during my next two or three lifetimes.
+So my solution is to go back to good old text files in directories for my to-do system, rather like the method I used back in the Cambrian era, namely having a 'todo.txt' in each folder.
+
+This time though, there is a system that gathers all the items into one place, reminds me about things and makes it easy to work out what's important while keeping a complete set of everything I want to get done during my next two or three lifetimes.
 
 ## Acknowledgements
 The delicious CSS-only tabs were gleefully lifted from [Code Convey](https://codeconvey.com/simple-css-tabs-without-javascript/), it's an impressively smooth and good-looking implementation that handles any number of tabs without a hint of JavaScript or external dependency.
@@ -27,10 +29,10 @@ The SVG files that it uses are taken from the [Bootstrap icon collection](https:
 The idea is that I can keep using my favourite Markdown editor (the splendid [GhostWriter](https://wereturtle.github.io/ghostwriter/), but any will do) to make notes and draft documents but when I need to remind myself of something, I add a line such as;
 
 ```
- =b:n-p:2-prj:ABC-enh-pho= Call Fred about making it do XYZ in a better way
+ =b:n-p:2-prj:Jiminy-enh-pho= Call Fred about making it do XYZ in a better way
 ```
 
-..and continue typing without breaking my stride to open up EverNote, click a button to create a new note, find that it now asks me what type of note, oh, that's new, no I don't want a task thanks, hit new note again, type in the title, tab and add the text, then add 5 different tags to make it a priority 2 'next' enhancement in the ABC project that involves a phone call, remember yet again that there isn't a save button to press, then switch back to the document I'm writing and try to remember what I was planning to write next.
+..and continue typing without breaking my stride to open up EverNote, click a button to create a new note, find that it now asks me what type of note, oh, that's new, no I don't want a task thanks, hit new note again, type in the title, tab and add the text, then add 5 different tags to make it a priority 2 'next' enhancement in the Jiminy project that involves a phone call, remember yet again that there isn't a save button to press, then switch back to the document I'm writing and try to remember what I was planning to write next.
 
 This way I have no context switching or little surpises when EverNote decides it'd be just spiffing to add a new feature I don't want into a well-established workflow, I just keep typing and Jiminy tells me what I need to remember later.
 
@@ -93,20 +95,20 @@ Please note that failing to terminate an element, eg. leaving off the '\</ul>' i
 To avoid having to add the project or any other frequently used tag to each item, it's best to set that as a context, so adding;
 
 ```
- =p:ABC-setctx= 
+ =p:Jiminy-setctx= 
 ```
 
-..earlier in the file tells it to set the context that all subsequent items in this source file are for project ABC, so for the rest of the document I don't need to tell it which project items are for. You can set a context with 'setcontext', or the synonym 'ctx'.
+..earlier in the file tells it to set the context that all subsequent items in this source file are for project 'Jiminy', so for the rest of the document I don't need to tell it which project items are for. You can set a context with 'setcontext', or the synonym 'ctx'.
 
 You could then override the context for a specific item, change the context to another project or clear the context entirely with 'clearcontext', 'clear' or 'xctx', the default synonyms for the 'ClearContext' tag.
 
 You can use any set of tags as a context, so;
 
 ```
- =setcontext-prj:ABC-b:wait-enh-pri:low-rem:3/nov-due:10/dec=
+ =setcontext-prj:Jiminy-b:wait-enh-pri:low-rem:3/nov-due:10/dec=
 ```
 
-..would give every subsequent item tags for project ABC, bucket 'Waiting', priority 'Low', mark it as an enhancement, set a reminder for the 3rd of November and a due date of 10th December.
+..would give every subsequent item tags for project 'Jiminy', bucket 'Waiting', priority 'Low', mark it as an enhancement, set a reminder for the 3rd of November and a due date of 10th December.
 
 You can use the full tag name, eg 'bucket:\[bucket name]' or any synonym that you set up, by default 'b' is a synonym for 'bucket'. Similarly, the 'Project' tag has a synonym of 'prj' but you can easily have 'p' as the synonym for project instead of priority.
 
@@ -355,6 +357,9 @@ Currently the code is half event based and half timer based, I need to clear tha
 =p:1-b:n-enh= Ditch the timer loop in the monitor.
 
 There is a LatencySeconds setting that is intended to make it hang back for a second or few so as to allow for somebody saving a file repeatedly in a short period and not have Jiminy regenerate the output every single time.
+
+## Reminders and Due dates
+=b:n= Document reminders and dates, screenshots etc.
 
 ## Icons & Colours
 Each tag and some properties within tags can have an icon associated with them, for example each priority level can have a different icon. The icons are all configurable, or you can dispense with them entirely.
