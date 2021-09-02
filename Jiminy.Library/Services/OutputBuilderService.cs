@@ -136,7 +136,7 @@ namespace Jiminy.Utilities
                 foreach (var item in list)
                 {
                     sb.Append("<div class='item'>");
-                    sb.Append($"<div>{item.FullFileName} line {item.LineNumber} has invalid tagset '{item.RawTagSet}'</div>");
+                    sb.Append($"<div>{item.SourceFileName} line {item.SourceLineNumber} has invalid tagset '{item.RawTagSet}'</div>");
 
                     foreach (var warn in item.Warnings)
                     {
@@ -625,7 +625,7 @@ namespace Jiminy.Utilities
                     sb.Append(_tagService.GenerateIconItem(ti));
                 }
             }
-            sb.Append(_tagService.GenerateIconItem(fileName: Constants.ICON_FILE_NAME_MARKDOWN_FILE, linkUrl: item.FullFileName, overrideColour: "darkgrey", overrideText: $"{item.FullFileName} #{item.LineNumber}"));
+            sb.Append(_tagService.GenerateIconItem(fileName: Constants.ICON_FILE_NAME_MARKDOWN_FILE, linkUrl: item.SourceFileName, overrideColour: "darkgrey", overrideText: $"{item.SourceFileName} #{item.SourceLineNumber}"));
             sb.Append($"</div>");
 
             sb.Append(item.Warnings.Join("<div class='item-warnings'>", "<div>", "</div>", "</div>", 1000));

@@ -15,13 +15,13 @@ namespace Jiminy.Classes
         public bool SetsContext { get; set; } = false;
         public bool ClearsContext { get; set; } = false;
 
-        public int? LineNumber { get; set; }        
+        public int? SourceLineNumber { get; set; }        
         public string? FullText { get; set; }
 
         [JsonIgnore]
         public string? RawTagSet { get; set; }
 
-        public string? FullFileName { get; set; }
+        public string? SourceFileName { get; set; }
         
         public List<string> Warnings { get; private set; } = new();
         public List<string> Diagnostics { get; private set; } = new();
@@ -114,7 +114,7 @@ namespace Jiminy.Classes
 
             str += ", Text:" + AssociatedText;
 
-            str += ", File:" + FullFileName;
+            str += ", File:" + SourceFileName;
 
             return str;
         }

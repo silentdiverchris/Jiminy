@@ -48,7 +48,7 @@ namespace Jiminy.Utilities
                     tagString = line[(idxStart + 1)..];
                 }
 
-                string[] tagParts = tagString.Trim().Split(_appSettings.TagSettings.Seperator);
+                string[] tagParts = tagString.Trim().Split(_appSettings.TagSettings.Separator);
 
                 result.SubsumeResult(ExtractTags(tagParts, out item));
                 

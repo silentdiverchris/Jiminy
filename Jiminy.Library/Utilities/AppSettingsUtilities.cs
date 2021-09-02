@@ -62,13 +62,14 @@ namespace Jiminy.Utilities
                         },
                         new OutputSpecification {
                             IsEnabled = true,
-                            Title = "Respondent Items",
-                            HtmlPath = @"C:\Personal\Jiminy\Respondent.html",
+                            Title = "Jiminy Items",
+                            HtmlPath = @"C:\Personal\Jiminy\Jiminy.html",
+                            JsonPath = @"C:\Personal\Jiminy\Jiminy.json",
                             ItemSelection = new ItemSelection
                             {
                                 IncludeProjectNames = new List<string>
                                 {
-                                    "Respondent"
+                                    "Jiminy"
                                 }
                             }
                         },
@@ -135,7 +136,7 @@ namespace Jiminy.Utilities
                 {
                     Prefix = "=",
                     Suffix = "=",
-                    Seperator = "-",
+                    Separator = "-",
                     Delimiter = ":",
                     Defintions = new TagDefinitionList
                     {

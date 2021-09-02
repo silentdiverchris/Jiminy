@@ -4,7 +4,7 @@
     {
         public string Prefix { get; set; } = "=";
         public string Suffix { get; set; } = "=";
-        public string Seperator { get; set; } = "-";
+        public string Separator { get; set; } = "-";
         public string Delimiter { get; set; } = ":";
 
         public TagDefinitionList Defintions { get; set; } = new();
@@ -25,9 +25,9 @@
                 result.AddError($"Suffix '{Suffix}' is invalid, it needs to be at least one character");
             }
 
-            if (Seperator.Length != 1)
+            if (Separator.Length != 1)
             {
-                result.AddError($"Separator '{Seperator}' is invalid, it needs to be just one character");
+                result.AddError($"Separator '{Separator}' is invalid, it needs to be just one character");
             }
 
             if (Delimiter.Length != 1)

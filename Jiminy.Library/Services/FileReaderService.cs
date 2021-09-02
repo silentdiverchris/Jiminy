@@ -44,7 +44,7 @@ namespace Jiminy.Services
 
             foreach (var tagSet in _tagSets)
             {
-                tagSet.FullFileName = mf.FullName!;
+                tagSet.SourceFileName = mf.FullName!;
             }
 
             return result;
@@ -99,7 +99,7 @@ namespace Jiminy.Services
                             item.Warnings.Add(extractResult.TextSummary);
                         }
 
-                        item.LineNumber = lineNumber;
+                        item.SourceLineNumber = lineNumber;
 
                         _tagSets.Add(item);
                     }

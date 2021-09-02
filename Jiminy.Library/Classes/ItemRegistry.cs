@@ -131,7 +131,7 @@ namespace Jiminy.Classes
 
         internal bool HasItemsFromFilePath(string filePath)
         {
-            return _items.Any(_ => _.FullFileName == filePath);
+            return _items.Any(_ => _.SourceFileName == filePath);
         }
 
         internal void Add(Item item, string? replaceFromFileName = null)
@@ -151,7 +151,7 @@ namespace Jiminy.Classes
 
                         for (int i = _items.Count - 1; i >= 0; i--)
                         {
-                            if (_items[i].FullFileName == replaceFromFileName)
+                            if (_items[i].SourceFileName == replaceFromFileName)
                             {
                                 _items.RemoveAt(i);
                             }
