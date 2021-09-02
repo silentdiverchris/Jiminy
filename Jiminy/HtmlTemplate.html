@@ -5,16 +5,27 @@
     <meta charset="utf-8" />
     <title>Jiminy</title>
 
-    <!--<script type="text/javascript" language="javascript">
-        function RunFile() {
-            WshShell = new ActiveXObject("WScript.Shell");
-            WshShell.Run("c:/windows/system32/notepad.exe", 1, false);
+    <script type="text/javascript" language="javascript">
+
+        function initialiseButtons() {
+            document.getElementsByName("btn-hide")
+                .forEach(el => {
+                    el.addEventListener("click", hideCard, false);
+                });
         }
 
-        function GoAway(id) {
-            document.getElementById(id).hide();
+        function hideCard(event) {
+            var target = (event.target) ? event.target : event.srcElement;
+            var card = target.parentNode.parentNode.parentNode;
+            document.getElementById('hidden-items').appendChild(card);
+            target.remove();
         }
-    </script>-->
+
+        document.addEventListener("DOMContentLoaded", (event) => {
+            initialiseButtons();
+        });
+
+    </script>
 
     <style>
         body {
@@ -35,14 +46,8 @@
             margin-bottom: 0px;
         }
 
-        /*        .item-file-name {
-            text-align: left;
-        }*/
-
         .item-text {
-            /*text-align: left;*/
             margin: 0px;
-            /*font-size: 1.0em;*/
         }
 
         .page-header,
@@ -75,7 +80,6 @@
 
         .header-subtitle {
             align-self: center;
-            /*font-size: 1.0em;*/
         }
 
         .item-warnings,
@@ -116,7 +120,6 @@
         }
 
             .tab-header .prefix {
-                /*font-size: 0.8em;*/
                 margin-right: 5px;
             }
 
@@ -146,26 +149,11 @@
                 margin-right: 5px;
             }
 
-            /*            .tab-body-header .name,
-                    .tab-body-header .prefix,
-                    .tab-body-header .suffix {
-                        font-size: 1.5em;
-                    }
-        */
             .tab-body-header.sub-header {
                 font-size: 1.0em;
                 color: darkgray;
             }
 
-        /*                .tab-body-header.sub-header .prefix,
-                        .tab-body-header.sub-header .suffix {
-                            font-size: 1.0em;
-                        }
-
-                        .tab-body-header.sub-header .name {
-                            font-size: 1.2em;
-                        }
-        */
         .no-bottom-margin {
             margin-bottom: 0px;
         }
@@ -214,6 +202,7 @@
             display: flex;
             flex-direction: column;
             justify-content: start;
+            flex-grow:1;
         }
 
             .item-icon-container .item-icon-item {
@@ -239,6 +228,44 @@
             display: flex;
             justify-content: center;
         }
+
+        .item-icons-buttons-container {
+            display:flex;
+            flex-direction: row;
+        }
+
+        .item-button-container {
+            max-width: 50px;
+            margin: 0 5px 5px 5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+            .item-button-container .item-button {
+                margin-left: 5px;
+                border-radius: 5px;
+                background: #3498db;
+                background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+                background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+                background-image: -o-linear-gradient(top, #3498db, #2980b9);
+                background-image: linear-gradient(to bottom, #3498db, #2980b9);
+                /*font-family: Arial;*/
+                color: white;
+                font-size: 0.8em;
+                padding: 3px 6px 3px 6px;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+                .item-button-container .item-button:hover {
+                    background: #3cb0fd;
+                    background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+                    background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+                    background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+                    background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+                    text-decoration: none;
+                }
 
         .card-grid-container {
         }
@@ -269,13 +296,13 @@
                     border: 2px solid red;
                 }
 
-/*        a.card-link {
+        /*        a.card-link {
             font-size: 0.7em;
             overflow-x: hidden;
             color: darkgrey;
         }*/
 
-/*        .card-text-link-placeholder {
+        /*        .card-text-link-placeholder {
             font-size: 0.8em;
             color: darkgrey;
         }*/

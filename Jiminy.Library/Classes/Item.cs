@@ -15,8 +15,11 @@ namespace Jiminy.Classes
         public bool SetsContext { get; set; } = false;
         public bool ClearsContext { get; set; } = false;
 
-        public int? SourceLineNumber { get; set; }        
+        public int? SourceLineNumber { get; set; }
         //public string? FullText { get; set; }
+
+        [JsonIgnore]
+        public string? Id { get; set; }
 
         [JsonIgnore]
         public string? RawTagSet { get; set; }

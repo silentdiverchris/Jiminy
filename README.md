@@ -179,6 +179,19 @@ On startup, if any names or synonyms clash, it will complain and refuse to run.
         ...etc...
 ```
 
+## Tagging multiple lines
+A tag set can apply to more han one line, for example;
+
+```
+ =b:n-docu=>
+ This line will be stored
+ As will this one
+ And this too
+ <=
+```
+
+=docu= Document multiple line delimiters
+
 ## Source files
 By default it only looks at '*.md' files but you can tell it to look in any files you like, according to the settings fragment below. Currently you can only have one file specification per directory, but can have multiple entries for a directory with a different file specification for each.
 
@@ -217,7 +230,7 @@ I wanted a system where the output is entirely portable and could be viewed or c
 
 The CSS is completely in-line and the icons are SVGs which are read in on startup, included in the file as HTML statements and customised for their base size and colour at output generation time.
 
-At the time of writing, it doesn't use any JavaScript.
+There is a small amount of JavaScript which allows the 'Hide' button to move items to the 'Hidden Items' tab. If JavaScript is disabled, that's the only thing that will be broken.
 
 ```
 "HtmlSettings": {
@@ -472,13 +485,6 @@ The upshot being that there is no "This item is completed", "Move this to the wa
 At some point I might put a WPF front end on it, then might revisit that decision but probably not, there would still be the problem of the changes being overwritten.
 
 Perhaps a JavaScript button could pop up a dialogue where changes were made and the the changed tag text put the clipboard so it could be pasted into the Markdown. That would save some typing, but at the cost of clicking checkboxes, selecting from dropdowns etc. which would be slower and more disruptive to the 'flow'. The main problem is getting to the correct line in the source file to make the change and it wouldn't help with that.
-
-I was thinking of having a JavaScript button that just hides an item, or moves it to a 'Hidden' tab. It'd just reappear when the browser refreshes but, could be good for popping off items and marking dailies as done
-
-How much use this would be depends on how often the output gets refreshed, though perhaps it could store the id of each hidden item in browser local storage or something and re-hide them on refresh if the source tags hadn't changed.
-
-=b:maybe-enh= Button to temporarily move an item to a 'Hidden' tab.
-=b:n-enh= Generate a unique id for each item from hash of full file path and line number, use as html element name on each item card, for use in hiding items and whatever else.
 
 ## Configuration file
 Everything is defined in a fairly large appsettings.json file in the directory the program runs from.

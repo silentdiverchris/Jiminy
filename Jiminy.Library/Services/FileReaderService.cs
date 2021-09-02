@@ -64,6 +64,8 @@ namespace Jiminy.Services
 
                 if (item is not null)
                 {
+                    item.Id = GenerateItemId(fileContent.FullFileName, fileLine.LineNumber);
+
                     if (item.IncludeSubsequentLines)
                     {
                         item.AssociatedText = fileContent.ConcatenateSubsequentLines(untilMarker: _appSettings.TagSettings.ToHere, prefix: "<div>", linePrefix: "<div>", lineSuffix: "</div>", suffix: "</div>");
@@ -105,6 +107,11 @@ namespace Jiminy.Services
             //}
 
             return result;
+        }
+
+        private string? GenerateItemId(string? fullFileName, int lineNumber)
+        {
+            return Math.Abs((fullFileName + lineNumber.ToString()).GetHashCode()).ToString();
         }
 
         private void ApplyContext(Item item, Item contextItem)
