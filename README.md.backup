@@ -494,7 +494,7 @@ Sample JSON output below;
 ```
 
 ### Output generation speed
-It uses the Microsoft FileSystemWatcher functionality, which will spot changed or created files in the monitored directories immediately and Jiminy get to work on them within a second or two, so the output should be regenerated within a second or three unless it's a gargantuan file or has hundreds of items, I've not tested it with any monster files yet but it should be pretty snappy.
+It uses the Microsoft FileSystemWatcher functionality, which will spot changed or created files in the monitored directories immediately and Jiminy will get to work on them within a second or two, so the output should be regenerated within a second or three unless it's a gargantuan file or has hundreds of items, I've not tested it with any monster files yet but it should be pretty snappy.
 
 On startup it takes a few seconds as it completely regenerates the item data, there is no persistent storage at all.
 
@@ -505,19 +505,24 @@ Currently the code is half event based and half timer based, I need to clear tha
 There is a LatencySeconds setting that is intended to make it hang back for a second or few so as to allow for somebody saving a file repeatedly in a short period and not have Jiminy regenerate the output every single time.
 
 ### Persistent storage
-As mentioned above, apart from the output files themselves, no item data is stored in any database, files, cookies or session storage etc., the item data is completely regenerated on startup and refreshed in-memory when source files are changed.
+Apart from the output files themselves, no item data is stored in any database, files, cookies or session storage etc., the item data is completely regenerated on startup and refreshed in-memory when source files are changed.
 
 ## Reminders and Due dates
 =b:n= Document reminder and due date tags, add screenshots etc.
 
+## Repeating items
+=b:n= Document repeating tags, add screenshots etc.
+
 ## Icons & Colours
-Each tag and some properties within tags can have an icon associated with them, for example each priority level can have a different icon. The icons are all configurable, or you can dispense with them entirely.
+Each tag and some properties within tags can have an icon associated with them, for example each priority level can have a different icon or there can be just one icon for all priorities. The icons are all configurable, or you can dispense with them entirely.
 
 The icons must be SVG files, the reason being that they are read in by the system and added to the output in html '\<svg>...svg stuff...\</svg>' form, so the SVG files are not needed to view the output, only when it is generated.
 
-The SVG files are looked for in a local directory indicated by the MediaDirectoryPath setting and named in the settings. If one or more are not found or the directory is not there, Jiminy will complain and stop.
+The SVG files are looked for in a local directory indicated by the MediaDirectoryPath setting and named in the settings. If one or more are not found or the directory is not there, Jiminy will complain and stop, which on reflection is a bit draconian.
 
-The fill colour of the icons is set or left as-is according to the properties of the item. For example, in the standard settings the priority icon defaults to colour 'blue' but there are overrides for this in each specific priority so the icon for high priority items is automatically filled with colour 'orange' but filled with 'darkgrey' for medium and low priority. If the specific priority has no colour, the default 'blue' would be used.
+=b:n-p:2-enh= Not finding an icon should generate a warning, not an error
+
+The fill colour of the icons is set or left as-is according to the properties of the item. For example, in the standard settings the priority icon defaults to colour 'blue' but there are overrides for this in each specific priority so the icon for high priority items is automatically filled with colour 'orange' but filled with 'darkgrey' for medium and low priority. If the specific priority had no colour, the default 'blue' would be used.
 
 See the relevant settings fragment below.
 
@@ -579,6 +584,8 @@ Colours are identified by the standard [CSS colour names](https://www.w3schools.
   },
 ```
 
+The second fragment is where you can alter or add new priorities to suit.
+
 ## Errors & Diagnostics
 If you give it a tag or parameter that it doesn't recognise, it will report it right at the top of the HTML output where you can't miss it, so;
 
@@ -597,7 +604,7 @@ If you can't work out what you're doing wrong with a tag, turn on diagnostics;
     ..etc..
 ```
 
-...and each item display will include a full report of what happened when it was interpreted and the tags it decided to apply, as below.
+...and each item display will include a full report of what happened when it was interpreted and the tags that were applied, as below.
 
 ![Diagnostics sample](./Screenshots/DiagnosticsSample.png)
 
@@ -625,6 +632,10 @@ Perhaps a JavaScript button could pop up a dialogue where changes were made and 
 
 The main problem is getting to the correct line in the source file to make the change and it wouldn't help with that.
 
+The MarkDown icon that appears at the bottom of each item along with the source file name and line is a link which will open that file in a new tab in the browser via a 'file://' link, assuming your browser allows it. 
+
+You can't edit the source there but it can be handy as a read-only viewer, albeit of whatever is in that file right now, which may differ from when the item was extracted from it.
+
 ## Configuration file
 Everything is defined in a fairly large appsettings.json file in the directory the program runs from.
 
@@ -635,7 +646,7 @@ If you ever need to regenerate the default appsettings.json, delete or rename th
 ## Synchronising between machines
 One of the benefits of EverNote, OneNote etc is the way they synchronise between PC, Laptop, phone etc. 
 
-The thing is though, I work almost exclusively from a single desktop machine and occasionally use a laptop when I am dragged kicking and screaming from my office, so that's not really a big issue for me.
+The thing is, I work almost exclusively from a single desktop machine and only occasionally use a laptop when I am dragged kicking and screaming from my office, and sometimes drop an html onto my phone with a shopping list or the like, so synchronisation isn't really a requirement for me.
 
 Since this is all based on good old text files, it would be easy to use a file synching tool to do the job or store the files in a DropBox folder, or whatever.
 
