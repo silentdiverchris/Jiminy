@@ -93,6 +93,11 @@ namespace Jiminy.Services
                         item.Warnings.Add(extractResult.TextSummary);
                     }
 
+                    if (!item.ClearsContext && !item.SetsContext)
+                    {
+                        _tagService.ApplyMissingTags(item);
+                    }
+
                     _tagSets.Add(item);
                 }
 

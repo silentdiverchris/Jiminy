@@ -190,7 +190,20 @@ A tag set can apply to more han one line, for example;
  <=
 ```
 
-=docu= Document multiple line delimiters
+=p:me-b:w-docu= Document multiple line delimiters
+
+## Item buttons
+Each item has a set of buttons, these allow you to move the item around to focus on particular items or ignore others for a while.
+
+These changes are temporary alterations to the HTML and can be undone by refreshing the browser. They do not alter the source files or item properties in any way.
+
+![Item buttons](./Screenshots/ItemButtons.png)
+
+|Button|Function|
+|-|-|
+|Promote|Moves the item to the beginning of the set it is in.|
+|Demote|Moves the item to the end of the set it is in.|
+|Hide|Removes the item from the set of items it is in and adds it to the 'Hidden Items' tab under the 'Other' tab.|
 
 ## Source files
 By default it only looks at '*.md' files but you can tell it to look in any files you like, according to the settings fragment below. Currently you can only have one file specification per directory, but can have multiple entries for a directory with a different file specification for each.
@@ -230,7 +243,7 @@ I wanted a system where the output is entirely portable and could be viewed or c
 
 The CSS is completely in-line and the icons are SVGs which are read in on startup, included in the file as HTML statements and customised for their base size and colour at output generation time.
 
-There is a small amount of JavaScript which allows the 'Hide' button to move items to the 'Hidden Items' tab. If JavaScript is disabled, that's the only thing that will be broken.
+There is a small amount of JavaScript which makes the buttons work, if JavaScript is disabled, the buttons will be disabled.
 
 ```
 "HtmlSettings": {

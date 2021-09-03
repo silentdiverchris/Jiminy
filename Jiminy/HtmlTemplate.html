@@ -10,7 +10,18 @@
         function initialiseButtons() {
             document.getElementsByName("btn-hide")
                 .forEach(el => {
+                    el.classList.remove('disabled');
                     el.addEventListener("click", hideCard, false);
+                });
+            document.getElementsByName("btn-demote")
+                .forEach(el => {
+                    el.classList.remove('disabled');
+                    el.addEventListener("click", demoteCard, false);
+                });
+            document.getElementsByName("btn-promote")
+                .forEach(el => {
+                    el.classList.remove('disabled');
+                    el.addEventListener("click", promoteCard, false);
                 });
         }
 
@@ -19,6 +30,18 @@
             var card = target.parentNode.parentNode.parentNode;
             document.getElementById('hidden-items').appendChild(card);
             target.remove();
+        }
+
+        function demoteCard(event) {
+            var target = (event.target) ? event.target : event.srcElement;
+            var card = target.parentNode.parentNode.parentNode;
+            card.parentNode.appendChild(card);
+        }
+
+        function promoteCard(event) {
+            var target = (event.target) ? event.target : event.srcElement;
+            var card = target.parentNode.parentNode.parentNode;
+            card.parentNode.insertBefore(card, card.parentNode.firstChild);
         }
 
         document.addEventListener("DOMContentLoaded", (event) => {
@@ -202,7 +225,7 @@
             display: flex;
             flex-direction: column;
             justify-content: start;
-            flex-grow:1;
+            flex-grow: 1;
         }
 
             .item-icon-container .item-icon-item {
@@ -230,33 +253,42 @@
         }
 
         .item-icons-buttons-container {
-            display:flex;
+            display: flex;
             flex-direction: row;
         }
 
         .item-button-container {
-            max-width: 50px;
-            margin: 0 5px 5px 5px;
+            max-width: 60px;
+            margin: 10px 5px 5px 5px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: flex-start;
+            align-items: end
         }
 
-            .item-button-container .item-button {
+            .item-button-container .item-button {               
+                width: 45px;
                 margin-left: 5px;
+                margin-top: 5px;
                 border-radius: 5px;
                 background: #3498db;
                 background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
                 background-image: -moz-linear-gradient(top, #3498db, #2980b9);
                 background-image: -o-linear-gradient(top, #3498db, #2980b9);
                 background-image: linear-gradient(to bottom, #3498db, #2980b9);
-                /*font-family: Arial;*/
                 color: white;
                 font-size: 0.8em;
                 padding: 3px 6px 3px 6px;
                 text-decoration: none;
+                text-align: center;
                 cursor: pointer;
             }
+
+                .item-button-container .item-button.disabled {
+                    background-color: lightgrey;
+                    color: darkgray;
+                    cursor: not-allowed;
+                }
 
                 .item-button-container .item-button:hover {
                     background: #3cb0fd;

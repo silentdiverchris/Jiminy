@@ -134,7 +134,7 @@ namespace Jiminy.Classes
                         }
                     case enTagType.Link:
                         {
-                            diagText += $", '{ti.Url}'";
+                            diagText += $", '{ti.Url.TruncateWithEllipsis(30)}'";
                             break;
                         }
                     case enTagType.Project:

@@ -35,8 +35,8 @@ namespace Jiminy.Utilities
                 MonitoredDirectories = new List<MonitoredDirectory>
                 {
                     new MonitoredDirectory(@"C:\Personal", recursive: true, isActive: true),
-                    new MonitoredDirectory(@"C:\Dev\Archivist", recursive: false, isActive: false),
-                    new MonitoredDirectory(@"C:\Dev\Jiminy", recursive: false, isActive: false)
+                    new MonitoredDirectory(@"C:\Dev\Archivist", recursive: false, isActive: true),
+                    new MonitoredDirectory(@"C:\Dev\Jiminy", recursive: false, isActive: true)
                 },
                 HtmlSettings = new HtmlSettings
                 {

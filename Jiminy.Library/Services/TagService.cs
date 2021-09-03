@@ -75,15 +75,28 @@ namespace Jiminy.Utilities
 
                     item.AssociatedText = lineWithoutMarkdown;
                 }
-
-                ApplyMissingTags(item);
             }
 
             return result;
         }
 
-        private void ApplyMissingTags(Item item)
+        internal void ApplyMissingTags(Item item)
         {
+            if (item.ClearsContext || item.SetsContext)
+            {
+                return;
+            }
+
+            // If no project, set to 'None'
+            if (!item.HasTagInstance(enTagType.Project))
+            {
+                var td = _appSettings.TagSettings.Defintions.Get("No Project");
+                if (td is not null)
+                {
+                    item.AddTagInstance(new TagInstance(td, projectName: "None"));
+                }
+            }
+
             // If not in a bucket, put it in the incoming one, if it exists
             if (!item.HasTagInstance(enTagType.Bucket))
             {
@@ -473,7 +486,7 @@ namespace Jiminy.Utilities
                         {
                             if (ti.Definition.IconFileName is not null)
                             {
-                                iconText = ti.Url ?? "Missing Url"; // $"<a class='card-link' href='{ti.Url}' target='_blank'>{ti.Url ?? "Missing URL"}</a>";
+                                iconText = "Link to " + ti.Url.GetUrlDomain(35) ?? "Missing Url"; // $"<a class='card-link' href='{ti.Url}' target='_blank'>{ti.Url ?? "Missing URL"}</a>";
                                 linkUrl = linkUrl ?? ti.Url;
                                 colourStr = ti.Definition.Colour;
                                 svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
@@ -627,7 +640,7 @@ namespace Jiminy.Utilities
             }
             else
             {
-                sb.Append($"<div class='icon'><a href='{linkUrl}' title='' target='_blank'>{svgHtml}</a></div>");
+                sb.Append($"<div class='icon'><a href='{linkUrl}' title='{linkUrl}' target='_blank'>{svgHtml}</a></div>");
             }
 
             iconText = overrideText ?? iconText;

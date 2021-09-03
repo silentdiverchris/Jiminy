@@ -5,6 +5,8 @@ namespace Jiminy.Helpers
 {
     internal static class StringHelpers
     {
+        private const string ELLIPSIS = "...";
+
         internal static bool NotEmpty(this string? value)
         {
             return !string.IsNullOrEmpty(value);
@@ -89,9 +91,38 @@ namespace Jiminy.Helpers
             }
         }
 
-        
+        internal static string? GetUrlDomain(this string? url, int maxLength)
+        {
+            if (string.IsNullOrEmpty(url) || url.Length <= maxLength)
+                return url;
 
-        internal static string TruncateWithEllipsis(this string text, int length, bool strictLength = false)
+            string? text = url.Trim();
+
+            int idxDomainStarts = text.IndexOf("//") + 2;
+
+            int idx = idxDomainStarts;
+
+            if (idx > -1)
+            {
+                int idxNextSlash = text.IndexOf("/", idx);
+
+                while (idxNextSlash > -1 && idxNextSlash < maxLength - ELLIPSIS.Length)
+                {
+                    idx = idxNextSlash + 1;
+                    idxNextSlash = text.IndexOf("/", idx);
+                }
+
+                text = text.Substring(idxDomainStarts, idx - idxDomainStarts) + ELLIPSIS;
+            }
+            else
+            {
+                text = text.TruncateWithEllipsis(maxLength);
+            }
+
+            return text;
+        }
+
+        internal static string? TruncateWithEllipsis(this string? text, int length, bool strictLength = false)
         {
             if (string.IsNullOrEmpty(text))
                 return text;
@@ -105,11 +136,11 @@ namespace Jiminy.Helpers
 
             if (strictLength)
             {
-                return text.Substring(0, length - 3).TrimEnd() + "...";
+                return text.Substring(0, length - (ELLIPSIS.Length)).TrimEnd() + ELLIPSIS;
             }
             else
             {
-                return text.Substring(0, length).TrimEnd() + "...";
+                return text.Substring(0, length).TrimEnd() + ELLIPSIS;
             }
         }
     }

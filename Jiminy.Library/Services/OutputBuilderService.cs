@@ -12,11 +12,13 @@ namespace Jiminy.Utilities
     {
         private readonly AppSettings _appSettings;
         private readonly TagService _tagService;
+        private readonly string? _itemButtonsHtml;
 
         public OutputBuilderService(AppSettings appSettings)
         {
             _appSettings = appSettings;
             _tagService = new TagService(appSettings);
+            _itemButtonsHtml = GenerateItemButtonsHtml();
         }
 
         internal async Task<Result> BuildHtml(ItemRegistry itemRegistry, List<LogEntry> logEntries, OutputSpecification of)
@@ -224,6 +226,7 @@ namespace Jiminy.Utilities
             sb.Append(GenerateItemCardSet(
                 title: "Overdue",
                 items: itemRegistry.OverdueItems,
+                buttonsHtml: _itemButtonsHtml,
                 showBuckets: true,
                 showPriority: true,
                 showText: true,
@@ -234,6 +237,7 @@ namespace Jiminy.Utilities
             sb.Append(GenerateItemCardSet(
                 title: "Imminent",
                 items: itemRegistry.ImminentItems,
+                buttonsHtml: _itemButtonsHtml,
                 showBuckets: true,
                 showPriority: true,
                 showText: true,
@@ -244,6 +248,7 @@ namespace Jiminy.Utilities
             sb.Append(GenerateItemCardSet(
                 title: "Future",
                 items: itemRegistry.FutureItems,
+                buttonsHtml: _itemButtonsHtml,
                 showBuckets: true,
                 showPriority: true,
                 showText: true,
@@ -359,6 +364,7 @@ namespace Jiminy.Utilities
             sb.Append(GenerateItemCardSet(
                 "Completed Items",
                 itemRegistry.CompletedItems,
+                buttonsHtml: _itemButtonsHtml,
                 showText: true,
                 showPriority: true,
                 showLinks: true,
@@ -375,6 +381,7 @@ namespace Jiminy.Utilities
             sb.Append(GenerateItemCardSet(
                 "Hidden Items",
                 new ItemSubSet(),
+                buttonsHtml: _itemButtonsHtml,
                 showText: true,
                 showPriority: true,
                 showLinks: true,
@@ -393,6 +400,7 @@ namespace Jiminy.Utilities
             sb.Append(GenerateItemCardSet(
                 "Open Items",
                 itemRegistry.OpenItems,
+                buttonsHtml: _itemButtonsHtml,
                 showText: true,
                 showPriority: true,
                 showLinks: true,
@@ -419,6 +427,7 @@ namespace Jiminy.Utilities
                 sb.Append(GenerateItemCardSet(
                     title: bucket.Name,
                     items: projectItems,
+                    buttonsHtml: _itemButtonsHtml,
                     onlyBucketName: bucket.Name,
                     showText: true,
                     showPriority: true,
@@ -432,6 +441,7 @@ namespace Jiminy.Utilities
             sb.Append(GenerateItemCardSet(
                 title: "No Bucket",
                 items: noBucketItems,
+                buttonsHtml: _itemButtonsHtml,
                 showText: true,
                 showPriority: true,
                 showLinks: true,
@@ -460,6 +470,7 @@ namespace Jiminy.Utilities
                     sb.Append(GenerateItemCardSet(
                         title: bucket.Name,
                         items: items,
+                        buttonsHtml: _itemButtonsHtml,
                         onlyBucketName: bucket.Name,
                         showText: true,
                         showPriority: true,
@@ -503,6 +514,7 @@ namespace Jiminy.Utilities
                 sb.Append(GenerateItemCardSet(
                     title: pri.Name,
                     items: itemRegistry.OpenItems,
+                    buttonsHtml: _itemButtonsHtml,
                     onlyPriorityName: pri.Name,
                     showText: true,
                     showLinks: true,
@@ -534,6 +546,7 @@ namespace Jiminy.Utilities
                 sb.Append(GenerateItemCardSet(
                     title: rep.Name,
                     items: itemRegistry.OpenItems,
+                    buttonsHtml: _itemButtonsHtml,
                     onlyRepeatName: rep.Name,
                     showText: true,
                     showLinks: true,
@@ -557,7 +570,14 @@ namespace Jiminy.Utilities
             foreach (var pn in projectNames)
             {
                 var itemList = new ItemSubSet(projectItems.Items.Where(_ => _.ProjectName == pn).OrderBy(_ => _.BucketName).ThenBy(_ => _.PriorityNumber));
-                string? html = GenerateItemCardSet(pn ?? "No project", itemList, showText: true, showPriority: true, showBuckets: true, showLinks: true);
+                string? html = GenerateItemCardSet(
+                    pn ?? "No project", 
+                    itemList, 
+                    buttonsHtml: _itemButtonsHtml, 
+                    showText: true, 
+                    showPriority: true, 
+                    showBuckets: true, 
+                    showLinks: true);
 
                 if (html.NotEmpty())
                 {
@@ -628,7 +648,8 @@ namespace Jiminy.Utilities
             bool showLinks = false,
             bool showBucket = false,
             bool showFileName = false,
-            bool suppressProjectDisplay = false)
+            bool suppressProjectDisplay = false,
+            string? buttonsHtml = null)
         {
             StringBuilder sb = new(2000);
 
@@ -637,28 +658,31 @@ namespace Jiminy.Utilities
             // Texts
             sb.Append($"<div class='item-text'>{item.AssociatedText}</div>");
 
+            // Icons and buttons
             sb.Append($"<div class='item-icons-buttons-container'>");
 
             // Icons
-            sb.Append($"<div class='item-icon-container'>");
-            foreach (var ti in item.TagInstances.OrderBy(_ => _.Definition.DisplayOrder).ThenBy(_ => _.DefinitionName))
-            {
-                if (suppressProjectDisplay == false || ti.Type != enTagType.Project)
-                {
-                    sb.Append(_tagService.GenerateIconItem(ti));
-                }
-            }
-            sb.Append(_tagService.GenerateIconItem(fileName: Constants.ICON_FILE_NAME_MARKDOWN_FILE, linkUrl: item.SourceFileName, overrideColour: "darkgrey", overrideText: $"{item.SourceFileName} #{item.SourceLineNumber}"));
+            sb.Append($"<div class='item-icon-container'>{GenerateTabIcons(item, suppressProjectDisplay)}</div>");
+
+            // Buttons
+            sb.Append(buttonsHtml);
+
+            // Icons and buttons
             sb.Append($"</div>");
 
-            sb.Append(item.Warnings.Join("<div class='item-warnings'>", "<div>", "</div>", "</div>", 1000));
+            // Warnings
+            if (item.Warnings.Any())
+            {
+                sb.Append(item.Warnings.Join("<div class='item-warnings'>", "<div>", "</div>", "</div>", 1000));
+            }
 
+            // Diagnostics
             if (_appSettings.HtmlSettings.ShowDiagnostics)
             {
                 List<string> diags = new();
 
                 diags.Add($"Raw TagSet '{item.RawTagSet}'");
-                
+
                 diags.AddRange(item.Diagnostics);
 
                 if (_appSettings.HtmlSettings.VerboseDiagnostics)
@@ -669,20 +693,38 @@ namespace Jiminy.Utilities
                 sb.Append(diags.Join("<div class='item-diagnostics'>", "<div>", "</div>", "</div>", 1000));
             }
 
-            // Buttons
-            sb.Append($"<div class='item-button-container'>{GenerateItemButtonsHtml(item)}</div>");
-
-            sb.Append($"</div>");
+            // Card
             sb.Append($"</div>");
 
             return sb.ToString();
         }
 
-        private object GenerateItemButtonsHtml(Item item)
+        private string GenerateTabIcons(Item item, bool suppressProjectDisplay)
+        {
+            StringBuilder sb = new(1000);
+
+            foreach (var ti in item.TagInstances.OrderBy(_ => _.Definition.DisplayOrder).ThenBy(_ => _.DefinitionName))
+            {
+                if (suppressProjectDisplay == false || ti.Type != enTagType.Project)
+                {
+                    sb.Append(_tagService.GenerateIconItem(ti));
+                }
+            }
+
+            sb.Append(_tagService.GenerateIconItem(fileName: Constants.ICON_FILE_NAME_MARKDOWN_FILE, linkUrl: item.SourceFileName, overrideColour: "darkgrey", overrideText: $"{item.SourceFileName} #{item.SourceLineNumber}"));            
+
+            return sb.ToString();
+        }
+
+        private string GenerateItemButtonsHtml()
         {
             StringBuilder sb = new(200);
 
-            sb.Append($"<div name='btn-hide' item-id='{item.Id}' class='item-button'>Hide</div>");
+            sb.Append("<div class='item-button-container'>");
+            sb.Append($"<div name='btn-promote' class='item-button disabled'>Promote</div>");
+            sb.Append($"<div name='btn-demote' class='item-button disabled'>Demote</div>");
+            sb.Append($"<div name='btn-hide' class='item-button disabled'>Hide</div>");
+            sb.Append("</div>");
 
             return sb.ToString();
         }
@@ -690,6 +732,7 @@ namespace Jiminy.Utilities
         private string? GenerateItemCardSet(
             string title,
             ItemSubSet items,
+            string? buttonsHtml,
             int displayOrder = 0,
             bool showText = false,
             bool showPriority = false,
@@ -719,7 +762,15 @@ namespace Jiminy.Utilities
 
                     foreach (var item in filtered.Items.OrderByDescending(_ => _.IsOverdue).ThenByDescending(_ => _.IsImminent).ThenBy(_ => _.PriorityNumber))
                     {
-                        sb.Append(GenerateItemCard(item, showText, showPriority, showLinks, showBuckets, showFileName, suppressProjectDisplay));
+                        sb.Append(GenerateItemCard(
+                            item: item, 
+                            showText: showText,
+                            showPriority: showPriority, 
+                            showLinks: showLinks, 
+                            showBucket: showBuckets, 
+                            showFileName: showFileName,
+                            suppressProjectDisplay:suppressProjectDisplay, 
+                            buttonsHtml: buttonsHtml));
                     }
 
                     sb.Append("</div>");
