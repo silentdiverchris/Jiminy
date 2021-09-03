@@ -117,7 +117,7 @@ To avoid having to add the project or any other frequently used tag to each item
  =p:Jiminy-setctx= 
 ```
 
-This tells it to set the context that all subsequent items in this file are for project 'Jiminy', so for the rest of the document I don't need to tell it which project items are for. You can set a context with 'setcontext', or the synonym 'ctx'.
+This tells it to set the context that all subsequent items in this file are for project 'Jiminy', so for the rest of the document I don't need to tell it which project items are for. You can set a context with 'setcontext', the synonym 'ctx' or whatever other synonym you want to define.
 
 You could then override the context for a specific item, change the context to another project or clear the context entirely with 'clearcontext', 'clear' or 'xctx', the default synonyms for the 'ClearContext' tag.
 
@@ -135,7 +135,13 @@ This document has a context setter at the beginning to set the context for items
 =ctx-prj:Jiminy-docu=
 ```
 
-So all items I add in here are put in my 'Jiminy' project, and marked as relating to documentation.
+So all items I add in here are put in my 'Jiminy' project, and marked as relating to documentation. If I want to add an item that is a bug, I just override by saying;
+
+```
+ =bug= This one is a bug, not documentation
+```
+
+The 'bug' tag is one of the standard custom tags.
 
 ## Tag names & synonyms
 
@@ -196,8 +202,110 @@ On startup, if any names or synonyms clash, it will complain and refuse to run.
         ...etc...
 ```
 
+## Adding custom tags
+
+Any number of custom tags can be added, the standard custom tags are shown in the settings fragment below.
+
+=b:w-p:med= Expand on custom tag description
+
+```
+"TagSettings": {
+	...blah blah...
+    "Defintions": {
+    ...standard tags...
+      "Items": [
+        {
+          "Type": 1,
+          "GenerateView": true,
+          "Synonyms": [],
+          "Code": "enhancement",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Enhancement",
+          "IconFileName": "enhancement.svg",
+          "Colour": null,
+          "DisplayOrder": 8,
+          "Description": "Enhancement"
+        },
+        {
+          "Type": 1,
+          "GenerateView": true,
+          "Synonyms": [],
+          "Code": "conversation",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Conversation",
+          "IconFileName": "conversation.svg",
+          "Colour": null,
+          "DisplayOrder": 9,
+          "Description": "Talk to somebody"
+        },
+        {
+          "Type": 1,
+          "GenerateView": true,
+          "Synonyms": [],
+          "Code": "phonecall",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Phone call",
+          "IconFileName": "phone.svg",
+          "Colour": null,
+          "DisplayOrder": 10,
+          "Description": "Phone call required"
+        },
+        {
+          "Type": 1,
+          "GenerateView": false,
+          "Synonyms": [],
+          "Code": "question",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Question",
+          "IconFileName": "question.svg",
+          "Colour": null,
+          "DisplayOrder": 10,
+          "Description": "Question"
+        },
+        {
+          "Type": 1,
+          "GenerateView": false,
+          "Synonyms": [],
+          "Code": "document",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Document",
+          "IconFileName": "document.svg",
+          "Colour": "SlateGray",
+          "DisplayOrder": 10,
+          "Description": "Related to documentation"
+        },
+        {
+          "Type": 1,
+          "GenerateView": false,
+          "Synonyms": [],
+          "Code": "videocall",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Video call",
+          "IconFileName": "video-call.svg",
+          "Colour": null,
+          "DisplayOrder": 10,
+          "Description": "Video call"
+        }
+      ]
+```
+
+## Default tags
+After an item is created it may be filled out with default tags if they do not already exist.
+
+* If it has no project it will be added to a project called 'No Project'
+* If it is not in a bucket it will be added to bucket 'Incoming'
+* If it has no priority it will be given the lowest priority (i.e. whichever priority has the highest number)
+* If a reminder tag is found with no date, it will set today as the reminder date
+* If a due tag is found with no date, it will set today as the due date
+
 ## Item buttons
-Each item has a set of buttons, these allow you to temporarily move the item around to focus on particular items or ignore others for a while.
+Each item has a set of buttons, these allow you to temporarily move the item around to focus on particular items or ignore them for a while.
 
 These changes are temporary alterations to the HTML and can be undone by refreshing the browser.
 
@@ -207,8 +315,8 @@ This does not alter the source files or item properties in any way. If you resta
 
 |Button|Function|
 |-|-|
-|Promote|Moves the item to the beginning of the set it is in.|
-|Demote|Moves the item to the end of the set it is in.|
+|Promote|Moves the item to the beginning of the set.|
+|Demote|Moves the item to the end of the set.|
 |Hide|Moves the item to the 'Hidden Items' tab under the top-level 'Other' tab.|
 
 ## Source files
