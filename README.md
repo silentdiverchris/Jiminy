@@ -4,6 +4,10 @@
 ## Overview
 A custom to-do system that watches MarkDown files in a set of nominated directories, scans through new and changed ones to gather custom tags from an expandable GTD-esque set, combines them and generates one or more highly configurable static HTML and/or JSON outputs from templates.
 
+It's pretty basic at the moment but it is also fast, clean, very configurable and the output is 100% portable. I am essentially developing it to suit my needs rather than trying to provide a utility that is ideal for everyone. 
+
+Feel free to suggest improvements and tweaks that would make it more useful to you but please bear in mind that I'm not attempting to rewrite OneNote.
+
 ## Why
 Over the years I've used numerous systems to organise the things I needed to do, such as EverNote, OneNote, BoostNote and a few others, mainly trying to shoehorn in a personalised version of the GTD system into a host that seemed to prefer that I didn't.
 
@@ -11,13 +15,13 @@ While they are all capable, pretty and/or useful in their own ways, I found each
 
 I want something that is very simple and quick to add items to, where I can just dump  a note, reminder or other to-do item that I need to be nudged about into whatever I'm typing into, then via some unbidden sorcery find them all in one place in a nice structure that helps me prioritise and schedule getting on with them.
 
-I also want something that can be backed up easily, where the backups are easily readable and greppable, and be selectively restored or the content copy-pasted; not an obscure .unreadablebymerehumans format that I won't be able to open in 10 years.
+I also want something that can be backed up easily, where the backups are easily readable and greppable, and be can be selectively restored or the content copy-pasted; not a proprietary .unreadablebyhumans format that I might find I can't open in 10 years.
 
 Since I use MarkDown for making notes anyway, and a lot of my to-dos in other systems just referenced those .md files (or worse, duplicated chunks of them), I figured why not just add the to-do items (I'll just call them 'items' hereafter) directly to the MarkDown in such a way that they can be easily recognised and dug out by software.
 
 So my solution is to go back to good old text files in directories for my to-do system, rather like the method I used back in the Cambrian era, namely having a 'todo.txt' in each folder.
 
-This time though, there is a system that gathers all the items into one place, reminds me about things and makes it easy to work out what's important while keeping a complete set of everything I want to get done during my next two or three lifetimes.
+This time though, there is a system that gathers all the items into one place, reminds me about things and makes it easy to work out what's important while keeping a complete set of everything that I confidently expect to complete during my next two or three lifetimes.
 
 ## Acknowledgements
 The delicious CSS-only tabs were gleefully lifted from [Code Convey](https://codeconvey.com/simple-css-tabs-without-javascript/), it's an impressively smooth and good-looking implementation that handles any number of tabs without a hint of JavaScript or external dependency.
@@ -26,15 +30,15 @@ The SVG files that it uses are taken from the [Bootstrap icon collection](https:
 
 ## Example of use
 
-The idea is that I can keep using my favourite Markdown editor (the splendid [GhostWriter](https://wereturtle.github.io/ghostwriter/), but any will do) to make notes and draft documents but when I need to remind myself of something, I add a line such as;
+The idea is that I can keep using my favourite Markdown editor (the splendid [GhostWriter](https://wereturtle.github.io/ghostwriter/), but any will do) to make notes and draft documents and when I identify a new task or just need to remind myself about something later, I add a line such as;
 
 ```
  =b:n-p:2-prj:Jiminy-enh-pho= Call Fred about making it do XYZ in a better way
 ```
 
-..and continue typing without breaking my stride to open up EverNote, click a button to create a new note, find that it now asks me what type of note, oh, that's new, no I don't want a task thanks, hit new note again, type in the title, tab and add the text, then add 5 different tags to make it a priority 2 'next' enhancement in the Jiminy project that involves a phone call, remember yet again that there isn't a save button to press, then switch back to the document I'm writing and try to remember what I was planning to write next.
+..and continue typing without breaking my stride to open up Evernote, click a button to create a new note, find that it now asks me what type of note, oh, that's new, no I don't want a task thanks, hit new note again, type in the title and add the text, then add 5 different tags to make it a priority 2 'next' enhancement in the Jiminy project that involves a phone call, remember yet again that there isn't a save button to press, then switch back to the document I'm writing and try to remember what I was planning to write next.
 
-This way I have no context switching or little surpises when EverNote decides it'd be just spiffing to add a new feature I don't want into a well-established workflow, I just keep typing and Jiminy tells me what I need to remember later.
+This way I have no context switching and no little surprises when Evernote decides it'd be just spiffing to add a new feature I don't want into a well-established work flow, I just keep typing and Jiminy tells me what I need to remember later.
 
 ## Tags overview
 Tags are the way you tell Jiminy everything about an item. There will be a full explanation of each standard tag and how to add custom ones somewhere below this section but as a brief introduction to how it works, take the example from above, namely;
@@ -55,10 +59,14 @@ The default definitions are;
     "Suffix": "=",
     "Separator": "-",
     "Delimiter": ":",
+    "FromHere": "\u003E",
+    "ToHere": "\u003C=",
     ...etc...
 ```
 
- This tag set is interpreted as;
+The 'FromHere' and 'ToHere' ones are for adding multiple lines to an item, see 'Tagging multiple lines'  below.
+
+This tag set is interpreted as;
 
 |Tag|Short for|Meaning|
 |-|-|-|
@@ -89,16 +97,27 @@ As such, the below results in what you'd expect it to.
 
 Please note that failing to terminate an element, eg. leaving off the '\</ul>' in the above would not be caught by the parser, at least currently. This may well have some impact on the readability of the subsequent output ;).
 
-=b:may-enh= Provide a way to tell it to take the next line, or next N lines as part of the associated text.<br>Maybe with a new 'end of text' delimiter N lines further down to tell it where to stop.
+### Tagging multiple lines
+A tag set can apply to more than one line, for example;
+
+```
+ =b:n-docu=>
+ This line will be stored
+ As will this one
+ And this too
+ <=
+```
+
+=p:me-b:w-docu= Document multiple line delimiters
 
 ## Tag Context
-To avoid having to add the project or any other frequently used tag to each item, it's best to set that as a context, so adding;
+To avoid having to add the project or any other frequently used tag to each item you can set that as a context by adding something like;
 
 ```
  =p:Jiminy-setctx= 
 ```
 
-..earlier in the file tells it to set the context that all subsequent items in this source file are for project 'Jiminy', so for the rest of the document I don't need to tell it which project items are for. You can set a context with 'setcontext', or the synonym 'ctx'.
+This tells it to set the context that all subsequent items in this file are for project 'Jiminy', so for the rest of the document I don't need to tell it which project items are for. You can set a context with 'setcontext', or the synonym 'ctx'.
 
 You could then override the context for a specific item, change the context to another project or clear the context entirely with 'clearcontext', 'clear' or 'xctx', the default synonyms for the 'ClearContext' tag.
 
@@ -108,9 +127,7 @@ You can use any set of tags as a context, so;
  =setcontext-prj:Jiminy-b:wait-enh-pri:low-rem:3/nov-due:10/dec=
 ```
 
-..would give every subsequent item tags for project 'Jiminy', bucket 'Waiting', priority 'Low', mark it as an enhancement, set a reminder for the 3rd of November and a due date of 10th December.
-
-You can use the full tag name, eg 'bucket:\[bucket name]' or any synonym that you set up, by default 'b' is a synonym for 'bucket'. Similarly, the 'Project' tag has a synonym of 'prj' but you can easily have 'p' as the synonym for project instead of priority.
+..would give every subsequent item the tags for project 'Jiminy', bucket 'Waiting', priority 'Low', and mark it as an enhancement, set a reminder for the 3rd of November and a due date of 10th December.
 
 This document has a context setter at the beginning to set the context for items I want to remind me about things to do with the document, namely;
 
@@ -179,23 +196,12 @@ On startup, if any names or synonyms clash, it will complain and refuse to run.
         ...etc...
 ```
 
-## Tagging multiple lines
-A tag set can apply to more han one line, for example;
-
-```
- =b:n-docu=>
- This line will be stored
- As will this one
- And this too
- <=
-```
-
-=p:me-b:w-docu= Document multiple line delimiters
-
 ## Item buttons
-Each item has a set of buttons, these allow you to move the item around to focus on particular items or ignore others for a while.
+Each item has a set of buttons, these allow you to temporarily move the item around to focus on particular items or ignore others for a while.
 
-These changes are temporary alterations to the HTML and can be undone by refreshing the browser. They do not alter the source files or item properties in any way.
+These changes are temporary alterations to the HTML and can be undone by refreshing the browser.
+
+This does not alter the source files or item properties in any way. If you restart the browser or refresh the page, all changes will be reset.
 
 ![Item buttons](./Screenshots/ItemButtons.png)
 
@@ -203,7 +209,7 @@ These changes are temporary alterations to the HTML and can be undone by refresh
 |-|-|
 |Promote|Moves the item to the beginning of the set it is in.|
 |Demote|Moves the item to the end of the set it is in.|
-|Hide|Removes the item from the set of items it is in and adds it to the 'Hidden Items' tab under the 'Other' tab.|
+|Hide|Moves the item to the 'Hidden Items' tab under the top-level 'Other' tab.|
 
 ## Source files
 By default it only looks at '*.md' files but you can tell it to look in any files you like, according to the settings fragment below. Currently you can only have one file specification per directory, but can have multiple entries for a directory with a different file specification for each.
@@ -281,7 +287,9 @@ The first \<style> section contains all the styling that applies to the item con
 
 The HTML within the \<body> element  is generated entirely by code and is inserted into the template where it finds '[ContentPlaceholder]'.
 
-The generated HTML uses classes everywhere to allow extra customisation. You can add more HTML around the placeholder to slot the output into a larger document, or whatever.
+The generated HTML uses classes everywhere to allow extra customisation. 
+
+You can add more HTML around the placeholder to slot the output into a larger document, as long as Jiminy can find the placeholder it will replace it with the generated html and be oblivious to any other content.
 
 Below is the \<body> section of the default template;
 
@@ -297,13 +305,15 @@ Below is the \<body> section of the default template;
 </html>
 ```
 
-If the item data needs to be played with more extensively you can always use the JSON output instead.
+If the item data needs to be played with more extensively you can always use the JSON output as the source data for something more involved, or import it into another system.
 
 ### JSON output
 
-The JSON file outputs aren't configurable other than filtering which items are written, you just get a standard (indented so human-readable) .JSON with all the item and tag information.
+The JSON file outputs aren't configurable other than filtering which items are included, you just get a standard .json file with all the item and tag information. It is indented so as to be human-readable.
 
-=b:next-bug= Don't write diagnostics to JSON output if ShowDiagnostics setting is false
+=b:next-bug= Don't write diagnostics to JSON output if ShowDiagnostics setting is false.
+
+Sample JSON output below;
 
 ```
 {
@@ -376,7 +386,9 @@ The JSON file outputs aren't configurable other than filtering which items are w
 ```
 
 ### Output generation speed
-It will spot changed or created files in the monitored directories immediately and get to work on them within a second or two, so the output should be regenerated within a second or three unless it's a gargantuan file or has hundreds of items, I've not tested it with any monster files yet but it should be pretty snappy.
+It uses the Microsoft FileSystemWatcher functionality, which will spot changed or created files in the monitored directories immediately and Jiminy get to work on them within a second or two, so the output should be regenerated within a second or three unless it's a gargantuan file or has hundreds of items, I've not tested it with any monster files yet but it should be pretty snappy.
+
+On startup it takes a few seconds as it completely regenerates the item data, there is no persistent storage at all.
 
 Currently the code is half event based and half timer based, I need to clear that up so it's entirely event based.
 
@@ -384,17 +396,22 @@ Currently the code is half event based and half timer based, I need to clear tha
 
 There is a LatencySeconds setting that is intended to make it hang back for a second or few so as to allow for somebody saving a file repeatedly in a short period and not have Jiminy regenerate the output every single time.
 
+### Persistent storage
+As mentioned above, apart from the output files themselves, no item data is stored in any database, files, cookies or session storage etc., the item data is completely regenerated on startup and refreshed in-memory when source files are changed.
+
 ## Reminders and Due dates
-=b:n= Document reminders and dates, screenshots etc.
+=b:n= Document reminder and due date tags, add screenshots etc.
 
 ## Icons & Colours
 Each tag and some properties within tags can have an icon associated with them, for example each priority level can have a different icon. The icons are all configurable, or you can dispense with them entirely.
 
-The icons must be SVG files, the reason being that they are read in by the system and added to the output in html format, so the SVG files are not needed to view the output, just when it is generated.
+The icons must be SVG files, the reason being that they are read in by the system and added to the output in html '\<svg>...svg stuff...\</svg>' form, so the SVG files are not needed to view the output, only when it is generated.
 
-The SVG files are stored in a local directory indicated by the MediaDirectoryPath setting and named in the settings.
+The SVG files are looked for in a local directory indicated by the MediaDirectoryPath setting and named in the settings. If one or more are not found or the directory is not there, Jiminy will complain and stop.
 
-The system sets the fill colour of the icons according to the properties of the item, so for example in the standard settings, the icon for high priority items is automatically filled with colour 'orange' but filled with 'darkgrey' for medium and low priority, see the relevant settings fragment below.
+The fill colour of the icons is set or left as-is according to the properties of the item. For example, in the standard settings the priority icon defaults to colour 'blue' but there are overrides for this in each specific priority so the icon for high priority items is automatically filled with colour 'orange' but filled with 'darkgrey' for medium and low priority. If the specific priority has no colour, the default 'blue' would be used.
+
+See the relevant settings fragment below.
 
 Colours are identified by the standard [CSS colour names](https://www.w3schools.com/cssref/css_colors.asp), so any valid CSS colour name is supported, or you can supply a hex value.
 
@@ -413,7 +430,7 @@ Colours are identified by the standard [CSS colour names](https://www.w3schools.
           "IsStandardTag": true,
           "Name": "Priority",
           "IconFileName": "priority-medium.svg",
-          "Colour": blue,
+          "Colour": "blue",
           "DisplayOrder": 3,
           "Description": "The priority of this item"
         },
@@ -469,11 +486,10 @@ If you can't work out what you're doing wrong with a tag, turn on diagnostics;
 "HtmlSettings": {
     "ShowDiagnostics": true,
     "VerboseDiagnostics": false,
-    "HtmlTemplateFileName": "C:\\Personal\\Jiminy\\HtmlTemplate.html",
     ..etc..
 ```
 
-...and each item display will include a full report of what it did when interpreting each tag set and the tags it decided to apply, as below.
+...and each item display will include a full report of what happened when it was interpreted and the tags it decided to apply, as below.
 
 ![Diagnostics sample](./Screenshots/DiagnosticsSample.png)
 
@@ -497,7 +513,9 @@ The upshot being that there is no "This item is completed", "Move this to the wa
 
 At some point I might put a WPF front end on it, then might revisit that decision but probably not, there would still be the problem of the changes being overwritten.
 
-Perhaps a JavaScript button could pop up a dialogue where changes were made and the the changed tag text put the clipboard so it could be pasted into the Markdown. That would save some typing, but at the cost of clicking checkboxes, selecting from dropdowns etc. which would be slower and more disruptive to the 'flow'. The main problem is getting to the correct line in the source file to make the change and it wouldn't help with that.
+Perhaps a JavaScript button could pop up a dialogue where changes were made and the the changed tag text put the clipboard so it could be pasted into the Markdown. That would save some typing, but at the cost of clicking checkboxes, selecting from dropdowns etc. which would be slower and arguably more disruptive to the 'flow'. 
+
+The main problem is getting to the correct line in the source file to make the change and it wouldn't help with that.
 
 ## Configuration file
 Everything is defined in a fairly large appsettings.json file in the directory the program runs from.
@@ -517,11 +535,11 @@ Since this is all based on good old text files, it would be easy to use a file s
 
 There's a lot of stuff in here, most of which can happily be left alone but if delved into, allows you to alter a lot of things about how it interprets tags it finds in source files and what output it produces.
 
-The main one to start with is the 'MonitoredDirectories' settings.
+You can add custom tags here, add new priorities, rename almost everything and generally make it work more like you do.
 
-I've set the json serialiser to include all values in the below and the default file that is created, it makes for a rather larger file but is much easier to see what options are available if all the defaults are shown too.
+The main one to start with is the 'MonitoredDirectories' settings, without which not a lot will happen.
 
-A good deal of additional documentation is required here...
+I've set the json serialiser that generates it to include all values in the below and the default file that is created, it makes for a rather larger file but is much easier to see what options are available if all the defaults are shown too.
 
 =b:eve-pri:low-docu= Document each setting... at some point.
 
