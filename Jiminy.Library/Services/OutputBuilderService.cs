@@ -1,6 +1,5 @@
 ﻿using Jiminy.Classes;
 using Jiminy.Helpers;
-using System.Drawing;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;

@@ -1,7 +1,6 @@
 ﻿using Jiminy.Classes;
 using Jiminy.Helpers;
 using Jiminy.Utilities;
-using Microsoft.Data.SqlClient;
 using System.Security.AccessControl;
 using System.Text;
 using static Jiminy.Classes.Delegates;
@@ -13,14 +12,14 @@ namespace Jiminy.Services
     {
         private readonly LogSettings _logSettings;
 
-        private readonly bool _logToSql = false;
-        private string? _logToSqlDatabaseName = null;
+        //private readonly bool _logToSql = false;
+        //private string? _logToSqlDatabaseName = null;
 
         private readonly bool _logToFile = false;
         private readonly bool _logToConsole = true; // No way to turn this off at present
 
-        public bool LoggingToSql => _logToSql;
-        public string? LoggingToSqlDatabaseName => _logToSqlDatabaseName;
+        //public bool LoggingToSql => _logToSql;
+        //public string? LoggingToSqlDatabaseName => _logToSqlDatabaseName;
 
         public bool LoggingToFile => _logToFile;
         public bool LoggingToConsole => _logToConsole;
@@ -43,19 +42,19 @@ namespace Jiminy.Services
             _consoleDelegate = consoleDelegate;
             _logSettings = appSettings.LogSettings;
 
-            if (_logSettings.SqlConnectionString.NotEmpty())
-            {
-                Result result = VerifyAndPrepareDatabase();
+            //if (_logSettings.SqlConnectionString.NotEmpty())
+            //{
+            //    Result result = VerifyAndPrepareDatabase();
 
-                if (result.HasNoErrorsOrWarnings)
-                {
-                    _logToSql = true;
-                }
-                else
-                {
-                    result.AddError("Logging to SQL not enabled, database doesn't exist or cannot be initialised");
-                }
-            }
+            //    if (result.HasNoErrorsOrWarnings)
+            //    {
+            //        _logToSql = true;
+            //    }
+            //    else
+            //    {
+            //        result.AddError("Logging to SQL not enabled, database doesn't exist or cannot be initialised");
+            //    }
+            //}
 
             if (_logSettings.LogDirectoryPath.NotEmpty())
             {
@@ -179,10 +178,10 @@ namespace Jiminy.Services
                 _consoleDelegate.Invoke(entry);
             }
 
-            if (_logToSql)
-            {
-                await AddLogToSqlAsync(entry);
-            }
+            //if (_logToSql)
+            //{
+            //    await AddLogToSqlAsync(entry);
+            //}
 
             if (_logToFile)
             {
@@ -201,60 +200,60 @@ namespace Jiminy.Services
         //    await AddLogAsync(entry);
         //}
 
-        private Result VerifyAndPrepareDatabase()
-        {
-            // test database can be got at and initialise it if the log table doesn't exist
+        //private Result VerifyAndPrepareDatabase()
+        //{
+        //    // test database can be got at and initialise it if the log table doesn't exist
 
-            Result result = new("VerifyAndPrepareDatabase", false);
+        //    Result result = new("VerifyAndPrepareDatabase", false);
 
-            try
-            {
-                using (SqlConnection conn = new(_logSettings.SqlConnectionString))
-                {
-                    conn.Open();
+        //    try
+        //    {
+        //        using (SqlConnection conn = new(_logSettings.SqlConnectionString))
+        //        {
+        //            conn.Open();
 
-                    _logToSqlDatabaseName = conn.Database;
+        //            _logToSqlDatabaseName = conn.Database;
 
-                    string sql = "Select Case When Exists (Select * From sys.objects Where type = 'P' And OBJECT_ID = OBJECT_ID('dbo.AddLogEntry')) Then 1 Else 0 End";
+        //            string sql = "Select Case When Exists (Select * From sys.objects Where type = 'P' And OBJECT_ID = OBJECT_ID('dbo.AddLogEntry')) Then 1 Else 0 End";
 
-                    SqlCommand cmd = new(sql, conn);
+        //            SqlCommand cmd = new(sql, conn);
 
-                    var storedProcExists = cmd.ExecuteScalar().ToString();
+        //            var storedProcExists = cmd.ExecuteScalar().ToString();
 
-                    if (storedProcExists == "0")
-                    {
-                        string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "InitialiseDatabase.sql");
-                        sql = System.IO.File.ReadAllText(path);
+        //            if (storedProcExists == "0")
+        //            {
+        //                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "InitialiseDatabase.sql");
+        //                sql = System.IO.File.ReadAllText(path);
 
-                        // Use Sql Management Objects as the script is multi-statement
-                        Microsoft.SqlServer.Management.Smo.Server server = new(new Microsoft.SqlServer.Management.Common.ServerConnection(conn));
-                        server.ConnectionContext.ExecuteNonQuery(sql);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                result.AddException(ex);
-            }
+        //                // Use Sql Management Objects as the script is multi-statement
+        //                Microsoft.SqlServer.Management.Smo.Server server = new(new Microsoft.SqlServer.Management.Common.ServerConnection(conn));
+        //                server.ConnectionContext.ExecuteNonQuery(sql);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        result.AddException(ex);
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        private async Task AddLogToSqlAsync(LogEntry entry)
-        {
-            if (_logSettings.SqlConnectionString is not null)
-            {
-                List<SqlParameter> parameters = SQLUtilities.BuildSQLParameterList(
-                       "LogText", entry.Text,
-                       "LogSeverity", (int)entry.Severity);
+        //private async Task AddLogToSqlAsync(LogEntry entry)
+        //{
+        //    if (_logSettings.SqlConnectionString is not null)
+        //    {
+        //        List<SqlParameter> parameters = SQLUtilities.BuildSQLParameterList(
+        //               "LogText", entry.Text,
+        //               "LogSeverity", (int)entry.Severity);
 
-                await SQLUtilities.ExecuteStoredProcedureNonQueryAsync(_logSettings.SqlConnectionString, "AddLogEntry", parameters);
-            }
-            else
-            {
-                throw new Exception($"AddLogToSqlAsync called with null connection string");
-            }
-        }
+        //        await SQLUtilities.ExecuteStoredProcedureNonQueryAsync(_logSettings.SqlConnectionString, "AddLogEntry", parameters);
+        //    }
+        //    else
+        //    {
+        //        throw new Exception($"AddLogToSqlAsync called with null connection string");
+        //    }
+        //}
 
         private async Task AddLogToFileAsync(LogEntry entry)
         {

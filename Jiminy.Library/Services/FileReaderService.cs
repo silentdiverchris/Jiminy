@@ -13,7 +13,7 @@ namespace Jiminy.Services
         private readonly AppSettings _appSettings;
         private readonly LogService _logService;
 
-        private List<Item> _tagSets = new();
+        private readonly List<Item> _tagSets = new();
 
         public FileReaderService(
             AppSettings appSettings,
