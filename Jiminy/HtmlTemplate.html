@@ -76,7 +76,8 @@
         .page-header,
         .item-warnings,
         .item-diagnostics,
-        .header-warnings {
+        .header-warnings,
+        .header-ticklers {
             display: flex;
             flex-direction: column;
             color: darkgrey;
@@ -104,6 +105,18 @@
         .header-subtitle {
             align-self: center;
         }
+
+        .header-ticklers .item {
+            color: black;
+        }
+
+            .header-ticklers .item.overdue {
+                color: red;
+            }
+
+            .header-ticklers .item.today {
+                color: orangered;
+            }
 
         .item-warnings,
         .header-warnings {
@@ -266,7 +279,7 @@
             align-items: end
         }
 
-            .item-button-container .item-button {               
+            .item-button-container .item-button {
                 width: 45px;
                 margin-left: 5px;
                 margin-top: 5px;
@@ -320,24 +333,13 @@
                 justify-content: space-between;
             }
 
-                .card-grid .card.imminent {
+                .card-grid .card.soon {
                     border: 2px solid orange;
                 }
 
                 .card-grid .card.overdue {
                     border: 2px solid red;
                 }
-
-        /*        a.card-link {
-            font-size: 0.7em;
-            overflow-x: hidden;
-            color: darkgrey;
-        }*/
-
-        /*        .card-text-link-placeholder {
-            font-size: 0.8em;
-            color: darkgrey;
-        }*/
 
         @media screen and (min-width: 600px) {
             .card-grid {

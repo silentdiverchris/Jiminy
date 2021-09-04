@@ -74,9 +74,10 @@ namespace Jiminy.Classes
         internal ItemSubSet CompletedItems => new(_items.Where(_ => _.IsCompleted == true && _.SetsContext == false && _.ClearsContext == false).OrderBy(_ => _.PriorityNumber));
         internal ItemSubSet BucketItems => new(OpenItems.Items.Where(_ => _.BucketName is not null));
 
-        internal ItemSubSet OverdueItems => new(DatedItems.Items.Where(_ => _.IsOverdue));
-        internal ItemSubSet ImminentItems => new(DatedItems.Items.Where(_ => _.IsImminent));
-        internal ItemSubSet FutureItems => new(DatedItems.Items.Where(_ => _.IsFuture));
+        internal ItemSubSet OverdueItems => new(DatedItems.Items.Where(_ => _.MostUrgentDateStatus == enDateStatus.Overdue));
+        internal ItemSubSet TodayItems => new(DatedItems.Items.Where(_ => _.MostUrgentDateStatus == enDateStatus.Today));
+        internal ItemSubSet SoonItems => new(DatedItems.Items.Where(_ => _.MostUrgentDateStatus == enDateStatus.Soon));
+        internal ItemSubSet FutureItems => new(DatedItems.Items.Where(_ => _.MostUrgentDateStatus == enDateStatus.Future));
 
         internal ProjectRegistry ProjectRegistry => _projectRegistry;
         internal List<string> ProjectNames => _projectRegistry.Projects.Select(_ => _.Name).ToList();

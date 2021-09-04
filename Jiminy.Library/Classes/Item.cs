@@ -7,11 +7,12 @@ namespace Jiminy.Classes
 {
     internal class Item
     {
-        private readonly TagInstanceList _tagInstances = new();        
-        private readonly DateTime _imminentThreshold = DateTime.UtcNow.AddDays(2);
+        private readonly TagInstanceList _tagInstances = new();
+        private readonly DateTime _soonThreshold = DateTime.UtcNow.AddDays(2);
+        private readonly List<enDateStatus> _ticklerDateStatusList = new() { enDateStatus.Today, enDateStatus.Overdue };
 
         public string? AssociatedText { get; set; } = null;
-        
+
         public bool SetsContext { get; set; } = false;
         public bool ClearsContext { get; set; } = false;
 
@@ -28,12 +29,12 @@ namespace Jiminy.Classes
         public bool IncludeSubsequentLines { get; set; } = false;
 
         public string? SourceFileName { get; set; }
-        
+
         public List<string> Warnings { get; private set; } = new();
         public List<string> Diagnostics { get; private set; } = new();
 
         public DateTime? CreatedUtc { get; private set; } = DateTime.UtcNow;
-                
+
         public bool IsCompleted => _tagInstances.Tags.Any(_ => _.Type == enTagType.Completed);
 
         [JsonIgnore]
@@ -60,10 +61,10 @@ namespace Jiminy.Classes
         public TagInstance? Project => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Project);
 
         public string? ProjectName => Project?.ProjectName;
-        
+
         [JsonIgnore]
         public TagInstance? Priority => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Priority);
-        
+
         public string? PriorityName => Priority?.PriorityName;
         public int? PriorityNumber => Priority?.PriorityNumber;
 
@@ -91,7 +92,7 @@ namespace Jiminy.Classes
             {
                 throw new Exception($"AddTagInstance given tag type '{ti.Definition.Type}'");
             }
-                
+
             if (ti is not null)
             {
                 _tagInstances.Add(ti, overwrite: false);
@@ -189,37 +190,42 @@ namespace Jiminy.Classes
             return str;
         }
 
-        public enDateStatus ReminderStatus => ReminderDateTime.DateStatus(out _);
-
-        public enDateStatus GetReminderStatus(out string colour)
+        private enDateStatus GetReminderStatus(out string colour)
         {
             enDateStatus ds = ReminderDateTime.DateStatus(out colour);
 
             return ds;
         }
 
-        public enDateStatus DueStatus => DueDateTime.DateStatus(out _);
-
-        public enDateStatus GetDueStatus(out string colour)
+        private enDateStatus GetDueStatus(out string colour)
         {
             enDateStatus ds = DueDateTime.DateStatus(out colour);
 
             return ds;
         }
 
-        internal bool IsOverdue { get; private set; }
+        public bool NeedsTickler => _ticklerDateStatusList.Contains(DueStatus) || _ticklerDateStatusList.Contains(ReminderStatus);
 
-        internal bool IsImminent { get; private set; }
-
-        internal bool IsFuture { get; private set; }
+        // These are refreshed when any date-related property is set
+        internal enDateStatus MostUrgentDateStatus { get; private set; }
+        internal enDateStatus DueStatus { get; private set; }
+        internal enDateStatus ReminderStatus { get; private set; }
 
         private void SetDatedProperties()
         {
-            IsOverdue = !IsCompleted && (ReminderDateTime < DateTime.Now.Date || DueDateTime < DateTime.Now.Date);
-            IsImminent = !IsCompleted && !IsOverdue && (ReminderDateTime < _imminentThreshold || DueDateTime < _imminentThreshold);
-            IsFuture = !IsCompleted && (ReminderDateTime >= _imminentThreshold || DueDateTime >= _imminentThreshold);
+            if (IsCompleted || (ReminderDateTime is null && DueDateTime is null))
+            {
+                DueStatus = ReminderStatus = MostUrgentDateStatus = enDateStatus.NoDate;
+            }
+            else
+            {
+                DueStatus = GetDueStatus(out _);
+                ReminderStatus = GetReminderStatus(out _);
 
-            Diagnostics.Add($"Completed:{IsCompleted.YesNo()} Imminent:{IsImminent.YesNo()} Overdue:{IsOverdue.YesNo()}");
+                MostUrgentDateStatus = (int)DueStatus < (int)ReminderStatus ? DueStatus : ReminderStatus;
+            }
+
+            Diagnostics.Add($"Completed: {IsCompleted.YesNo()} date status: {MostUrgentDateStatus}");
         }
     }
 }

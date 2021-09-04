@@ -22,11 +22,11 @@
         /// </summary>
         public enum enDateStatus
         {
-            None = 0,
             Overdue = 1,
-            Due = 2,
-            Imminent = 3,
-            Future = 4
+            Today = 2,
+            Soon = 3,
+            Future = 4,
+            NoDate = 99
         }
 
         public enum enSeverity

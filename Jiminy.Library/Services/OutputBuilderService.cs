@@ -83,9 +83,10 @@ namespace Jiminy.Utilities
 
                     string? titlesHtml = GenerateTitlesHtml(itemRegistry, of);
                     string? warningsHtml = GenerateWarningsHtml(itemRegistry);
+                    string? ticklersHtml = GenerateHeaderTicklersHtml(itemRegistry);
 
                     sbContent.Append(html.AsSpan(0, contentStartIdx));
-                    sbContent.Append($"<div class='container'>{titlesHtml}{warningsHtml}<div class='tab-wrap'>");
+                    sbContent.Append($"<div class='container'>{titlesHtml}{warningsHtml}{ticklersHtml}<div class='tab-wrap'>");
                     sbContent.Append(sbTabHeaders);
                     sbContent.Append(sbTabContent);
                     sbContent.Append("</div></div>");
@@ -121,6 +122,27 @@ namespace Jiminy.Utilities
             }
 
             sb.Append("</div>");
+
+            return sb.ToString();
+        }
+
+        private string? GenerateHeaderTicklersHtml(ItemRegistry itemRegistry)
+        {
+            StringBuilder sb = new();
+
+            var list = itemRegistry.DatedItems.Items.Where(_ => _.NeedsTickler);
+
+            if (list.Any())
+            {
+                sb.Append("<div class='header-ticklers'>");
+
+                foreach (var item in list.OrderBy(_ => _.MostUrgentDateStatus))
+                {
+                    sb.Append($"<div class='item {item.MostUrgentDateStatus.ToString().ToLower()}';>{item.MostUrgentDateStatus} - {item.AssociatedText}</div>");
+                }
+
+                sb.Append("</div>");
+            }
 
             return sb.ToString();
         }
@@ -235,15 +257,26 @@ namespace Jiminy.Utilities
                 subHeaderHtml: GenerateTabBodyHeader("Overdue", subHeader: true)));
 
             sb.Append(GenerateItemCardSet(
-                title: "Imminent",
-                items: itemRegistry.ImminentItems,
+                title: "Today",
+                items: itemRegistry.TodayItems,
                 buttonsHtml: _itemButtonsHtml,
                 showBuckets: true,
                 showPriority: true,
                 showText: true,
                 showLinks: true,
                 suppressProjectDisplay: false,
-                subHeaderHtml: GenerateTabBodyHeader("Imminent", subHeader: true)));
+                subHeaderHtml: GenerateTabBodyHeader("Today", subHeader: true)));
+
+            sb.Append(GenerateItemCardSet(
+                title: "Soon",
+                items: itemRegistry.SoonItems,
+                buttonsHtml: _itemButtonsHtml,
+                showBuckets: true,
+                showPriority: true,
+                showText: true,
+                showLinks: true,
+                suppressProjectDisplay: false,
+                subHeaderHtml: GenerateTabBodyHeader("Soon", subHeader: true)));
 
             sb.Append(GenerateItemCardSet(
                 title: "Future",
@@ -368,7 +401,7 @@ namespace Jiminy.Utilities
                 showText: true,
                 showPriority: true,
                 showLinks: true,
-                suppressProjectDisplay: false,                
+                suppressProjectDisplay: false,
                 subHeaderHtml: GenerateTabBodyHeader("Completed Items")));
 
             return GenerateTabBodyHtml(sb.ToString());
@@ -571,12 +604,12 @@ namespace Jiminy.Utilities
             {
                 var itemList = new ItemSubSet(projectItems.Items.Where(_ => _.ProjectName == pn).OrderBy(_ => _.BucketName).ThenBy(_ => _.PriorityNumber));
                 string? html = GenerateItemCardSet(
-                    pn ?? "No project", 
-                    itemList, 
-                    buttonsHtml: _itemButtonsHtml, 
-                    showText: true, 
-                    showPriority: true, 
-                    showBuckets: true, 
+                    pn ?? "No project",
+                    itemList,
+                    buttonsHtml: _itemButtonsHtml,
+                    showText: true,
+                    showPriority: true,
+                    showBuckets: true,
                     showLinks: true);
 
                 if (html.NotEmpty())
@@ -653,8 +686,8 @@ namespace Jiminy.Utilities
         {
             StringBuilder sb = new(2000);
 
-            sb.Append($"<div name='item-{item.Id}' class='card {(item.IsOverdue ? " overdue" : item.IsImminent ? " imminent" : null)}'>");
-            
+            sb.Append($"<div name='item-{item.Id}' class='card {item.MostUrgentDateStatus}'>");
+
             // Texts
             sb.Append($"<div class='item-text'>{item.AssociatedText}</div>");
 
@@ -711,7 +744,7 @@ namespace Jiminy.Utilities
                 }
             }
 
-            sb.Append(_tagService.GenerateIconItem(fileName: Constants.ICON_FILE_NAME_MARKDOWN_FILE, linkUrl: item.SourceFileName, overrideColour: "darkgrey", overrideText: $"{item.SourceFileName} #{item.SourceLineNumber}"));            
+            sb.Append(_tagService.GenerateIconItem(fileName: Constants.ICON_FILE_NAME_MARKDOWN_FILE, linkUrl: item.SourceFileName, overrideColour: "darkgrey", overrideText: $"{item.SourceFileName} #{item.SourceLineNumber}"));
 
             return sb.ToString();
         }
@@ -760,16 +793,16 @@ namespace Jiminy.Utilities
 
                     sb.Append($"<div class='card-grid' id='{cardGridId}'>");
 
-                    foreach (var item in filtered.Items.OrderByDescending(_ => _.IsOverdue).ThenByDescending(_ => _.IsImminent).ThenBy(_ => _.PriorityNumber))
+                    foreach (var item in filtered.Items.OrderBy(_ => _.MostUrgentDateStatus).ThenBy(_ => _.PriorityNumber))
                     {
                         sb.Append(GenerateItemCard(
-                            item: item, 
+                            item: item,
                             showText: showText,
-                            showPriority: showPriority, 
-                            showLinks: showLinks, 
-                            showBucket: showBuckets, 
+                            showPriority: showPriority,
+                            showLinks: showLinks,
+                            showBucket: showBuckets,
                             showFileName: showFileName,
-                            suppressProjectDisplay:suppressProjectDisplay, 
+                            suppressProjectDisplay: suppressProjectDisplay,
                             buttonsHtml: buttonsHtml));
                     }
 

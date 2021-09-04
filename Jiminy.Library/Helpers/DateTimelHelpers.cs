@@ -10,7 +10,7 @@ namespace Jiminy.Helpers
             if (value is null)
             {
                 colour = "";
-                return enDateStatus.None;
+                return enDateStatus.NoDate;
             }
             else if (((DateTime)value).Date < DateTime.Now.Date)
             {
@@ -20,12 +20,12 @@ namespace Jiminy.Helpers
             else if (((DateTime)value).Date == DateTime.Now.Date)
             {
                 colour = "orangered";
-                return enDateStatus.Due;
+                return enDateStatus.Today;
             }
             else if (((DateTime)value).Date < DateTime.Now.Date.AddDays(2))
             {
                 colour = "purple";
-                return enDateStatus.Imminent;
+                return enDateStatus.Soon;
             }
             else
             {

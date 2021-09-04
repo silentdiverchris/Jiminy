@@ -49,7 +49,11 @@ Tags are the way you tell Jiminy everything about an item. There will be a full 
 
 Tags start and end with a selected string, by default both are '=' as they seem unused by Markdown but they could be any characters or strings; say '>=>' and '<!=' or 'tagstart' and 'tagend' if you prefer.
 
-Tags are separated by hyphens and parameters are delimited by colons but again, any strings can be defined instead. I chose these because they easily typed without pressing shift and visually separate the tags nicely.
+Tags are separated by hyphens and parameters are delimited by colons but again, any strings can be defined instead. 
+
+I chose these defaults because they are easily typed without pressing shift (oh yes, apart from colon, maybe semicolon or comma would be better) and they visually separate the tags nicely.
+
+=b:w-que= Use Semicolon or comma for default parameter delimiter ?
 
 The default definitions are;
 
