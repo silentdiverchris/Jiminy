@@ -28,8 +28,9 @@
         public PrioritySettings PrioritySettings { get; set; } = new PrioritySettings();
 
         /// <summary>
-        /// The projects that items can be assigned to, these will be added to
-        /// if new projects are used in the source data
+        /// The projects that items can be assigned to, projects don't need to be pre-defined
+        /// as they will be created on the fly when they are found but this way you can assign 
+        /// icons, colours and display orders to them.
         /// </summary>
         public ProjectSettings ProjectSettings { get; set; } = new ProjectSettings();
 
@@ -39,12 +40,13 @@
         public RepeatSettings RepeatSettings { get; set; } = new RepeatSettings();
 
         /// <summary>
-        /// Setting relating to building the HTML output file
+        /// Setting relating to building the HTML and JSON output files
         /// </summary>
-        public HtmlSettings HtmlSettings { get; set; } = new HtmlSettings();
+        public OutputSettings OutputSettings { get; set; } = new OutputSettings();
 
         /// <summary>
-        /// Load all SVG files into here indexed on file name for fast re-use
+        /// All SVG file definitions are loaded into here on startup for fast 
+        /// re-use, keyed on file name 
         /// </summary>
         public Dictionary<string, string> SvgCache = new();
     }

@@ -23,7 +23,7 @@ namespace Jiminy.Classes
         /// </summary>
         public string? Colour { get; set; }
 
-        public short DisplayOrder { get; set; } = 99;
+        public short DisplayOrder { get; set; } = Constants.DEFAULT_PROJECT_DISPLAY_ORDER;
 
         /// <summary>
         /// Human description, will be shown as a popup when user floats over the icon, and possibly elsewhere

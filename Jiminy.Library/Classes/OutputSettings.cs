@@ -2,7 +2,7 @@
 
 namespace Jiminy.Classes
 {
-    public class HtmlSettings
+    public class OutputSettings
     {
         public bool ShowDiagnostics { get; set; }
         public bool VerboseDiagnostics { get; set; }

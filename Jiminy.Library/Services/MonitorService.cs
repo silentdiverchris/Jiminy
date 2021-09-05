@@ -120,9 +120,9 @@ namespace Jiminy.Services
                 {
                     Result htmlBuildResult = new();
 
-                    if (File.Exists(_appSettings.HtmlSettings.HtmlTemplateFileName))
+                    if (File.Exists(_appSettings.OutputSettings.HtmlTemplateFileName))
                     {
-                        htmlBuildResult.AddInfo($"Reading template from '{_appSettings.HtmlSettings.HtmlTemplateFileName}'");
+                        htmlBuildResult.AddInfo($"Reading template from '{_appSettings.OutputSettings.HtmlTemplateFileName}'");
 
                         await _logService.ProcessResult(htmlBuildResult);
 
@@ -133,7 +133,7 @@ namespace Jiminy.Services
                     }
                     else
                     {
-                        htmlBuildResult.AddError($"Template '{_appSettings.HtmlSettings.HtmlTemplateFileName}' does not exist");
+                        htmlBuildResult.AddError($"Template '{_appSettings.OutputSettings.HtmlTemplateFileName}' does not exist");
                     }
 
                     await _logService.ProcessResult(htmlBuildResult);

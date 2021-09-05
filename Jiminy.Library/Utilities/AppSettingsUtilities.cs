@@ -38,21 +38,9 @@ namespace Jiminy.Utilities
                     new MonitoredDirectory(@"C:\Dev\Archivist", recursive: false, isActive: true),
                     new MonitoredDirectory(@"C:\Dev\Jiminy", recursive: false, isActive: true)
                 },
-                ProjectSettings = new ProjectSettings
+                OutputSettings = new OutputSettings
                 {
-                    Definitions = new ProjectDefinitionList
-                    {
-                        Items = new List<ProjectDefinition>
-                        {
-                            new ProjectDefinition { Name = "Jiminy", Description = "Developing Jiminy", DisplayOrder = 1, IconFileName = "umbrella.svg", Colour = "crimson" },
-                            new ProjectDefinition { Name = "Archivist", Description = "Developing Archivist", DisplayOrder = 2, IconFileName = "archivist.svg", Colour = "indigo" },
-                            new ProjectDefinition { Name = "Writing", Description = "Writing English stuff", DisplayOrder = 3, IconFileName = "writing.svg", Colour = "saddlebrown" }
-                        }
-                    }
-                },
-                HtmlSettings = new HtmlSettings
-                {
-                    ShowDiagnostics = false,
+                    ShowDiagnostics = true,
                     VerboseDiagnostics = false,
                     HtmlTemplateFileName = @"C:\Personal\Jiminy\HtmlTemplate.html",
                     Outputs = new List<OutputSpecification>
@@ -106,6 +94,24 @@ namespace Jiminy.Utilities
 
                 // Supported colour names https://www.w3schools.com/cssref/css_colors.asp
 
+                ProjectSettings = new ProjectSettings
+                {
+                    Definitions = new ProjectDefinitionList
+                    {
+                        Items = new List<ProjectDefinition>
+                        {
+                            new ProjectDefinition { Name = "Jiminy", Description = "Developing Jiminy", DisplayOrder = 103, IconFileName = "umbrella.svg", Colour = "crimson" },
+                            new ProjectDefinition { Name = "Archivist", Description = "Developing Archivist", DisplayOrder = 102, IconFileName = "archivist.svg", Colour = "indigo" },
+                            new ProjectDefinition { Name = "Writing", Description = "Writing English stuff", DisplayOrder = 101, IconFileName = "writing.svg", Colour = "saddlebrown" },
+                            new ProjectDefinition { Name = "Hardware", DisplayOrder = 110, Description = "Hardware matters to fix or do", IconFileName = "hardware.svg", Colour = "darkblue" },
+                            new ProjectDefinition { Name = "RDR2", DisplayOrder = 150, Colour = "darkgrey" },
+                            new ProjectDefinition { Name = "Marc Crane", DisplayOrder = 40, Colour = "darkgrey" },
+                            new ProjectDefinition { Name = "Respondent", DisplayOrder = 30, Colour = "darkblue" },
+                            new ProjectDefinition { Name = "SingLink", DisplayOrder = 10, Colour = "darkblue" },
+                            new ProjectDefinition { Name = "Contract", DisplayOrder = 20, Colour = "darkblue" }
+                        }
+                    }
+                },
                 RepeatSettings = new RepeatSettings
                 {
                     Defintions = new RepeatDefinitionList
@@ -171,9 +177,9 @@ namespace Jiminy.Utilities
                             new TagDefinition { Type = enTagType.Custom, Name = "Conversation", DisplayOrder = 9, Description = "Talk to somebody", GenerateView = true, IconFileName = "conversation.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Phone call", DisplayOrder = 10, Description = "Phone call required", GenerateView = true, IconFileName = "phone.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Question", DisplayOrder = 10, Description = "Question", IconFileName = "question.svg" },
-                            new TagDefinition { Type = enTagType.Custom, Name = "Document", DisplayOrder = 10, Description = "Related to documentation", Colour ="SlateGray", IconFileName = "document.svg" },
+                            new TagDefinition { Type = enTagType.Custom, Name = "Document", DisplayOrder = 10, Description = "Involves writing", Colour ="SlateGray", IconFileName = "document.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Video call", DisplayOrder = 10, Description = "Video call", IconFileName = "video-call.svg" },
-                            new TagDefinition { Type = enTagType.Custom, Name = "Spiked online", DisplayOrder = 10, Description = "ANything to do with Spiked Online", IconFileName = "spiked.svg", Colour = "magenta" }
+                            new TagDefinition { Type = enTagType.Custom, Name = "Spiked", DisplayOrder = 10, IconFileName = "spiked.svg", Colour = "magenta" }
                         }
                     }
                 }
@@ -209,7 +215,7 @@ namespace Jiminy.Utilities
             {
                 // Add the default 'no project' project if it's not already defined
                 
-                settings.ProjectSettings.Definitions.GetOrAdd(Constants.NO_PROJECT_NAME, Constants.NO_PROJECT_DESCRIPTION, Constants.NO_PROJECT_ICON_FILE_NAME);
+                settings.ProjectSettings.Definitions.GetOrAdd(Constants.NO_PROJECT_NAME, false, Constants.NO_PROJECT_DESCRIPTION, Constants.NO_PROJECT_ICON_FILE_NAME, Constants.NO_PROJECT_DISPLAY_ORDER);
 
                 foreach (var bucket in settings.BucketSettings.Definitions.Items.Where(_ => _.IconFileName is not null))
                 {
@@ -255,12 +261,12 @@ namespace Jiminy.Utilities
                     }
                 }
 
-                if (settings.HtmlSettings.HtmlTemplateFileName.IsEmpty() || !File.Exists(settings.HtmlSettings.HtmlTemplateFileName))
+                if (settings.OutputSettings.HtmlTemplateFileName.IsEmpty() || !File.Exists(settings.OutputSettings.HtmlTemplateFileName))
                 {
-                    result.AddError($"Template file '{settings.HtmlSettings.HtmlTemplateFileName}' does not exist");
+                    result.AddError($"Template file '{settings.OutputSettings.HtmlTemplateFileName}' does not exist");
                 }
 
-                foreach (var tfn in settings.HtmlSettings.Outputs.Select(_ => _.OverrideHtmlTemplateFileName))
+                foreach (var tfn in settings.OutputSettings.Outputs.Select(_ => _.OverrideHtmlTemplateFileName))
                 {
                     if (tfn.NotEmpty() && !File.Exists(tfn))
                     {

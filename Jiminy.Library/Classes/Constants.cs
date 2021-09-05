@@ -18,6 +18,9 @@
         internal const string NO_PROJECT_NAME = "No Project";
         internal const string NO_PROJECT_DESCRIPTION = "The default project when an item doesn't have one.";
         internal const string NO_PROJECT_ICON_FILE_NAME = "no-project.svg";
+        internal const short NO_PROJECT_DISPLAY_ORDER = 200;
+
+        internal const short DEFAULT_PROJECT_DISPLAY_ORDER = 100;
 
         internal const string TAB_GROUP_MAIN = "MainTabs";
         internal const string TAB_GROUP_PROJECT = "ProjectTabs";

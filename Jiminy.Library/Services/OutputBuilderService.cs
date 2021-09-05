@@ -24,7 +24,7 @@ namespace Jiminy.Utilities
         {
             Result result = new("BuildHtml");
 
-            string? templateFile = of.OverrideHtmlTemplateFileName ?? _appSettings.HtmlSettings.HtmlTemplateFileName;
+            string? templateFile = of.OverrideHtmlTemplateFileName ?? _appSettings.OutputSettings.HtmlTemplateFileName;
 
             if (File.Exists(templateFile))
             {
@@ -34,12 +34,12 @@ namespace Jiminy.Utilities
 
                 if (contentStartIdx == -1 || contentEndIdx == -1)
                 {
-                    result.AddError($"Cannot find content placeholder '{Constants.HTML_PLACEHOLDER_CONTENT}' in template file '{_appSettings.HtmlSettings.HtmlTemplateFileName}'");
+                    result.AddError($"Cannot find content placeholder '{Constants.HTML_PLACEHOLDER_CONTENT}' in template file '{_appSettings.OutputSettings.HtmlTemplateFileName}'");
                 }
 
                 if (result.HasNoErrorsOrWarnings)
                 {
-                    // TODO this is happening per output, just do it once whe the item is generated
+                    // TODO this is happening per output, just do it once when the item is generated
                     foreach (var item in itemRegistry.Items)
                     {
                         _tagService.ProcessEmbeddedUrls(item, "", false); // "<span class='card-text-link-placeholder'>[link]</span>", false);
@@ -103,7 +103,7 @@ namespace Jiminy.Utilities
             }
             else
             {
-                result.AddError($"Html template file '{_appSettings.HtmlSettings.HtmlTemplateFileName}' does not exist");
+                result.AddError($"Html template file '{_appSettings.OutputSettings.HtmlTemplateFileName}' does not exist");
             }
 
             return result;
@@ -159,7 +159,7 @@ namespace Jiminy.Utilities
                 foreach (var item in list)
                 {
                     sb.Append("<div class='item'>");
-                    sb.Append($"<div>{item.SourceFileName} line {item.SourceLineNumber} has invalid tagset '{item.RawTagSet}'</div>");
+                    sb.Append($"<div>{item.SourceFileName} line {item.SourceLineNumber} {(item.RawTagSet.IsEmpty() ? ", no inline tags" : ", inline tags '" + item.RawTagSet)}.</div>");
 
                     foreach (var warn in item.Warnings)
                     {
@@ -179,7 +179,7 @@ namespace Jiminy.Utilities
         {
             Result result = new("BuildOutputs");
 
-            foreach (var outputSpec in _appSettings.HtmlSettings.Outputs.Where(_ => _.IsEnabled))
+            foreach (var outputSpec in _appSettings.OutputSettings.Outputs.Where(_ => _.IsEnabled))
             {
                 ItemRegistry itemReg = itemRegistry.GenerateRegistryForOutputFile(outputSpec);
 
@@ -214,6 +214,13 @@ namespace Jiminy.Utilities
             return result;
         }
 
+        /// <summary>
+        /// Generates a JSON output file
+        /// </summary>
+        /// <param name="itemReg"></param>
+        /// <param name="recentLogEntries"></param>
+        /// <param name="jsonPath"></param>
+        /// <returns></returns>
         private async Task<Result> BuildJson(ItemRegistry itemReg, List<LogEntry> recentLogEntries, string jsonPath)
         {
             Result result = new("BuildJson");
@@ -293,23 +300,37 @@ namespace Jiminy.Utilities
             return GenerateTabBodyHtml(sb.ToString());
         }
 
+        /// <summary>
+        /// Gneerates the html that is used to populate the tab leaf / handle
+        /// </summary>
+        /// <param name="tabGroupName"></param>
+        /// <param name="title"></param>
+        /// <param name="active"></param>
+        /// <returns></returns>
         private static string GenerateTabLeafHtml(string tabGroupName, string title, bool active = false)
         {
             string tabId = $"tab-{tabGroupName}-{title}".Replace(" ", "").ToLower();
             string checkedStr = active ? "checked" : "";
 
-            string html = $"<input type=\"radio\" id=\"{tabId}\" name=\"{tabGroupName}\" class=\"tab\" {checkedStr}><label for=\"{tabId}\">{title}</label>";
-
-            return html;
+            return $"<input type=\"radio\" id=\"{tabId}\" name=\"{tabGroupName}\" class=\"tab\" {checkedStr}><label for=\"{tabId}\">{title}</label>";
         }
 
+        /// <summary>
+        /// Surrounds some html with the element to turn it into tab content
+        /// </summary>
+        /// <param name="bodyHtml"></param>
+        /// <returns></returns>
         private static string GenerateTabBodyHtml(string bodyHtml)
         {
-            string html = $"<div class=\"tab__content\">{bodyHtml}</div>";
-
-            return html;
+            return $"<div class=\"tab__content\">{bodyHtml}</div>";
         }
 
+        /// <summary>
+        /// Gneerates the 'Other' top-level tab content
+        /// </summary>
+        /// <param name="itemRegistry"></param>
+        /// <param name="logEntries"></param>
+        /// <returns></returns>
         private string GenerateOtherTabCollectionContent(ItemRegistry itemRegistry, List<LogEntry> logEntries)
         {
             StringBuilder sb = new(2000);
@@ -337,6 +358,11 @@ namespace Jiminy.Utilities
             return GenerateTabBodyHtml(sb.ToString());
         }
 
+        /// <summary>
+        /// Generates tab content that contains a sub-tab for each project
+        /// </summary>
+        /// <param name="itemRegistry"></param>
+        /// <returns></returns>
         private string GenerateProjectTabCollectionContent(ItemRegistry itemRegistry)
         {
             StringBuilder sb = new(8000);
@@ -358,15 +384,15 @@ namespace Jiminy.Utilities
 
                 string? projectIconHtml = project.IconFileName is null
                     ? defaultIconHtml
-                    : _tagService.GenerateIconItem(fileName: project.IconFileName, overrideColour: project.Colour);
+                    : _tagService.GenerateIconItem(fileName: project.IconFileName, overrideColour: project.Colour ?? projectTagDef?.Colour);
 
-                sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project, iconHtml: projectIconHtml));
+                sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project, overrideIconHtml: projectIconHtml));
 
                 activeTab = false;
             }
 
             sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_PROJECT, "All Projects", false));
-            sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project: null, iconHtml: defaultIconHtml));
+            sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project: null, overrideIconHtml: defaultIconHtml));
 
             sb.Append("<div class='container'><div class='tab-wrap'>");
             sb.Append(sbTabHeaders);
@@ -376,6 +402,11 @@ namespace Jiminy.Utilities
             return GenerateTabBodyHtml(sb.ToString());
         }
 
+        /// <summary>
+        /// Generates tab content to display all completed items
+        /// </summary>
+        /// <param name="itemRegistry"></param>
+        /// <returns></returns>
         private string GenerateCompletedItemTabContent(ItemRegistry itemRegistry)
         {
             StringBuilder sb = new(2000);
@@ -412,6 +443,11 @@ namespace Jiminy.Utilities
             return GenerateTabBodyHtml(sb.ToString());
         }
 
+        /// <summary>
+        /// Generates tab content to display all open items
+        /// </summary>
+        /// <param name="itemRegistry"></param>
+        /// <returns></returns>
         private string GenerateOpenItemTabContent(ItemRegistry itemRegistry)
         {
             StringBuilder sb = new(2000);
@@ -429,10 +465,17 @@ namespace Jiminy.Utilities
             return GenerateTabBodyHtml(sb.ToString());
         }
 
+        /// <summary>
+        /// Generates tab content to display all items for the specified project
+        /// </summary>
+        /// <param name="itemRegistry"></param>
+        /// <param name="project"></param>
+        /// <param name="overrideIconHtml"></param>
+        /// <returns></returns>
         private string GenerateProjectTabContent(
             ItemRegistry itemRegistry, 
             ProjectDefinition? project, 
-            string? iconHtml = null)
+            string? overrideIconHtml = null)
         {
             string projectName = project?.Name ?? "All projects";
 
@@ -440,7 +483,7 @@ namespace Jiminy.Utilities
 
             StringBuilder sb = new(2000);
 
-            sb.Append(GenerateTabBodyHeader(projectName, iconHtml: iconHtml));
+            sb.Append(GenerateTabBodyHeader(projectName, iconHtml: overrideIconHtml));
 
             sb.Append("<div class='card-grid-container'>");
 
@@ -696,17 +739,24 @@ namespace Jiminy.Utilities
             }
 
             // Diagnostics
-            if (_appSettings.HtmlSettings.ShowDiagnostics)
+            if (_appSettings.OutputSettings.ShowDiagnostics)
             {
                 List<string> diags = new();
 
-                diags.Add($"Raw TagSet '{item.RawTagSet}'");
+                if (item.RawTagSet.IsEmpty())
+                {
+                    diags.Add($"Raw TagSet is empty, context-only");
+                }
+                else
+                {
+                    diags.Add($"Raw TagSet '{item.RawTagSet}'");
+                }
 
                 diags.AddRange(item.Diagnostics);
 
-                if (_appSettings.HtmlSettings.VerboseDiagnostics)
+                if (_appSettings.OutputSettings.VerboseDiagnostics)
                 {
-                    diags.AddRange(item.TagInstances.Select(_ => _.ToString(_appSettings.HtmlSettings.VerboseDiagnostics)));
+                    diags.AddRange(item.TagInstances.Select(_ => _.ToString(_appSettings.OutputSettings.VerboseDiagnostics)));
                 }
 
                 sb.Append(diags.Join("<div class='item-diagnostics'>", "<div>", "</div>", "</div>", 1000));

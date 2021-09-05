@@ -26,13 +26,26 @@ namespace Jiminy.Utilities
             int idxEnd = -1;
             string tagString = "";
 
-            if (fileLine.Text.StartsWith(_appSettings.TagSettings.Prefix))
+            if (fileLine.Text.Length == 2 && fileLine.Text == $"{_appSettings.TagSettings.Prefix}{_appSettings.TagSettings.FromHere}")
             {
+                // Beginning of a multi-line item with no properties (all coming from context)
+                item = new Item
+                {
+                    IncludeSubsequentLines = true,
+                    SourceLineNumber = fileLine.LineNumber
+                };
+            }
+            else if (fileLine.Text.StartsWith(_appSettings.TagSettings.Prefix))
+            {
+                // Beginning of an item with inline preoperties
+
                 idxStart = fileLine.Text.IndexOf(_appSettings.TagSettings.Prefix);
                 idxEnd = fileLine.Text.IndexOf(_appSettings.TagSettings.Suffix, idxStart + _appSettings.TagSettings.Prefix.Length);
             }
             else if (fileLine.Text.EndsWith(_appSettings.TagSettings.Suffix))
             {
+                // Beginning of an item with inline preoperties at the end of the line... not sure this actually works !
+
                 idxEnd = fileLine.Text.Length - 1;
                 idxStart = fileLine.Text[..^1].LastIndexOf(_appSettings.TagSettings.Prefix);
             }
@@ -94,7 +107,7 @@ namespace Jiminy.Utilities
 
                 if (td is not null)
                 {
-                    ProjectDefinition? project = _appSettings.ProjectSettings.Definitions.Get(Constants.NO_PROJECT_NAME);
+                    ProjectDefinition? project = _appSettings.ProjectSettings.Definitions.Get(name: Constants.NO_PROJECT_NAME, allowPartial: false, errorIfNotFound: true);
 
                     item.AddTagInstance(new TagInstance(td, project: project));
                 }
@@ -323,7 +336,7 @@ namespace Jiminy.Utilities
                                 {
                                     if (tagParam.Length > 0)
                                     {
-                                        var pd = _appSettings.ProjectSettings.Definitions.GetOrAdd(tagParam);
+                                        var pd = _appSettings.ProjectSettings.Definitions.GetOrAdd(name: tagParam, allowPartial: true);
 
                                         item.AddTagInstance(new TagInstance(td, project: pd));
                                     }

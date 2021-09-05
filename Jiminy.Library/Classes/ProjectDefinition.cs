@@ -12,41 +12,44 @@ namespace Jiminy.Classes
     {
         public List<ProjectDefinition> Items { get; set; } = new();
 
-        public bool Exists(string name)
+        public bool Exists(string name, bool errorIfNotFound)
         {
-            return Get(name) is not null;
+            return Get(name: name, allowPartial: false, errorIfNotFound: errorIfNotFound) is not null;
         }
 
-        public ProjectDefinition? Get(string? name, bool allowPartial = false)
+        public ProjectDefinition? Get(string? name, bool allowPartial, bool errorIfNotFound)
         {
             if (name.IsEmpty())
                 return null;
 
-            var found = Items.FirstOrDefault(_ => _.Name.ToLower() == name);
+            var found = Items.FirstOrDefault(_ => _.Name.ToLower() == name!.ToLower());
 
             if (found is null && allowPartial)
             {
-                found = Items.FirstOrDefault(_ => _.Name.ToLower().StartsWith(name!));
+                found = Items.FirstOrDefault(_ => _.Name.ToLower().StartsWith(name!.ToLower()));
+            }
+
+            if (found is null && errorIfNotFound)
+            {
+                throw new Exception($"ProjectDefinition.Get cannot find project '{name}' ({(allowPartial ? "partial" :"full")}) and this is considered an error");
             }
 
             return found;
         }
 
-        public ProjectDefinition? GetOrAdd(string name, string? description = null, string? iconFileName = null)
+        public ProjectDefinition? GetOrAdd(string name, bool allowPartial, string? description = null, string? iconFileName = null, short displayOrder = Constants.DEFAULT_PROJECT_DISPLAY_ORDER)
         {
-            var pd = Get(name, allowPartial: false);
+            var pd = Get(name, allowPartial: allowPartial, errorIfNotFound: false);
 
             if (pd is null)
             {
-                pd = Add(name, description, iconFileName);
+                pd = Add(name: name, description: description, iconFileName: iconFileName, displayOrder: displayOrder);
             }
 
             return pd;
         }
 
-        public ProjectDefinition? Get(int number) => Items.FirstOrDefault(_ => _.Number == number);
-
-        public ProjectDefinition Add(string name, string? description = null, string? iconFileName = "project.svg")
+        public ProjectDefinition Add(string name, string? description = null, string? iconFileName = "project.svg", short displayOrder = Constants.DEFAULT_PROJECT_DISPLAY_ORDER)
         {
             ProjectDefinition? pd = Items.SingleOrDefault(_ => _.Name.ToLower() == name.ToLower());
 
@@ -57,7 +60,7 @@ namespace Jiminy.Classes
                     description = $"Project {name}";
                 }
 
-                pd = new ProjectDefinition { Name = name, Description = description!, IconFileName = iconFileName };
+                pd = new ProjectDefinition { Name = name, Description = description!, IconFileName = iconFileName, DisplayOrder = displayOrder };
 
                 Items.Add(pd);
             }

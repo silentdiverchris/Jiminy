@@ -87,10 +87,14 @@ namespace Jiminy.Services
                     {
                         ApplyContext(item, contextItem);
                     }
-
-                    if (extractResult.TextSummary.NotEmpty())
+                    else if (!item.TagInstances.Any())
                     {
-                        item.Warnings.Add(extractResult.TextSummary);
+                        item.Warnings.Add($"Item has no inline tags or pre-defined context");
+                    }
+
+                    if (extractResult.Messages.Any())
+                    {
+                        item.Warnings.AddRange(extractResult.Messages.Select(_ => _.Text));
                     }
 
                     if (!item.ClearsContext && !item.SetsContext)
@@ -150,7 +154,7 @@ namespace Jiminy.Services
 
             foreach (var contextCustomTag in contextItem.TagInstances.Where(_ => _.Type == enTagType.Custom))
             {
-                if (!item.TagInstances.Any(_ => _.Type == contextCustomTag.Type))
+                if (!item.TagInstances.Any(_ => _.Type == contextCustomTag.Type && _.DefinitionName == contextCustomTag.DefinitionName))
                 {
                     item.AddTagInstance(contextCustomTag, true);
                 }

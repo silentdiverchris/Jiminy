@@ -113,13 +113,36 @@ A tag set can apply to more than one line, for example;
 
 ```
  =b:n-docu=>
- This line will be stored
+ This line will be the item text
  As will this one
  And this too
  <=
 ```
 
-=p:me-b:w-docu= Document multiple line delimiters
+The delimiters to start and end multi-line tags are under TagSettings, 'FromHere' and 'ToHere'.
+
+Another way to do mutiple lines, especially for when you have a few similar ones to do is to set a context and define a series of items;
+
+```
+ =ctx-prj:SomeProject-enh=
+
+...
+
+=>
+Blah multi-line enhancement item..
+..for project SomeProject
+<=
+
+=>
+And another
+Blah
+<=
+
+=>
+Yet
+Another
+<=
+```
 
 ## Tag Context
 To avoid having to add the project or any other frequently used tag to each item you can set that as a context by adding something like;
@@ -517,6 +540,57 @@ There is a LatencySeconds setting that is intended to make it hang back for a se
 
 ### Persistent storage
 Apart from the output files themselves, no item data is stored in any database, files, cookies or session storage etc., the item data is completely regenerated on startup and refreshed in-memory when source files are changed.
+
+## Pre-defining projects
+There is a default project called 'No project' which all itrems will be added to if they are no given a project.
+
+Any project tag that names a project which doesn't exist will create a project of that name, but this way you don't get to specify an icon, colour or display order for the project.
+
+Project tags will try to match partially, so if you have a project 'hardware' already defined and use tag 'prj:hard', it will match the existing project rather than create a new one.
+
+You can also re-define projects in appsettings.json as below, which allows you to customise how they are presented and what order they are shown in.
+
+Pre-defining projects is the only way to end up with a project whose name has a space in it, since spaces are taken as a terminator of a tag set, at least right now.
+
+=b:maybe-enh= 
+
+```
+"ProjectSettings": {
+    "Definitions": {
+      "Items": [
+        {
+          "Number": 0,
+          "Name": "Jiminy",
+          "IconFileName": "umbrella.svg",
+          "Colour": "crimson",
+          "DisplayOrder": 103,
+          "Description": "Developing Jiminy"
+        },
+        {
+          "Number": 0,
+          "Name": "Archivist",
+          "IconFileName": "archivist.svg",
+          "Colour": "indigo",
+          "DisplayOrder": 102,
+          "Description": "Developing Archivist"
+        },
+        {
+          "Number": 0,
+          "Name": "Writing",
+          "IconFileName": "writing.svg",
+          "Colour": "saddlebrown",
+          "DisplayOrder": 101,
+          "Description": "Writing English stuff"
+        },
+        {
+          "Number": 0,
+          "Name": "Hardware",
+          "IconFileName": "hardware.svg",
+          "Colour": "darkblue",
+          "DisplayOrder": 110,
+          "Description": "Hardware matters to fix or do"
+        },
+```
 
 ## Reminders and Due dates
 =b:n= Document reminder and due date tags, add screenshots etc.
