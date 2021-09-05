@@ -425,7 +425,7 @@ namespace Jiminy.Utilities
             //    ? _tagService.GenerateIconItem(fileName: projectTagDef.IconFileName, overrideColour: projectTagDef.Colour)
             //    : null;
 
-            foreach (var tagDef in _appSettings.TagSettings.Definitions.Items.Where(_ => _.Type == enTagType.Custom && _.GenerateTabView).OrderBy(_ => _.DisplayOrder).ThenBy(_ => _.Name))
+            foreach (var tagDef in _appSettings.TagSettings.Definitions.Items.Where(_ => _.Type == enTagType.Custom && _.GenerateView).OrderBy(_ => _.DisplayOrder).ThenBy(_ => _.Name))
             {
                 sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_TAGS, tagDef.Name, activeTab));
 

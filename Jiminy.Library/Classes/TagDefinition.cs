@@ -11,7 +11,7 @@ namespace Jiminy.Classes
         /// A tab view in the output will be generated on the basis of this tag, this
         /// is true by default
         /// </summary>
-        public bool GenerateTabView { get; set; } = true;
+        public bool GenerateView { get; set; } = true;
 
         public List<string> Synonyms { get; set; } = new();
 

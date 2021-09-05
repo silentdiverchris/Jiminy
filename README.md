@@ -108,6 +108,47 @@ As such, the below results in what you'd expect it to.
 
 Please note that failing to terminate an element, eg. leaving off the '\</ul>' in the above would not be caught by the parser, at least currently. This may well have some impact on the readability of the subsequent output ;).
 
+## Tag Context
+To avoid having to add the project or any other frequently used tag to each item you can set that as a context by adding something like;
+
+```
+ =p:Jiminy-setctx= 
+```
+
+This tells it to set the context that all subsequent items in this file are for project 'Jiminy', so for the rest of the document I don't need to tell it which project items are for. You can set a context with 'setcontext', the synonym 'ctx' or whatever other synonym you want to define.
+
+You could then override the context for a specific item, change the context to another project or clear the context entirely with 'clearcontext', 'clear' or 'xctx', the default synonyms for the 'ClearContext' tag.
+
+You can use any set of tags as a context, so;
+
+```
+ =setcontext-prj:Jiminy-b:wait-enh-pri:low-rem:3/nov-due:10/dec=
+```
+
+..would give every subsequent item the tags for project 'Jiminy', bucket 'Waiting', priority 'Low', and mark it as an enhancement, set a reminder for the 3rd of November and a due date of 10th December.
+
+This document has a context setter at the beginning to set the context for items I want to remind me about things to do with the document, namely;
+
+```
+=ctx-prj:Jiminy-docu=
+```
+
+So all items I add in here are put in my 'Jiminy' project, and marked as relating to documentation. If I want to add an item that is also a bug, I just add a tag as below;
+
+```
+ =bug= This one is a bug, not documentation
+```
+
+The 'bug' tag is one of the standard custom tags.
+
+Or if I want to override the project and mark it as needing a phone call;
+
+```
+ =prj:AnotherProject-phon= Item for another project that I need to call somebody about
+```
+
+..gives me an enhancement item for the other project instead with a phone tag as well as the document tag from the context.
+
 ### Tagging multiple lines
 A tag set can apply to more than one line, for example;
 
@@ -146,38 +187,6 @@ Another
 <=
 ```
 
-## Tag Context
-To avoid having to add the project or any other frequently used tag to each item you can set that as a context by adding something like;
-
-```
- =p:Jiminy-setctx= 
-```
-
-This tells it to set the context that all subsequent items in this file are for project 'Jiminy', so for the rest of the document I don't need to tell it which project items are for. You can set a context with 'setcontext', the synonym 'ctx' or whatever other synonym you want to define.
-
-You could then override the context for a specific item, change the context to another project or clear the context entirely with 'clearcontext', 'clear' or 'xctx', the default synonyms for the 'ClearContext' tag.
-
-You can use any set of tags as a context, so;
-
-```
- =setcontext-prj:Jiminy-b:wait-enh-pri:low-rem:3/nov-due:10/dec=
-```
-
-..would give every subsequent item the tags for project 'Jiminy', bucket 'Waiting', priority 'Low', and mark it as an enhancement, set a reminder for the 3rd of November and a due date of 10th December.
-
-This document has a context setter at the beginning to set the context for items I want to remind me about things to do with the document, namely;
-
-```
-=ctx-prj:Jiminy-docu=
-```
-
-So all items I add in here are put in my 'Jiminy' project, and marked as relating to documentation. If I want to add an item that is a bug, I just override by saying;
-
-```
- =bug= This one is a bug, not documentation
-```
-
-The 'bug' tag is one of the standard custom tags.
 
 ## Tag names & synonyms
 
@@ -238,9 +247,13 @@ On startup, if any names or synonyms clash, it will complain and refuse to run.
         ...etc...
 ```
 
-## Adding custom tags
+## Custom tags
 
-Any number of custom tags can be added, the standard custom tags are shown in the settings fragment below.
+A fe standard custom tags are pre-defined such as bug, enhancement, document, phone call, video call and conversation (for an in-person chat).
+
+Any of these can be removed or altered, and any number of custom tags can be added, some of the standard custom tags are shown in the settings fragment below.
+
+By default, the system will add a tab for each custom tag under the top-level 'tags' tab, ou can disable this by setting GenerateView' to false for that tag.
 
 =b:w-p:med= Expand on custom tag description
 
