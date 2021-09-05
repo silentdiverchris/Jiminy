@@ -2,11 +2,18 @@
 =ctx-prj:Jiminy-docu=
 
 ## Overview
-A custom to-do system that watches MarkDown files in a set of nominated directories, scans through new and changed ones to gather custom tags from an expandable GTD-esque set, combines them and generates one or more highly configurable static HTML and/or JSON outputs from templates.
+A 'to-do' system that watches MarkDown files in a set of nominated directories, scans through new and changed ones to gather custom tags from an expandable GTD-esque set, combines them and generates one or more highly configurable static HTML and/or JSON outputs from templates.
 
-It's pretty basic at the moment but it is also fast, clean, very configurable and the output is 100% portable. I am essentially developing it to suit my needs rather than trying to provide a utility that is ideal for everyone. 
+It's fairly basic at the moment, right now it's evolving rapidly as I use it and find new things I want it to do but it is (and should remain) fast, clean, very configurable and generate 100% portable output. 
+
+I am essentially developing it to suit my needs rather than trying to provide a utility that is ideal for everyone. 
 
 Feel free to suggest improvements and tweaks that would make it more useful to you but please bear in mind that I'm not attempting to rewrite OneNote.
+
+## Screenshots
+Here is a sample of the output that is generated, viewig the project for err, this project. I've obscured a few vaguely private/commercial project names.
+
+![](Screenshots/Output01.png)
 
 ## Why
 Over the years I've used numerous systems to organise the things I needed to do, such as EverNote, OneNote, BoostNote and a few others, mainly trying to shoehorn in a personalised version of the GTD system into a host that seemed to prefer that I didn't.
