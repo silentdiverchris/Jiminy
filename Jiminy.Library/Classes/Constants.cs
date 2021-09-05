@@ -24,6 +24,7 @@
 
         internal const string TAB_GROUP_MAIN = "MainTabs";
         internal const string TAB_GROUP_PROJECT = "ProjectTabs";
+        internal const string TAB_GROUP_TAGS = "TagTabs";
         internal const string TAB_GROUP_OTHER = "OtherTabs";
 
         internal const string ICON_FILE_NAME_VALUE = "{value}";

@@ -62,8 +62,12 @@ namespace Jiminy.Utilities
                     sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Projects", activeTab));
                     sbTabContent.Append(GenerateProjectTabCollectionContent(itemRegistry));
 
+                    // Tags tab wih sub-tabs for each custom tag
+                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Tags"));
+                    sbTabContent.Append(GenerateTagTabCollectionContent(itemRegistry));
+
                     // All buckets tab
-                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "All Buckets"));
+                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_MAIN, "Buckets"));
                     sbTabContent.Append(GenerateBucketsTabContent(itemRegistry, "All Buckets", true));
 
                     // All priorities tab
@@ -82,7 +86,7 @@ namespace Jiminy.Utilities
 
                     string? titlesHtml = GenerateTitlesHtml(itemRegistry, of);
                     string? warningsHtml = GenerateWarningsHtml(itemRegistry);
-                    string? ticklersHtml = GenerateHeaderTicklersHtml(itemRegistry);
+                    string? ticklersHtml = GenerateTicklersHtml(itemRegistry);
 
                     sbContent.Append(html.AsSpan(0, contentStartIdx));
                     sbContent.Append($"<div class='container'>{titlesHtml}{warningsHtml}{ticklersHtml}<div class='tab-wrap'>");
@@ -125,7 +129,7 @@ namespace Jiminy.Utilities
             return sb.ToString();
         }
 
-        private string? GenerateHeaderTicklersHtml(ItemRegistry itemRegistry)
+        private string? GenerateTicklersHtml(ItemRegistry itemRegistry)
         {
             StringBuilder sb = new();
 
@@ -137,7 +141,8 @@ namespace Jiminy.Utilities
 
                 foreach (var item in list.OrderBy(_ => _.MostUrgentDateStatus))
                 {
-                    sb.Append($"<div class='item {item.MostUrgentDateStatus.ToString().ToLower()}';>{item.MostUrgentDateStatus} - {item.AssociatedText}</div>");
+                    string classes = $"item {item.MostUrgentTagInstance?.Type.ToString().ToLower()} {item.MostUrgentDateStatus.ToString().ToLower()}";
+                    sb.Append($"<div class='{classes}';>{item.MostUrgentTagInstance?.Type} - {item.MostUrgentDateStatus} - {item.AssociatedText}</div>");
                 }
 
                 sb.Append("</div>");
@@ -260,7 +265,7 @@ namespace Jiminy.Utilities
                 showText: true,
                 showLinks: true,
                 suppressProjectDisplay: false,
-                subHeaderHtml: GenerateTabBodyHeader("Overdue", subHeader: true)));
+                subHeaderHtml: GenerateTabBodyHeader("Overdue", subHeader: true, itemCount:itemRegistry.OverdueItems.Count)));
 
             sb.Append(GenerateItemCardSet(
                 title: "Today",
@@ -271,7 +276,7 @@ namespace Jiminy.Utilities
                 showText: true,
                 showLinks: true,
                 suppressProjectDisplay: false,
-                subHeaderHtml: GenerateTabBodyHeader("Today", subHeader: true)));
+                subHeaderHtml: GenerateTabBodyHeader("Today", subHeader: true, itemCount: itemRegistry.TodayItems.Count)));
 
             sb.Append(GenerateItemCardSet(
                 title: "Soon",
@@ -282,7 +287,7 @@ namespace Jiminy.Utilities
                 showText: true,
                 showLinks: true,
                 suppressProjectDisplay: false,
-                subHeaderHtml: GenerateTabBodyHeader("Soon", subHeader: true)));
+                subHeaderHtml: GenerateTabBodyHeader("Soon", subHeader: true, itemCount: itemRegistry.SoonItems.Count)));
 
             sb.Append(GenerateItemCardSet(
                 title: "Future",
@@ -293,7 +298,7 @@ namespace Jiminy.Utilities
                 showText: true,
                 showLinks: true,
                 suppressProjectDisplay: false,
-                subHeaderHtml: GenerateTabBodyHeader("Future", subHeader: true)));
+                subHeaderHtml: GenerateTabBodyHeader("Future", subHeader: true, itemCount: itemRegistry.FutureItems.Count)));
 
             sb.Append("</div>");
 
@@ -403,6 +408,45 @@ namespace Jiminy.Utilities
         }
 
         /// <summary>
+        /// Generates tab content that contains a sub-tab for each tag
+        /// </summary>
+        /// <param name="itemRegistry"></param>
+        /// <returns></returns>
+        private string GenerateTagTabCollectionContent(ItemRegistry itemRegistry)
+        {
+            StringBuilder sb = new(8000);
+
+            StringBuilder sbTabHeaders = new(2000);
+            StringBuilder sbTabContent = new(2000);
+
+            bool activeTab = true;
+
+            //string? defaultIconHtml = projectTagDef is not null
+            //    ? _tagService.GenerateIconItem(fileName: projectTagDef.IconFileName, overrideColour: projectTagDef.Colour)
+            //    : null;
+
+            foreach (var tagDef in _appSettings.TagSettings.Definitions.Items.Where(_ => _.Type == enTagType.Custom && _.GenerateTabView).OrderBy(_ => _.DisplayOrder).ThenBy(_ => _.Name))
+            {
+                sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_TAGS, tagDef.Name, activeTab));
+
+                string? iconHtml = tagDef.IconFileName is null
+                    ? null
+                    : _tagService.GenerateIconItem(fileName: tagDef.IconFileName, overrideColour: tagDef.Colour);
+
+                sbTabContent.Append(GenerateTagTabContent(itemRegistry, tagDef.Name, overrideIconHtml: iconHtml));
+
+                activeTab = false;
+            }
+
+            sb.Append("<div class='container'><div class='tab-wrap'>");
+            sb.Append(sbTabHeaders);
+            sb.Append(sbTabContent);
+            sb.Append("</div></div>");
+
+            return GenerateTabBodyHtml(sb.ToString());
+        }
+
+        /// <summary>
         /// Generates tab content to display all completed items
         /// </summary>
         /// <param name="itemRegistry"></param>
@@ -419,7 +463,7 @@ namespace Jiminy.Utilities
                 showPriority: true,
                 showLinks: true,
                 suppressProjectDisplay: false,
-                subHeaderHtml: GenerateTabBodyHeader("Completed Items")));
+                subHeaderHtml: GenerateTabBodyHeader("Completed Items", itemCount: itemRegistry.CompletedItems.Count)));
 
             return GenerateTabBodyHtml(sb.ToString());
         }
@@ -460,7 +504,7 @@ namespace Jiminy.Utilities
                 showPriority: true,
                 showLinks: true,
                 suppressProjectDisplay: false,
-                subHeaderHtml: GenerateTabBodyHeader("Open Items")));
+                subHeaderHtml: GenerateTabBodyHeader("Open Items", itemCount: itemRegistry.OpenItems.Count)));
 
             return GenerateTabBodyHtml(sb.ToString());
         }
@@ -479,11 +523,11 @@ namespace Jiminy.Utilities
         {
             string projectName = project?.Name ?? "All projects";
 
-            var projectItems = itemRegistry.ProjectItems.Filter(onlyProject: project);
+            var items = itemRegistry.ProjectItems.Filter(onlyProject: project);
 
             StringBuilder sb = new(2000);
 
-            sb.Append(GenerateTabBodyHeader(projectName, iconHtml: overrideIconHtml));
+            sb.Append(GenerateTabBodyHeader(projectName, iconHtml: overrideIconHtml, itemCount: items.Count));
 
             sb.Append("<div class='card-grid-container'>");
 
@@ -491,7 +535,7 @@ namespace Jiminy.Utilities
             {
                 sb.Append(GenerateItemCardSet(
                     title: bucket.Name,
-                    items: projectItems,
+                    items: items,
                     buttonsHtml: _itemButtonsHtml,
                     onlyBucketName: bucket.Name,
                     showText: true,
@@ -501,7 +545,7 @@ namespace Jiminy.Utilities
                     subHeaderHtml: GenerateTabBodyHeader(bucket.Name, subHeader: true)));
             }
 
-            var noBucketItems = new ItemSubSet(projectItems.Items.Where(_ => _.BucketName is null));
+            var noBucketItems = new ItemSubSet(items.Items.Where(_ => _.BucketName is null));
 
             sb.Append(GenerateItemCardSet(
                 title: "No Bucket",
@@ -518,13 +562,52 @@ namespace Jiminy.Utilities
             return GenerateTabBodyHtml(sb.ToString());
         }
 
+        /// <summary>
+        /// Generates tab content to display all items for the specified tag
+        /// </summary>
+        /// <param name="itemRegistry"></param>
+        /// <param name="tagDef"></param>
+        /// <param name="overrideIconHtml"></param>
+        /// <returns></returns>
+        private string GenerateTagTabContent(
+            ItemRegistry itemRegistry,
+            string tagName,
+            string? overrideIconHtml = null)
+        {
+            var items = itemRegistry.OpenItems.Filter(onlyWithTagName: tagName);
+
+            StringBuilder sb = new(2000);
+
+            sb.Append(GenerateTabBodyHeader(tagName, iconHtml: overrideIconHtml, itemCount: items.Count));
+
+            sb.Append("<div class='card-grid-container'>");
+
+            foreach (var bucket in _appSettings.BucketSettings.Definitions.Items.OrderBy(_ => _.DisplayOrder))
+            {
+                sb.Append(GenerateItemCardSet(
+                    title: bucket.Name,
+                    items: items,
+                    buttonsHtml: _itemButtonsHtml,
+                    onlyBucketName: bucket.Name,
+                    showText: true,
+                    showPriority: true,
+                    showLinks: true,
+                    suppressProjectDisplay: false,
+                    subHeaderHtml: GenerateTabBodyHeader(bucket.Name, subHeader: true)));
+            }
+
+            sb.Append("</div>");
+
+            return GenerateTabBodyHtml(sb.ToString());
+        }
+
         private string GenerateBucketsTabContent(ItemRegistry itemRegistry, string? title, bool openItems)
         {
             StringBuilder sb = new(2000);
 
             var items = openItems ? itemRegistry.OpenItems : itemRegistry.CompletedItems;
 
-            sb.Append(GenerateTabBodyHeader(title ?? ""));
+            sb.Append(GenerateTabBodyHeader(title ?? "", itemCount: items.Count));
 
             if (items.Any)
             {
@@ -541,7 +624,7 @@ namespace Jiminy.Utilities
                         showPriority: true,
                         showLinks: true,
                         suppressProjectDisplay: false,
-                        subHeaderHtml: GenerateTabBodyHeader(bucket.Name, subHeader: true)));
+                        subHeaderHtml: GenerateTabBodyHeader(bucket.Name, subHeader: true, itemCount: items.Count)));
                 }
 
                 sb.Append("</div>");
@@ -584,7 +667,7 @@ namespace Jiminy.Utilities
                     showText: true,
                     showLinks: true,
                     suppressProjectDisplay: false,
-                    subHeaderHtml: GenerateTabBodyHeader(pri.Name, subHeader: true, titleSuffix: "priority")));
+                    subHeaderHtml: GenerateTabBodyHeader(pri.Name, subHeader: true, titleSuffix: "priority", itemCount: itemRegistry.OpenItems.Count)));
             }
 
             sb.Append("</div>");
@@ -602,7 +685,7 @@ namespace Jiminy.Utilities
                 ? _tagService.GenerateIconItem(fileName: repeatTagDef.IconFileName, overrideColour: repeatTagDef.Colour)
                 : null;
 
-            sb.Append(GenerateTabBodyHeader("Repeating Items", iconHtml: iconHtml));
+            sb.Append(GenerateTabBodyHeader("Repeating Items", iconHtml: iconHtml, itemCount: itemRegistry.OpenItems.Count));
 
             sb.Append("<div class='card-grid-container'>");
 
@@ -616,7 +699,7 @@ namespace Jiminy.Utilities
                     showText: true,
                     showLinks: true,
                     suppressProjectDisplay: false,
-                    subHeaderHtml: GenerateTabBodyHeader(rep.Name, subHeader: true)));
+                    subHeaderHtml: GenerateTabBodyHeader(rep.Name, subHeader: true, itemCount: itemRegistry.OpenItems.Count)));
             }
 
             sb.Append("</div>");
@@ -857,7 +940,7 @@ namespace Jiminy.Utilities
             }
         }
 
-        private string GenerateTabBodyHeader(string title, string? titlePrefix = null, string? titleSuffix = null, bool subHeader = false, string? iconHtml = null)
+        private string GenerateTabBodyHeader(string title, string? titlePrefix = null, string? titleSuffix = null, bool subHeader = false, string? iconHtml = null, int? itemCount = null)
         {
             string headerClass = subHeader
                 ? "tab-body-header sub-header"
@@ -871,12 +954,16 @@ namespace Jiminy.Utilities
                 ? null
                 : $"<div class='suffix'>{titleSuffix}</div>";
 
+            string? countHtml = null; // = itemCount is null
+                //? null
+                //: $"<div class='count'>{itemCount} {"item".Pluralise((int)itemCount)}</div>";
+
             iconHtml = iconHtml is null
                 ? null
                 : $"<div class='icon'>{iconHtml}</div>";
 
 
-            return $"<div class='{headerClass}'>{iconHtml}{prefixHtml}<div class='name'>{title}</div>{suffixHtml}</div>";
+            return $"<div class='{headerClass}'>{iconHtml}{prefixHtml}<div class='name'>{title}</div>{suffixHtml}{countHtml}</div>";
         }
 
         private string GenerateTab(string title, string contentHtml)

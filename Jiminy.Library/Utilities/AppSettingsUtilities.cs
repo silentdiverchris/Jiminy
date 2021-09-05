@@ -35,6 +35,7 @@ namespace Jiminy.Utilities
                 MonitoredDirectories = new List<MonitoredDirectory>
                 {
                     new MonitoredDirectory(@"C:\Personal", recursive: true, isActive: true),
+                    new MonitoredDirectory(@"C:\Work", recursive: true, isActive: true),
                     new MonitoredDirectory(@"C:\Dev\Archivist", recursive: false, isActive: true),
                     new MonitoredDirectory(@"C:\Dev\Jiminy", recursive: false, isActive: true)
                 },
@@ -105,7 +106,7 @@ namespace Jiminy.Utilities
                             new ProjectDefinition { Name = "Writing", Description = "Writing English stuff", DisplayOrder = 101, IconFileName = "writing.svg", Colour = "saddlebrown" },
                             new ProjectDefinition { Name = "Hardware", DisplayOrder = 110, Description = "Hardware matters to fix or do", IconFileName = "hardware.svg", Colour = "darkblue" },
                             new ProjectDefinition { Name = "RDR2", DisplayOrder = 150, Colour = "darkgrey" },
-                            new ProjectDefinition { Name = "Marc Crane", DisplayOrder = 40, Colour = "darkgrey" },
+                            new ProjectDefinition { Name = "Marc Crane", DisplayOrder = 90, Colour = "darkgrey" },
                             new ProjectDefinition { Name = "Respondent", DisplayOrder = 30, Colour = "darkblue" },
                             new ProjectDefinition { Name = "SingLink", DisplayOrder = 10, Colour = "darkblue" },
                             new ProjectDefinition { Name = "Contract", DisplayOrder = 20, Colour = "darkblue" }
@@ -164,21 +165,21 @@ namespace Jiminy.Utilities
                         {
                             new TagDefinition { Type = enTagType.Completed, Name = "Completed", DisplayOrder = 1, Synonyms = new List<string>{ "closed", "x" }, Description = "This item is completed", IconFileName = "completed.svg" },
                             new TagDefinition { Type = enTagType.Link, Name = "Link", DisplayOrder = 2, IconFileName = "link.svg", Colour = "blue", Synonyms = new List<string>{ "url" }, Description = "A link to a URL" },
-                            new TagDefinition { Type = enTagType.Bucket, Name = "Bucket", DisplayOrder = 3, Synonyms = new List<string>{ "b" }, Description = "This item is in a bucket (in, next, waiting, maybe)", GenerateView = true, IconFileName = "bucket.svg" },
-                            new TagDefinition { Type = enTagType.Priority, Name = "Priority", DisplayOrder = 3, Synonyms = new List<string>{ "p" }, IconFileName = "priority-medium.svg", Description = "The priority of this item", GenerateView = true },
-                            new TagDefinition { Type = enTagType.Project, Name = "Project", DisplayOrder = 3, Synonyms = new List<string>{ "prj" }, Colour = "green", Description = "This item relates to a project", GenerateView = true, IconFileName = "project.svg" },
-                            new TagDefinition { Type = enTagType.Due, Name = "Due", DisplayOrder = 4, Description = "There is a due date for this item", GenerateView = true, IconFileName = "due.svg" },
-                            new TagDefinition { Type = enTagType.Reminder, Name = "Reminder", DisplayOrder = 5, Synonyms = new List<string>{ "r" }, Description = "There is a reminder for this item", GenerateView = true, IconFileName = "reminder.svg" },
+                            new TagDefinition { Type = enTagType.Bucket, Name = "Bucket", DisplayOrder = 3, Synonyms = new List<string>{ "b" }, Description = "This item is in a bucket (in, next, waiting, maybe)", GenerateTabView = true, IconFileName = "bucket.svg" },
+                            new TagDefinition { Type = enTagType.Priority, Name = "Priority", DisplayOrder = 3, Synonyms = new List<string>{ "p" }, IconFileName = "priority-medium.svg", Description = "The priority of this item", GenerateTabView = true },
+                            new TagDefinition { Type = enTagType.Project, Name = "Project", DisplayOrder = 3, Synonyms = new List<string>{ "prj" }, Colour = "green", Description = "This item relates to a project", GenerateTabView = true, IconFileName = "project.svg" },
+                            new TagDefinition { Type = enTagType.Due, Name = "Due", DisplayOrder = 4, Description = "There is a due date for this item", GenerateTabView = true, IconFileName = "due.svg" },
+                            new TagDefinition { Type = enTagType.Reminder, Name = "Reminder", DisplayOrder = 5, Synonyms = new List<string>{ "r" }, Description = "There is a reminder for this item", GenerateTabView = true, IconFileName = "reminder.svg" },
                             new TagDefinition { Type = enTagType.Repeating, Name = "Repeating", DisplayOrder = 6, Description = "This item repeats", IconFileName = "repeating.svg" },
                             new TagDefinition { Type = enTagType.SetContext, Name = "SetContext", DisplayOrder = 7, Synonyms = new List<string>{ "context", "ctx", "setctx" }, Description = "An abstract property that sets the context of subsequent tags" },
                             new TagDefinition { Type = enTagType.ClearContext, Name = "ClearContext", DisplayOrder = 7, Synonyms = new List<string>{ "clear", "xctx" }, Description = "An abstract property that sets the context of subsequent tags" },
-                            new TagDefinition { Type = enTagType.Custom, Name = "Bug", DisplayOrder = 8, Description = "Bug", GenerateView = true, IconFileName = "bug.svg" },
-                            new TagDefinition { Type = enTagType.Custom, Name = "Enhancement", DisplayOrder = 8, Description = "Enhancement", GenerateView = true, IconFileName = "enhancement.svg" },
-                            new TagDefinition { Type = enTagType.Custom, Name = "Conversation", DisplayOrder = 9, Description = "Talk to somebody", GenerateView = true, IconFileName = "conversation.svg" },
-                            new TagDefinition { Type = enTagType.Custom, Name = "Phone call", DisplayOrder = 10, Description = "Phone call required", GenerateView = true, IconFileName = "phone.svg" },
+                            new TagDefinition { Type = enTagType.Custom, Name = "Bug", DisplayOrder = 8, Description = "Bug", GenerateTabView = true, IconFileName = "bug.svg" },
+                            new TagDefinition { Type = enTagType.Custom, Name = "Enhancement", DisplayOrder = 8, Description = "Enhancement", GenerateTabView = true, IconFileName = "enhancement.svg" },
+                            new TagDefinition { Type = enTagType.Custom, Name = "Conversation", DisplayOrder = 9, Description = "Talk to somebody", GenerateTabView = true, IconFileName = "conversation.svg" },
+                            new TagDefinition { Type = enTagType.Custom, Name = "Phone Call", DisplayOrder = 10, Description = "Phone call required", GenerateTabView = true, IconFileName = "phone.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Question", DisplayOrder = 10, Description = "Question", IconFileName = "question.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Document", DisplayOrder = 10, Description = "Involves writing", Colour ="SlateGray", IconFileName = "document.svg" },
-                            new TagDefinition { Type = enTagType.Custom, Name = "Video call", DisplayOrder = 10, Description = "Video call", IconFileName = "video-call.svg" },
+                            new TagDefinition { Type = enTagType.Custom, Name = "Video Call", DisplayOrder = 10, Description = "Video call", IconFileName = "video-call.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Spiked", DisplayOrder = 10, IconFileName = "spiked.svg", Colour = "magenta" }
                         }
                     }
@@ -266,7 +267,7 @@ namespace Jiminy.Utilities
                     result.AddError($"Template file '{settings.OutputSettings.HtmlTemplateFileName}' does not exist");
                 }
 
-                foreach (var tfn in settings.OutputSettings.Outputs.Select(_ => _.OverrideHtmlTemplateFileName))
+                foreach (var tfn in settings.OutputSettings.Outputs.Where(_ => _.IsEnabled).Select(_ => _.OverrideHtmlTemplateFileName))
                 {
                     if (tfn.NotEmpty() && !File.Exists(tfn))
                     {

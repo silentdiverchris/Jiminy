@@ -14,6 +14,7 @@ namespace Jiminy.Classes
         }
 
         public bool Any => _items.Any();
+        public int Count => _items.Count;
 
         public List<Item> Items => _items;
 
@@ -21,15 +22,17 @@ namespace Jiminy.Classes
             ProjectDefinition? onlyProject = null, 
             string? onlyPriorityName = null, 
             string? onlyBucketName = null, 
-            string? onlyRepeatName = null)
+            string? onlyRepeatName = null,
+            string? onlyWithTagName = null)
         {
-            if (onlyProject is null && onlyPriorityName is null && onlyBucketName is null && onlyRepeatName is null)
+            if (onlyProject is null && onlyPriorityName is null && onlyBucketName is null && onlyRepeatName is null && onlyWithTagName is null)
             {
                 return this;
             }
             else
             {
                 var filtered = _items.Where(_ =>
+                    (onlyWithTagName == null || _.TagInstances.Any(ti => ti.DefinitionName == onlyWithTagName)) &&
                     (onlyProject == null || _.ProjectName == onlyProject.Name) &&
                     (onlyPriorityName == null || _.PriorityName == onlyPriorityName) &&
                     (onlyBucketName == null || _.BucketName == onlyBucketName) &&

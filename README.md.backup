@@ -123,22 +123,24 @@ The delimiters to start and end multi-line tags are under TagSettings, 'FromHere
 
 Another way to do mutiple lines, especially for when you have a few similar ones to do is to set a context and define a series of items;
 
+Please note that I have prefixed the starting delimiters below with a space so they don't keep showing up as items in my Jiminy output. To be recognised, all tag sets must start at the beginning of a line.
+
 ```
  =ctx-prj:SomeProject-enh=
 
 ...
 
-=>
+ =>
 Blah multi-line enhancement item..
 ..for project SomeProject
 <=
 
-=>
+ =>
 And another
 Blah
 <=
 
-=>
+ =>
 Yet
 Another
 <=
@@ -542,17 +544,17 @@ There is a LatencySeconds setting that is intended to make it hang back for a se
 Apart from the output files themselves, no item data is stored in any database, files, cookies or session storage etc., the item data is completely regenerated on startup and refreshed in-memory when source files are changed.
 
 ## Pre-defining projects
-There is a default project called 'No project' which all itrems will be added to if they are no given a project.
+There is a default project called 'No Project' which all items are added to if they are not given a project.
 
 Any project tag that names a project which doesn't exist will create a project of that name, but this way you don't get to specify an icon, colour or display order for the project.
 
-Project tags will try to match partially, so if you have a project 'hardware' already defined and use tag 'prj:hard', it will match the existing project rather than create a new one.
+Project tags will try to match partially, so if you have a project 'Hardware' already defined and use tag 'prj:hard', it will match the existing project rather than create a new one.
 
-You can also re-define projects in appsettings.json as below, which allows you to customise how they are presented and what order they are shown in.
+For your standard set of projects it's better to pre-define them in appsettings.json as below, which allows you to customise how they are presented and what order they are shown in.
 
-Pre-defining projects is the only way to end up with a project whose name has a space in it, since spaces are taken as a terminator of a tag set, at least right now.
+Pre-defining projects is also the only way, currently, to end up with a project whose name has a space in it, since spaces are taken as a terminator of a tag set, which might change.
 
-=b:maybe-enh= 
+=b:maybe-enh= Allow spaces in tags, enforce use of end tag delimiter ?
 
 ```
 "ProjectSettings": {
@@ -1213,13 +1215,28 @@ I've set the json serialiser that generates it to include all values in the belo
 
 ```
 
+## Misc tags
+=ctx-prj:Jiminy-b:next-enh= 
 
+=>
+Re-read appsettings.json before scanning files
+<=
+=>
+Make it read in source files and record 'TODO' items, maybe just report counts or specific texts.
+<=
 
+### Bugs
 
+### Enhancements
+=b:eve= Implement delete clearing tags
+=b:eve= Open Ghostwriter from Jiminy.html
+=b:n= Make it do the 'Create view for this tag' thing, adding custom tabs for each marked custom tag<br>Use a new top-level tab 'Custom' or something.
+=b:n= Add a duration tag (and time start ?)
+=b:n= Implement times for reminders and dues, not just dates
 
-
-
-
-
+### Documentation
+=prj:Jiminy-ctx=
+=b:eve= Fill out tag customisation section.
+=b:eve= Add documentation of the various tags
 
 

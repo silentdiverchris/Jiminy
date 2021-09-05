@@ -206,6 +206,7 @@ namespace Jiminy.Classes
         public bool NeedsTickler => _ticklerDateStatusList.Contains(DueStatus) || _ticklerDateStatusList.Contains(ReminderStatus);
 
         // These are refreshed when any date-related property is set
+        internal TagInstance? MostUrgentTagInstance { get; private set; } = null;
         internal enDateStatus MostUrgentDateStatus { get; private set; }
         internal enDateStatus DueStatus { get; private set; }
         internal enDateStatus ReminderStatus { get; private set; }
@@ -221,7 +222,16 @@ namespace Jiminy.Classes
                 DueStatus = GetDueStatus(out _);
                 ReminderStatus = GetReminderStatus(out _);
 
-                MostUrgentDateStatus = (int)DueStatus < (int)ReminderStatus ? DueStatus : ReminderStatus;
+                if ((int)DueStatus < (int)ReminderStatus)
+                {
+                    MostUrgentDateStatus = DueStatus;
+                    MostUrgentTagInstance = TagInstances.First(_ => _.Type == enTagType.Due);
+                }
+                else
+                {
+                    MostUrgentDateStatus = ReminderStatus;
+                    MostUrgentTagInstance = TagInstances.First(_ => _.Type == enTagType.Reminder);
+                }
             }
 
             Diagnostics.Add($"Completed: {IsCompleted.YesNo()} date status: {MostUrgentDateStatus}");

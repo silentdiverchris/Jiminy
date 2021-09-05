@@ -8,9 +8,10 @@ namespace Jiminy.Classes
         public enTagType Type { get; set; } = enTagType.Custom;
 
         /// <summary>
-        /// A view in the output will be generated on the basis of this tag
+        /// A tab view in the output will be generated on the basis of this tag, this
+        /// is true by default
         /// </summary>
-        public bool GenerateView { get; set; } = false;
+        public bool GenerateTabView { get; set; } = true;
 
         public List<string> Synonyms { get; set; } = new();
 
