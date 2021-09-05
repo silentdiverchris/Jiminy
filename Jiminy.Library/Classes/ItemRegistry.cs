@@ -7,7 +7,7 @@ namespace Jiminy.Classes
     {
         static readonly object _lock = new();
 
-        private ProjectRegistry _projectRegistry = new();
+        //private ProjectRegistry _projectRegistry = new();
 
         private List<Item> _items = new();
 
@@ -79,8 +79,8 @@ namespace Jiminy.Classes
         internal ItemSubSet SoonItems => new(DatedItems.Items.Where(_ => _.MostUrgentDateStatus == enDateStatus.Soon));
         internal ItemSubSet FutureItems => new(DatedItems.Items.Where(_ => _.MostUrgentDateStatus == enDateStatus.Future));
 
-        internal ProjectRegistry ProjectRegistry => _projectRegistry;
-        internal List<string> ProjectNames => _projectRegistry.Projects.Select(_ => _.Name).ToList();
+        //internal ProjectRegistry ProjectRegistry => _projectRegistry;
+        //internal List<string> ProjectNames => _projectRegistry.Projects.Select(_ => _.Name).ToList();
 
         //internal List<string> FoundInFiles => _items.Select(_ => _.FullFileName).Distinct().OrderBy(_ => _).Select(_ => new Item { FullFileName = _ });
 
@@ -168,9 +168,9 @@ namespace Jiminy.Classes
 
         private void RefreshCaches()
         {
-            var projectNames = _items.Where(_ => _.ProjectName.NotEmpty()).Select(_ => _.ProjectName).Distinct().ToList();
+            //var projectNames = _items.Where(_ => _.ProjectName.NotEmpty()).Select(_ => _.ProjectName).Distinct().ToList();
 
-            _projectRegistry = new(projectNames!);
+            //_projectRegistry = new(projectNames!);
 
             // Force regeneration of cached lists
 

@@ -121,14 +121,14 @@ namespace Jiminy.Services
 
         private void ApplyContext(Item item, Item contextItem)
         {
-            if (item.Project is null && contextItem.Project is not null)
+            if (item.ProjectTag is null && contextItem.ProjectTag is not null)
             {
-                item.AddTagInstance(contextItem.Project, true);
+                item.AddTagInstance(contextItem.ProjectTag, true);
             }
 
-            if (item.BucketName is null && contextItem.Bucket is not null)
+            if (item.BucketName is null && contextItem.BucketTag is not null)
             {
-                item.AddTagInstance(contextItem.Bucket, true);
+                item.AddTagInstance(contextItem.BucketTag, true);
             }
 
             if (item.PriorityNumber is null && contextItem.Priority is not null)
@@ -136,9 +136,9 @@ namespace Jiminy.Services
                 item.AddTagInstance(contextItem.Priority, true);
             }
 
-            if (item.RepeatName is null && contextItem.Repeat is not null)
+            if (item.RepeatName is null && contextItem.RepeatTag is not null)
             {
-                item.AddTagInstance(contextItem.Repeat, true);
+                item.AddTagInstance(contextItem.RepeatTag, true);
 
                 var ti = contextItem.GetTagInstance(enTagType.Repeating);
 

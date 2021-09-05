@@ -23,9 +23,15 @@
         public BucketSettings BucketSettings { get; set; } = new BucketSettings();
 
         /// <summary>
-        /// The prioritties that items can be assigned
+        /// The priorities that items can be assigned
         /// </summary>
         public PrioritySettings PrioritySettings { get; set; } = new PrioritySettings();
+
+        /// <summary>
+        /// The projects that items can be assigned to, these will be added to
+        /// if new projects are used in the source data
+        /// </summary>
+        public ProjectSettings ProjectSettings { get; set; } = new ProjectSettings();
 
         /// <summary>
         /// The periods over which items can repeat

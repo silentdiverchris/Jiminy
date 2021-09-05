@@ -17,26 +17,6 @@ namespace Jiminy.Classes
         public string Code => Name.Replace(" ", "").ToLower();
         public bool IsCustomTag => Type == enTagType.Custom;
         public bool IsStandardTag => !IsCustomTag;
-
-        //public new Result ValidationResult
-        //{
-        //    get
-        //    {
-        //        Result result = new();
-
-        //        if (Name.Length < 3)
-        //        {
-        //            result.AddError($"Tag name '{Name}' is too short, 3 characters minimum");
-        //        }
-
-        //        if (new Regex(@"^[a-zA-Z0-9\s,]*$").IsMatch(Name) == false)
-        //        {
-        //            result.AddError($"Tag name '{Name}' is invalid, it must be alphanumeric");
-        //        }
-
-        //        return result;
-        //    }
-        //}
     }
 
     public class TagDefinitionList
@@ -67,18 +47,6 @@ namespace Jiminy.Classes
             if (found is null && allowPartial)
             {
                 found = Items.FirstOrDefault(_ => _.Name.ToLower().StartsWith(name.ToLower()));
-
-                //if (found is null)
-                //{
-                //    foreach (var td in Tags.Where(_ => _.Synonyms.Any()))
-                //    {
-                //        if (td.Synonyms.Any(_ => _ == name))
-                //        {
-                //            found = td;
-                //            break;
-                //        }
-                //    }
-                //}
             }
 
             return found;

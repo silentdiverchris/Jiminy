@@ -8,6 +8,6 @@ namespace Jiminy.Classes
 {
     public class BucketSettings
     {
-        public BucketDefinitionList Defintions { get; set; } = new();
+        public BucketDefinitionList Definitions { get; set; } = new();
     }
 }

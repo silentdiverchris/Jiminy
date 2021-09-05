@@ -90,18 +90,25 @@ namespace Jiminy.Utilities
             // If no project, set to 'None'
             if (!item.HasTagInstance(enTagType.Project))
             {
-                var td = _appSettings.TagSettings.Defintions.Get("No Project");
+                var td = _appSettings.TagSettings.Definitions.Get("Project");
+
                 if (td is not null)
                 {
-                    item.AddTagInstance(new TagInstance(td, projectName: "None"));
+                    ProjectDefinition? project = _appSettings.ProjectSettings.Definitions.Get(Constants.NO_PROJECT_NAME);
+
+                    item.AddTagInstance(new TagInstance(td, project: project));
+                }
+                else
+                {
+                    item.Warnings.Add($"Cannot find project tag to create tag for project '{Constants.NO_PROJECT_NAME}'");
                 }
             }
 
             // If not in a bucket, put it in the incoming one, if it exists
             if (!item.HasTagInstance(enTagType.Bucket))
             {
-                var td = _appSettings.TagSettings.Defintions.Get("Bucket");
-                var bucket = _appSettings.BucketSettings.Defintions.Get("Incoming");
+                var td = _appSettings.TagSettings.Definitions.Get("Bucket");
+                var bucket = _appSettings.BucketSettings.Definitions.Get("Incoming");
                 if (td is not null && bucket is not null)
                 {
                     item.AddTagInstance(new TagInstance(td, bucketName: bucket.Name));
@@ -111,8 +118,8 @@ namespace Jiminy.Utilities
             // If no priority item, add one with the lowest defined priority
             if (!item.HasTagInstance(enTagType.Priority))
             {
-                var td = _appSettings.TagSettings.Defintions.Get("Priority");
-                var pri = _appSettings.PrioritySettings.Defintions.Items.OrderByDescending(_ => _.Number).FirstOrDefault();
+                var td = _appSettings.TagSettings.Definitions.Get("Priority");
+                var pri = _appSettings.PrioritySettings.Definitions.Items.OrderByDescending(_ => _.Number).FirstOrDefault();
                 if (td is not null && pri is not null)
                 {
                     item.AddTagInstance(new TagInstance(td, priorityName: pri.Name, priorityNumber: pri.Number));
@@ -184,7 +191,7 @@ namespace Jiminy.Utilities
                         item.Diagnostics.Add($"Code '{tagCode}', no parameter");
                     }
 
-                    var td = _appSettings.TagSettings.Defintions.Get(tagCode, true);
+                    var td = _appSettings.TagSettings.Definitions.Get(tagCode, true);
 
                     if (td is not null)
                     {
@@ -199,7 +206,7 @@ namespace Jiminy.Utilities
                                 {
                                     // We extract the parameter to get the bucket name
 
-                                    var bd = _appSettings.BucketSettings.Defintions.Get(tagParam, true);
+                                    var bd = _appSettings.BucketSettings.Definitions.Get(tagParam, true);
 
                                     if (bd is not null)
                                     {
@@ -289,7 +296,7 @@ namespace Jiminy.Utilities
                                     {
                                         if (int.TryParse(tagParam, out int priNumber))
                                         {
-                                            pri = _appSettings.PrioritySettings.Defintions.Get(priNumber);
+                                            pri = _appSettings.PrioritySettings.Definitions.Get(priNumber);
                                         }
                                         else
                                         {
@@ -298,7 +305,7 @@ namespace Jiminy.Utilities
                                     }
                                     else
                                     {
-                                        pri = _appSettings.PrioritySettings.Defintions.Get(tagParam.ToLower(), allowPartial: true);
+                                        pri = _appSettings.PrioritySettings.Definitions.Get(tagParam.ToLower(), allowPartial: true);
                                     }
 
                                     if (pri is not null)
@@ -316,7 +323,9 @@ namespace Jiminy.Utilities
                                 {
                                     if (tagParam.Length > 0)
                                     {
-                                        item.AddTagInstance(new TagInstance(td, projectName: tagParam));
+                                        var pd = _appSettings.ProjectSettings.Definitions.GetOrAdd(tagParam);
+
+                                        item.AddTagInstance(new TagInstance(td, project: pd));
                                     }
                                     else
                                     {
@@ -396,7 +405,7 @@ namespace Jiminy.Utilities
                 {
                     int startIdx = 0;
 
-                    td = _appSettings.TagSettings.Defintions.Get("Link");
+                    td = _appSettings.TagSettings.Definitions.Get("Link");
 
                     StringBuilder sb = new(text.Length + 100);
 
@@ -496,7 +505,7 @@ namespace Jiminy.Utilities
                         }
                     case enTagType.Priority:
                         {
-                            var pri = _appSettings.PrioritySettings.Defintions.Get((int)ti.PriorityNumber!);
+                            var pri = _appSettings.PrioritySettings.Definitions.Get((int)ti.PriorityNumber!);
 
                             if (pri is not null)
                             {
@@ -568,7 +577,7 @@ namespace Jiminy.Utilities
                         }
                     case enTagType.Bucket:
                         {
-                            var bucket = _appSettings.BucketSettings.Defintions.Get(ti.BucketName);
+                            var bucket = _appSettings.BucketSettings.Definitions.Get(ti.BucketName);
 
                             if (bucket is not null)
                             {
@@ -585,12 +594,14 @@ namespace Jiminy.Utilities
                         }
                     case enTagType.Project:
                         {
-                            colourStr = ti.Definition.Colour;
-                            iconText = $"Project: {ti.ProjectName}";
+                            colourStr = ti.Project?.Colour ?? ti.Definition.Colour;
+                            iconText = $"Project: {ti.Project?.Name}";
 
-                            if (ti.Definition.IconFileName is not null)
+                            string? iconFileName = ti.Project?.IconFileName ?? ti.Definition.IconFileName;
+
+                            if (iconFileName is not null)
                             {
-                                svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
+                                svgHtml = _appSettings.SvgCache[iconFileName];
                             }
 
                             break;

@@ -293,24 +293,6 @@ namespace Jiminy.Utilities
             return GenerateTabBodyHtml(sb.ToString());
         }
 
-        //private static string GenerateReminderPanel(ItemRegistry itemRegistry)
-        //{
-        //    StringBuilder sb = new(200);
-
-        //    var items = new ItemSubSet(itemRegistry.OpenItems.Items.Where(_ => _.ReminderDateTime != null).OrderBy(_ => _.ReminderDateTime));
-
-        //    if (items.Any)
-        //    {
-        //        sb.Append($"<div class='reminder-panel'>");
-
-        //        sb.Append(GenerateListTable("Reminders", items, showText: true, showPriority: true, showLinks: true, suppressProjectName: false));
-
-        //        sb.Append("<div>");
-        //    }
-
-        //    return sb.ToString();
-        //}
-
         private static string GenerateTabLeafHtml(string tabGroupName, string title, bool active = false)
         {
             string tabId = $"tab-{tabGroupName}-{title}".Replace(" ", "").ToLower();
@@ -364,22 +346,27 @@ namespace Jiminy.Utilities
 
             bool activeTab = true;
 
-            var projectTagDef = _appSettings.TagSettings.Defintions.Get("Project");
+            var projectTagDef = _appSettings.TagSettings.Definitions.Get("Project");
 
-            string? iconHtml = projectTagDef is not null
+            string? defaultIconHtml = projectTagDef is not null
                 ? _tagService.GenerateIconItem(fileName: projectTagDef.IconFileName, overrideColour: projectTagDef.Colour)
                 : null;
 
-            foreach (var project in itemRegistry.ProjectRegistry.Projects.OrderBy(_ => _.Name))
+            foreach (var project in _appSettings.ProjectSettings.Definitions.Items.OrderBy(_ => _.DisplayOrder).ThenBy(_ => _.Name))
             {
                 sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_PROJECT, project.Name, activeTab));
-                sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project, iconHtml: iconHtml));
+
+                string? projectIconHtml = project.IconFileName is null
+                    ? defaultIconHtml
+                    : _tagService.GenerateIconItem(fileName: project.IconFileName, overrideColour: project.Colour);
+
+                sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project, iconHtml: projectIconHtml));
 
                 activeTab = false;
             }
 
             sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_PROJECT, "All Projects", false));
-            sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project: null, iconHtml: iconHtml));
+            sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project: null, iconHtml: defaultIconHtml));
 
             sb.Append("<div class='container'><div class='tab-wrap'>");
             sb.Append(sbTabHeaders);
@@ -442,11 +429,14 @@ namespace Jiminy.Utilities
             return GenerateTabBodyHtml(sb.ToString());
         }
 
-        private string GenerateProjectTabContent(ItemRegistry itemRegistry, Project? project, string? iconHtml = null)
+        private string GenerateProjectTabContent(
+            ItemRegistry itemRegistry, 
+            ProjectDefinition? project, 
+            string? iconHtml = null)
         {
             string projectName = project?.Name ?? "All projects";
 
-            var projectItems = itemRegistry.ProjectItems.Filter(onlyProjectName: project?.Name);
+            var projectItems = itemRegistry.ProjectItems.Filter(onlyProject: project);
 
             StringBuilder sb = new(2000);
 
@@ -454,7 +444,7 @@ namespace Jiminy.Utilities
 
             sb.Append("<div class='card-grid-container'>");
 
-            foreach (var bucket in _appSettings.BucketSettings.Defintions.Items.OrderBy(_ => _.DisplayOrder))
+            foreach (var bucket in _appSettings.BucketSettings.Definitions.Items.OrderBy(_ => _.DisplayOrder))
             {
                 sb.Append(GenerateItemCardSet(
                     title: bucket.Name,
@@ -497,7 +487,7 @@ namespace Jiminy.Utilities
             {
                 sb.Append("<div class='card-grid-container'>");
 
-                foreach (var bucket in _appSettings.BucketSettings.Defintions.Items.OrderBy(_ => _.DisplayOrder))
+                foreach (var bucket in _appSettings.BucketSettings.Definitions.Items.OrderBy(_ => _.DisplayOrder))
                 {
                     sb.Append(GenerateItemCardSet(
                         title: bucket.Name,
@@ -541,7 +531,7 @@ namespace Jiminy.Utilities
 
             sb.Append("<div class='card-grid-container'>");
 
-            foreach (var pri in _appSettings.PrioritySettings.Defintions.Items.OrderBy(_ => _.Number))
+            foreach (var pri in _appSettings.PrioritySettings.Definitions.Items.OrderBy(_ => _.Number))
             {
                 sb.Append(GenerateItemCardSet(
                     title: pri.Name,
@@ -563,7 +553,7 @@ namespace Jiminy.Utilities
         {
             StringBuilder sb = new(2000);
 
-            var repeatTagDef = _appSettings.TagSettings.Defintions.Get("Repeating");
+            var repeatTagDef = _appSettings.TagSettings.Definitions.Get("Repeating");
 
             string? iconHtml = repeatTagDef is not null
                 ? _tagService.GenerateIconItem(fileName: repeatTagDef.IconFileName, overrideColour: repeatTagDef.Colour)
@@ -593,17 +583,14 @@ namespace Jiminy.Utilities
 
         private string GenerateProjectListGroup(ItemSubSet projectItems)
         {
-            var projectNames = projectItems.Items
-                .OrderBy(_ => _.ProjectName)
-                .Select(_ => _.ProjectName).Distinct();
-
             StringBuilder sb = new(1000);
 
-            foreach (var pn in projectNames)
+            foreach (var project in _appSettings.ProjectSettings.Definitions.Items.OrderBy(_ => _.DisplayOrder).ThenBy(_ => _.Name))
             {
-                var itemList = new ItemSubSet(projectItems.Items.Where(_ => _.ProjectName == pn).OrderBy(_ => _.BucketName).ThenBy(_ => _.PriorityNumber));
+                var itemList = new ItemSubSet(projectItems.Items.Where(_ => _.ProjectName == project.Name).OrderBy(_ => _.BucketName).ThenBy(_ => _.PriorityNumber));
+
                 string? html = GenerateItemCardSet(
-                    pn ?? "No project",
+                    project.Name,
                     itemList,
                     buttonsHtml: _itemButtonsHtml,
                     showText: true,
@@ -774,7 +761,7 @@ namespace Jiminy.Utilities
             string? onlyPriorityName = null,
             string? onlyBucketName = null,
             string? onlyRepeatName = null,
-            string? onlyProjectName = null,
+            ProjectDefinition? onlyProject = null,
             bool suppressProjectDisplay = false,
             bool createIfNoContent = false,
             string? subHeaderHtml = null,
@@ -782,7 +769,7 @@ namespace Jiminy.Utilities
         {
             if (items.Any || createIfNoContent)
             {
-                var filtered = items.Filter(onlyProjectName, onlyPriorityName, onlyBucketName, onlyRepeatName);
+                var filtered = items.Filter(onlyProject, onlyPriorityName, onlyBucketName, onlyRepeatName);
 
                 StringBuilder sb = new(2000);
 

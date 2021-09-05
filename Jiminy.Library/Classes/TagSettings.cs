@@ -9,13 +9,13 @@
         public string FromHere { get; set; } = ">";
         public string ToHere { get; set; } = "<=";
 
-        public TagDefinitionList Defintions { get; set; } = new();
+        public TagDefinitionList Definitions { get; set; } = new();
 
         public Result Validate()
         {
             Result result = new();
 
-            result.SubsumeResult(Defintions.Validate());
+            result.SubsumeResult(Definitions.Validate());
 
             if (Prefix.Length == 0)
             {

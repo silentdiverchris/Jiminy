@@ -38,6 +38,18 @@ namespace Jiminy.Utilities
                     new MonitoredDirectory(@"C:\Dev\Archivist", recursive: false, isActive: true),
                     new MonitoredDirectory(@"C:\Dev\Jiminy", recursive: false, isActive: true)
                 },
+                ProjectSettings = new ProjectSettings
+                {
+                    Definitions = new ProjectDefinitionList
+                    {
+                        Items = new List<ProjectDefinition>
+                        {
+                            new ProjectDefinition { Name = "Jiminy", Description = "Developing Jiminy", DisplayOrder = 1, IconFileName = "umbrella.svg", Colour = "crimson" },
+                            new ProjectDefinition { Name = "Archivist", Description = "Developing Archivist", DisplayOrder = 2, IconFileName = "archivist.svg", Colour = "indigo" },
+                            new ProjectDefinition { Name = "Writing", Description = "Writing English stuff", DisplayOrder = 3, IconFileName = "writing.svg", Colour = "saddlebrown" }
+                        }
+                    }
+                },
                 HtmlSettings = new HtmlSettings
                 {
                     ShowDiagnostics = false,
@@ -109,7 +121,7 @@ namespace Jiminy.Utilities
                 },
                 BucketSettings = new BucketSettings
                 {
-                    Defintions = new BucketDefinitionList
+                    Definitions = new BucketDefinitionList
                     {
                         Items = new List<BucketDefinition>
                         {
@@ -124,7 +136,7 @@ namespace Jiminy.Utilities
                 },
                 PrioritySettings = new PrioritySettings
                 {
-                    Defintions = new PriorityDefinitionList
+                    Definitions = new PriorityDefinitionList
                     {
                         Items = new List<PriorityDefinition>
                         {
@@ -140,7 +152,7 @@ namespace Jiminy.Utilities
                     Suffix = "=",
                     Separator = "-",
                     Delimiter = ":",
-                    Defintions = new TagDefinitionList
+                    Definitions = new TagDefinitionList
                     {
                         Items = new List<TagDefinition>
                         {
@@ -160,7 +172,8 @@ namespace Jiminy.Utilities
                             new TagDefinition { Type = enTagType.Custom, Name = "Phone call", DisplayOrder = 10, Description = "Phone call required", GenerateView = true, IconFileName = "phone.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Question", DisplayOrder = 10, Description = "Question", IconFileName = "question.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Document", DisplayOrder = 10, Description = "Related to documentation", Colour ="SlateGray", IconFileName = "document.svg" },
-                            new TagDefinition { Type = enTagType.Custom, Name = "Video call", DisplayOrder = 10, Description = "Video call", IconFileName = "video-call.svg" }
+                            new TagDefinition { Type = enTagType.Custom, Name = "Video call", DisplayOrder = 10, Description = "Video call", IconFileName = "video-call.svg" },
+                            new TagDefinition { Type = enTagType.Custom, Name = "Spiked online", DisplayOrder = 10, Description = "ANything to do with Spiked Online", IconFileName = "spiked.svg", Colour = "magenta" }
                         }
                     }
                 }
@@ -194,17 +207,26 @@ namespace Jiminy.Utilities
 
             if (result.HasNoErrors)
             {
-                foreach (var bucket in settings.BucketSettings.Defintions.Items.Where(_ => _.IconFileName is not null))
+                // Add the default 'no project' project if it's not already defined
+                
+                settings.ProjectSettings.Definitions.GetOrAdd(Constants.NO_PROJECT_NAME, Constants.NO_PROJECT_DESCRIPTION, Constants.NO_PROJECT_ICON_FILE_NAME);
+
+                foreach (var bucket in settings.BucketSettings.Definitions.Items.Where(_ => _.IconFileName is not null))
                 {
                     imageFilesToCache.Add(bucket.IconFileName!);
                 }
 
-                foreach (var priority in settings.PrioritySettings.Defintions.Items.Where(_ => _.IconFileName is not null))
+                foreach (var priority in settings.PrioritySettings.Definitions.Items.Where(_ => _.IconFileName is not null))
                 {
                     imageFilesToCache.Add(priority.IconFileName!);
                 }
 
-                foreach (var td in settings.TagSettings.Defintions.Items.Where(_ => _.IconFileName is not null))
+                foreach (var td in settings.TagSettings.Definitions.Items.Where(_ => _.IconFileName is not null))
+                {
+                    imageFilesToCache.Add(td.IconFileName!);
+                }
+
+                foreach (var td in settings.ProjectSettings.Definitions.Items.Where(_ => _.IconFileName is not null))
                 {
                     imageFilesToCache.Add(td.IconFileName!);
                 }

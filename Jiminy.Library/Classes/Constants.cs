@@ -15,6 +15,10 @@
 
         internal const string HTML_PLACEHOLDER_CONTENT = "[ContentPlaceholder]";
 
+        internal const string NO_PROJECT_NAME = "No Project";
+        internal const string NO_PROJECT_DESCRIPTION = "The default project when an item doesn't have one.";
+        internal const string NO_PROJECT_ICON_FILE_NAME = "no-project.svg";
+
         internal const string TAB_GROUP_MAIN = "MainTabs";
         internal const string TAB_GROUP_PROJECT = "ProjectTabs";
         internal const string TAB_GROUP_OTHER = "OtherTabs";

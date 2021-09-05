@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Jiminy.Classes
 {
-    public class PrioritySettings
+    public class ProjectSettings
     {
-        public PriorityDefinitionList Definitions { get; set; } = new();
+        public ProjectDefinitionList Definitions { get; set; } = new();
     }
 }

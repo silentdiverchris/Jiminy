@@ -8,7 +8,6 @@ namespace Jiminy.Classes
     internal class Item
     {
         private readonly TagInstanceList _tagInstances = new();
-        private readonly DateTime _soonThreshold = DateTime.UtcNow.AddDays(2);
         private readonly List<enDateStatus> _ticklerDateStatusList = new() { enDateStatus.Today, enDateStatus.Overdue };
 
         public string? AssociatedText { get; set; } = null;
@@ -38,29 +37,29 @@ namespace Jiminy.Classes
         public bool IsCompleted => _tagInstances.Tags.Any(_ => _.Type == enTagType.Completed);
 
         [JsonIgnore]
-        public TagInstance? Due => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Due);
+        public TagInstance? DueTag => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Due);
 
-        public DateTime? DueDateTime => Due?.DateTimeValue;
-
-        [JsonIgnore]
-        public TagInstance? Reminder => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Reminder);
-
-        public DateTime? ReminderDateTime => Reminder?.DateTimeValue;
+        public DateTime? DueDateTime => DueTag?.DateTimeValue;
 
         [JsonIgnore]
-        public TagInstance? Repeat => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Repeating);
+        public TagInstance? ReminderTag => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Reminder);
 
-        public string? RepeatName => Repeat?.RepeatName;
-
-        [JsonIgnore]
-        public TagInstance? Bucket => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Bucket);
-
-        public string? BucketName => Bucket?.BucketName;
+        public DateTime? ReminderDateTime => ReminderTag?.DateTimeValue;
 
         [JsonIgnore]
-        public TagInstance? Project => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Project);
+        public TagInstance? RepeatTag => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Repeating);
 
-        public string? ProjectName => Project?.ProjectName;
+        public string? RepeatName => RepeatTag?.RepeatName;
+
+        [JsonIgnore]
+        public TagInstance? BucketTag => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Bucket);
+
+        public string? BucketName => BucketTag?.BucketName;
+
+        [JsonIgnore]
+        public TagInstance? ProjectTag => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Project);
+
+        public string? ProjectName => ProjectTag?.Project?.Name;
 
         [JsonIgnore]
         public TagInstance? Priority => _tagInstances.Tags.SingleOrDefault(_ => _.Type == enTagType.Priority);
@@ -140,7 +139,7 @@ namespace Jiminy.Classes
                         }
                     case enTagType.Project:
                         {
-                            diagText += $", '{ti.ProjectName}'";
+                            diagText += $", '{ti.Project?.Name}'";
                             break;
                         }
                     case enTagType.Priority:

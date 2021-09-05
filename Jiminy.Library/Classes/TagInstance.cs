@@ -9,7 +9,7 @@ namespace Jiminy.Classes
     {
         public TagInstance(
             TagDefinition definition, 
-            string? projectName = null, 
+            ProjectDefinition? project = null, 
             string? priorityName = null, 
             string? bucketName = null, 
             string? repeatName = null, 
@@ -22,7 +22,7 @@ namespace Jiminy.Classes
             PriorityNumber = priorityNumber;
             BucketName = bucketName;
             DateTimeValue = dateTime;
-            ProjectName = projectName;
+            Project = project;
             RepeatName = repeatName;
             Url = url;
         }
@@ -35,7 +35,7 @@ namespace Jiminy.Classes
         public string? BucketName {  get; private set; }
         public string? RepeatName { get; private set; }
         public DateTime? DateTimeValue { get; private set; }
-        public string? ProjectName { get; private set; }
+        public ProjectDefinition? Project { get; private set; }
         public string? Url { get; private set; }
 
         public string DefinitionName => Definition.Name;
@@ -63,8 +63,8 @@ namespace Jiminy.Classes
             if (RepeatName.NotEmpty())
                 sb.Append($" repeat {RepeatName}");
 
-            if (ProjectName.NotEmpty())
-                sb.Append($" project {ProjectName}");
+            if (Project is not null)
+                sb.Append($" project {Project.Name}");
 
             if (DateTimeValue is not null)
                 sb.Append($" {DateTimeValue.DisplayFriendly()}");
