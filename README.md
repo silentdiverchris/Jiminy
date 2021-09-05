@@ -11,7 +11,7 @@ I am essentially developing it to suit my needs rather than trying to provide a 
 Feel free to suggest improvements and tweaks that would make it more useful to you but please bear in mind that I'm not attempting to rewrite OneNote.
 
 ## Screenshots
-Here is a sample of the output that is generated, viewig the project for err, this project. I've obscured a few vaguely private/commercial project names.
+Here is a sample of the output that is generated, viewing the project for err, this project. I've obscured a few vaguely private/commercial project names.
 
 ![](Screenshots/Output01.png)
 
