@@ -159,7 +159,7 @@ Setting a second context while one is in place will add to and replace the tags 
  
 Will leave the current context as project Jiminy, priority 2 (having over-written the priority 1) with custom tags Enhancement and Document.
 
-Clearign the context ('clearcontext' or 'xctx' or wh
+Clearing the context with 'xctx', 'clearcontext' or whatever you have defined will get rid of all current context.
 
 ### Tagless items
 If you have set a context already and just want an item to use that context, use;
@@ -277,8 +277,6 @@ A few standard custom tags are pre-defined such as bug, enhancement, document, p
 Any of these can be removed or altered, and any number of custom tags can be added, some of the standard custom tags are shown in the settings fragment below.
 
 By default, the system will add a tab for each custom tag under the top-level 'tags' tab, ou can disable this by setting GenerateView' to false for that tag.
-
-=b:w-p:med= Expand on custom tag description
 
 ```
 "TagSettings": {
@@ -1269,7 +1267,7 @@ Make it find tags in source file comments too.
 ### Enhancements
 =prj:Jiminy-enh-b:eve-ctx=
 =>
-Implement delete clearing tags
+Make file delete clear the tags found in it
 <=
 => 
 Open Ghostwriter from Jiminy.html
@@ -1279,9 +1277,6 @@ Add a duration tag (and time start ?)
 <=
 =>
 Implement times for reminders and dues, not just dates
-<=
-=>
-Make contexts additive rather than replace
 <=
 
 ### Documentation

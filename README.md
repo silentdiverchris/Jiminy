@@ -278,8 +278,6 @@ Any of these can be removed or altered, and any number of custom tags can be add
 
 By default, the system will add a tab for each custom tag under the top-level 'tags' tab, ou can disable this by setting GenerateView' to false for that tag.
 
-=b:w-p:med= Expand on custom tag description
-
 ```
 "TagSettings": {
 	...blah blah...
@@ -1268,9 +1266,6 @@ Make it find tags in source file comments too.
 
 ### Enhancements
 =prj:Jiminy-enh-b:eve-ctx=
-=>
-Implement delete clearing tags
-<=
 => 
 Open Ghostwriter from Jiminy.html
 <=
@@ -1279,9 +1274,6 @@ Add a duration tag (and time start ?)
 <=
 =>
 Implement times for reminders and dues, not just dates
-<=
-=>
-Make contexts additive rather than replace
 <=
 
 ### Documentation

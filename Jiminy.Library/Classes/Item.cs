@@ -110,7 +110,7 @@ namespace Jiminy.Classes
 
             if (ti is not null)
             {
-                _tagInstances.Add(ti, overwrite: false);
+                _tagInstances.Add(ti, overwrite: true);
 
                 string diagText = $"Added {(fromContext ? "context " : "")}{(ti.Type == enTagType.Custom ? "custom " : "")}tag '{ti.DefinitionName}'";
 

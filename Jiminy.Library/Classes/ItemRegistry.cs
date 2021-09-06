@@ -197,6 +197,11 @@ namespace Jiminy.Classes
             _projectItems = null;
             _reminderItems = null;
         }
+
+        internal void DeleteItemsFromFile(string fullPath)
+        {
+            _items.RemoveAll(_ => _.SourceFileName == fullPath);
+        }
     }
 }
 

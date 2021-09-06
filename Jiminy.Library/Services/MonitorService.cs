@@ -20,6 +20,7 @@ namespace Jiminy.Services
         private Dictionary<string, MonitoredDirectory> _monitoredDirectories = new();
 
         private bool _queueChanged = false;
+        private bool _regenerationRequired = true;
 
         private ItemRegistry _itemRegistry = new();
 
@@ -71,7 +72,6 @@ namespace Jiminy.Services
             {
                 //_logService.LogToConsole(new LogEntry("Checking queue"));
 
-                bool newScansDone = false;
                 int queueItemCount = _filesToScanQueue.Count;
 
                 if (queueItemCount > 0)
@@ -83,12 +83,12 @@ namespace Jiminy.Services
                     //_recentLogEntries.Add(log);
                     //_logService.LogToConsole(log);
 
-                    if (!initialising && !newScansDone)
+                    if (!initialising && !_regenerationRequired)
                     {
                         // Tiny pause to allow a source file to be released by
                         // something that might still be hanging on to it
 
-                        Thread.Sleep(500);
+                        Thread.Sleep(200);
                     }
 
                     while (_filesToScanQueue.Count > 0)
@@ -97,7 +97,7 @@ namespace Jiminy.Services
 
                         await ReadFile(fileName);
 
-                        newScansDone = true;
+                        _regenerationRequired = true;
                     }
                 }
 
@@ -116,7 +116,7 @@ namespace Jiminy.Services
                     initialising = false;
                 }
 
-                if (newScansDone)
+                if (_regenerationRequired)
                 {
                     Result htmlBuildResult = new();
 
@@ -239,8 +239,7 @@ namespace Jiminy.Services
                 };
 
                 watcher.Changed += OnChanged;
-                //watcher.Created += OnCreated;
-                //watcher.Deleted += OnDeleted;
+                watcher.Deleted += OnDeleted;
                 watcher.Renamed += OnRenamed;
                 watcher.Error += OnError;
 
@@ -279,16 +278,18 @@ namespace Jiminy.Services
             _ = _logService.ProcessResult(result);
         }
 
-        //private void OnDeleted(object sender, FileSystemEventArgs e)
-        //{
-        //    Result result = new("Monitor.OnDeleted");
+        private void OnDeleted(object sender, FileSystemEventArgs e)
+        {
+            Result result = new("Monitor.OnDeleted");
 
-        //    MarkFileDeleted(e.FullPath);
+            _itemRegistry.DeleteItemsFromFile(e.FullPath);
 
-        //    result.AddInfo($"File '{e.FullPath}' deleted");
+            result.AddInfo($"File '{e.FullPath}' deleted");
 
-        //    _ = _logService.ProcessResult(result);
-        //}
+            _ = _logService.ProcessResult(result);
+
+            _regenerationRequired = true;
+        }
 
         //private void OnCreated(object sender, FileSystemEventArgs e)
         //{
@@ -427,7 +428,9 @@ namespace Jiminy.Services
                 _monitoredFiles.Remove(oldFullFileName);
             }
 
-            EnqueueFileToScan(newFullFileName);
+            _regenerationRequired = true;
+
+            //EnqueueFileToScan(newFullFileName);
         }
 
         private MonitoredFile RegisterNewFile(string fullFileName)

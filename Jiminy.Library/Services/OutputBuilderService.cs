@@ -158,7 +158,7 @@ namespace Jiminy.Utilities
 
             sb.Append("<div class='footer'>");
 
-            sb.Append($"<div>Generated {DateTime.Now.ToString(Constants.DATE_FORMAT_DATE_TIME_LONGER_SECONDS)}, {itemRegistry.Items.Count} items found in {itemRegistry.SourceFileNames.Count} files</div>");
+            sb.Append($"<div>Generated {DateTime.Now.ToString(Constants.DATE_FORMAT_DATE_TIME_LONGER_SECONDS)} - {itemRegistry.Items.Count} items found in {itemRegistry.SourceFileNames.Count} files</div>");
 
             sb.Append("</div>");
 
