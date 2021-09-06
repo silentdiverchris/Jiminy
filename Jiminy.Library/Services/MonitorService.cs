@@ -3,14 +3,22 @@ using Jiminy.Helpers;
 using Jiminy.Utilities;
 using System.Text.RegularExpressions;
 using static Jiminy.Classes.Delegates;
+using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Services
 {
     public class MonitorService : IDisposable
     {
+#if DEBUG
+        private const bool _alwaysCreateAppSettingsOnStartup = true;
+#else
+        private const bool _alwaysCreateAppSettingsOnStartup = false;
+#endif
         private readonly LogService _logService;
 
-        private readonly AppSettings _appSettings;
+        private AppSettings _appSettings;
+
+        private string _appSettingsFileName = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
 
         private List<FileSystemWatcher> _fileSystemWatchers = new();
 
@@ -24,43 +32,98 @@ namespace Jiminy.Services
 
         private ItemRegistry _itemRegistry = new();
 
-        private List<Regex> _ignoredFilesRegexList = new();
-
         private List<LogEntry> _recentLogEntries = new();
 
-        public MonitorService(AppSettings appSettings, ConsoleDelegate consoleDelegate)
+        private ConsoleDelegate _consoleDelegate;
+
+        public bool IsInitialised => _appSettings.IsValid;
+
+        public MonitorService(ConsoleDelegate consoleDelegate)
         {
-            LogEntry log = new($"Initialising Jiminy");
-            _recentLogEntries.Add(log);
+            _consoleDelegate = consoleDelegate;
 
-            _appSettings = appSettings;
+            Result result = LoadConfiguration(out AppSettings? newAppSettings, out _);
 
-            _logService = new LogService(
-                appSettings: appSettings,
-                consoleDelegate: consoleDelegate);
+            if (result.HasNoErrors && newAppSettings is not null)
+            {
+                _appSettings = newAppSettings;
+
+                LogEntry log = new($"Initialising Jiminy");
+
+                _recentLogEntries.Add(log);
+
+                _logService = new LogService(appSettings: _appSettings, consoleDelegate: consoleDelegate);
+            }
+            else
+            {
+                _appSettings = new();
+                _logService = new(_appSettings, _consoleDelegate);
+            }
+
+            if (!_appSettings.IsValid)
+            {
+                result.AddError("Loaded app settings is not valid, canot start");
+            }
+
+            if (result.HasErrorsOrWarnings)
+            {
+                consoleDelegate.Invoke(new LogEntry(result.TextSummary, severity: result.HasErrors ? enSeverity.Error : enSeverity.Warning));
+            }
+        }
+
+        private Result LoadConfiguration(out AppSettings? newAppSettings, out bool settingsChanged)
+        {
+            settingsChanged = false;
+
+            Result result = new("LoadConfiguration");
+            // Create default appsettings.json if it does not exist, this happens at first run, and if the
+            // user deletes or moves it to generate a fresh one that they can customise.
+
+            if (!File.Exists(_appSettingsFileName) || (_alwaysCreateAppSettingsOnStartup && _appSettings is null))
+            {
+                _consoleDelegate.Invoke(new LogEntry($"Recreating appSettings '{_appSettingsFileName}'"));
+
+                AppSettingsUtilities.CreateDefaultAppSettings(_appSettingsFileName);
+            }
+
+            FileInfo fi = new(_appSettingsFileName);
+
+            if (_appSettings is null || fi.LastWriteTimeUtc != _appSettings.SettingsFileDateTime)
+            {
+                _consoleDelegate.Invoke(new LogEntry($"Loading settings from '{_appSettingsFileName}'"));
+
+                result = AppSettingsUtilities.LoadFile(_appSettingsFileName, out newAppSettings);
+
+                if (newAppSettings is not null)
+                {
+                    result.SubsumeResult(AppSettingsUtilities.InitialiseAppSettings(newAppSettings));
+
+                    settingsChanged = newAppSettings.IsValid = result.HasNoErrors; 
+                }
+            }
+            else
+            {
+                newAppSettings = _appSettings;
+                //result.AddDebug("Settings file unchanged, not reloading it");
+            }
+
+            if (_logService is not null)
+            {
+                _ = _logService.ProcessResult(result);
+            }
+
+            return result;
         }
 
         public async Task<Result> Run()
         {
             Result result = new("Monitor.Run", true);
 
-            result = AppSettingsUtilities.InitialiseAppSettings(_appSettings);
+            PrefillFilesToScan(_appSettings.MonitoredDirectories.Where(_ => _.IsActive).ToList());
 
-            await _logService.ProcessResult(result);
+            InitialiseFileSystemWatchers();
 
-            if (result.HasNoErrors)
-            {
-                foreach (var ignoreSpec in _appSettings.IgnoreFileSpecifications)
-                {
-                    _ignoredFilesRegexList.Add(ignoreSpec.GenerateRegexForFileMask());
-                }
-
-                PrefillFilesToScan(_appSettings.MonitoredDirectories.Where(_ => _.IsActive).ToList());
-
-                InitialiseFileSystemWatchers();
-
-                await DoMainLoop();
-            }
+            await DoMainLoop();
 
             return result;
         }
@@ -112,6 +175,24 @@ namespace Jiminy.Services
                 if (_regenerationRequired)
                 {
                     _regenerationRequired = false;
+
+                    Result reloadConfigResult = LoadConfiguration(out AppSettings? newAppSettings, out bool settingsChanged);
+
+                    if (reloadConfigResult.HasNoErrors && newAppSettings is not null)
+                    {
+                        _appSettings = newAppSettings;
+
+                        if (settingsChanged)
+                        {
+                            InitialiseFileSystemWatchers();
+                        }
+                    }
+                    else
+                    {
+                        reloadConfigResult.AddError("Failed to reload configuration, using previous configuration");
+                    }
+
+                    await _logService.ProcessResult(reloadConfigResult);
 
                     Result htmlBuildResult = new();
 
@@ -181,7 +262,7 @@ namespace Jiminy.Services
 
         private bool FileIsIgnorable(string fullFileName)
         {
-            foreach (var excludeRegex in _ignoredFilesRegexList)
+            foreach (var excludeRegex in _appSettings.IgnoredFilesRegexList)
             {
                 if (excludeRegex.IsMatch(fullFileName))
                 {

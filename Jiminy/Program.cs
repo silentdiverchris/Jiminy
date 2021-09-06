@@ -7,12 +7,6 @@ namespace Jiminy
 {
     public class Program
     {
-#if DEBUG
-        private const bool _alwaysCreateAppSettings = true;
-#else
-        private const bool _alwaysCreateAppSettings = false;
-#endif
-
         static readonly object _lock = new();
 
         public static async Task Main(string[] args)
@@ -21,31 +15,21 @@ namespace Jiminy
 
             try
             {
-                // Create default appsettings.json if it does not exist, this happens at first run, and if the
-                // user deletes or moves it to generate a fresh one that they can customise.
-
-                string appSettingsFileName = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
-
                 WriteToConsole(new LogEntry("Jiminy.Console starting", severity: enSeverity.Success));
 
-                if (!File.Exists(appSettingsFileName) || _alwaysCreateAppSettings)
+                using (var monitor = new MonitorService(new(WriteToConsole)))
                 {
-                    AppSettingsUtilities.CreateDefaultAppSettings(appSettingsFileName);
-                }
-
-                WriteToConsole(new LogEntry($"Loading settings from '{appSettingsFileName}'"));
-
-                AppSettings? appSettings = AppSettingsUtilities.LoadAppSettings(appSettingsFileName);
-
-                if (appSettings is not null)
-                {
-                    using (var monitor = new MonitorService(appSettings, new(WriteToConsole)))
+                    if (monitor.IsInitialised)
                     {
                         result.SubsumeResult(await monitor.Run());
                     }
+                    else
+                    {
+                        result.AddError("Monitor failed to initialise");
+                    }
                 }
 
-                // The result has been processed within MainProcess, no need to log or display anything here
+                WriteToConsole(new LogEntry(result.TextSummary, severity: result.HasErrors ? enSeverity.Error : result.HasWarnings ? enSeverity.Warning : enSeverity.Info));
             }
             catch (Exception ex)
             {

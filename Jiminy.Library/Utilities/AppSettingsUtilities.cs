@@ -105,11 +105,12 @@ namespace Jiminy.Utilities
                             new ProjectDefinition { Name = "Archivist", Description = "Developing Archivist", DisplayOrder = 102, IconFileName = "archivist.svg", Colour = "indigo" },
                             new ProjectDefinition { Name = "Writing", Description = "Writing English stuff", DisplayOrder = 101, IconFileName = "writing.svg", Colour = "saddlebrown" },
                             new ProjectDefinition { Name = "Hardware", DisplayOrder = 110, Description = "Hardware matters to fix or do", IconFileName = "hardware.svg", Colour = "darkblue" },
-                            new ProjectDefinition { Name = "RDR2", DisplayOrder = 150, Colour = "darkgrey" },
-                            new ProjectDefinition { Name = "Marc Crane", DisplayOrder = 90, Colour = "darkgrey" },
+                            new ProjectDefinition { Name = "Games", DisplayOrder = 150, IconFileName = "games.svg", Colour = "purple" },
+                            new ProjectDefinition { Name = "Marc", DisplayOrder = 180, Colour = "darkgrey" },
                             new ProjectDefinition { Name = "Respondent", DisplayOrder = 30, Colour = "darkblue" },
                             new ProjectDefinition { Name = "SingLink", DisplayOrder = 10, Colour = "darkblue" },
-                            new ProjectDefinition { Name = "Contract", DisplayOrder = 20, Colour = "darkblue" }
+                            new ProjectDefinition { Name = "Contract", DisplayOrder = 20, Colour = "darkblue" },
+                            new ProjectDefinition { Name = "Household", DisplayOrder = 90, Colour = "pink" },
                         }
                     }
                 },
@@ -208,6 +209,11 @@ namespace Jiminy.Utilities
             if (!Directory.Exists(settings.MediaDirectoryPath))
             {
                 result.AddError($"MediaDirectoryPath '{settings.MediaDirectoryPath}' does not exist");
+            }
+
+            foreach (var ignoreSpec in settings.IgnoreFileSpecifications)
+            {
+                settings.IgnoredFilesRegexList.Add(ignoreSpec.GenerateRegexForFileMask());
             }
 
             List<string> imageFilesToCache = new List<string> { Constants.ICON_FILE_NAME_MARKDOWN_FILE, Constants.ICON_FILE_NAME_EMBEDDED_LINK };
@@ -309,20 +315,29 @@ namespace Jiminy.Utilities
             return result;
         }
 
-        public static AppSettings? LoadAppSettings(string fileName)
+        public static Result LoadFile(string fileName, out AppSettings? appSettings)
         {
+            appSettings = null;
+
+            Result result = new("AppSettingsUtilities.LoadFile");
+
             if (File.Exists(fileName))
             {
                 string json = File.ReadAllText(fileName);
 
-                var appSettings = JsonSerializer.Deserialize<AppSettings>(json);
-
-                return appSettings;
+                appSettings = JsonSerializer.Deserialize<AppSettings>(json);
+                
+                if (appSettings is not null)
+                {
+                    appSettings.SettingsFileDateTime = new FileInfo(fileName).LastWriteTimeUtc;
+                }
             }
             else
             {
-                throw new Exception($"App settings file {fileName} does not exist");
+                result.AddError($"App settings file {fileName} does not exist");
             }
+
+            return result;
         }
     }
 }

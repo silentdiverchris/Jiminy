@@ -1,4 +1,7 @@
-﻿namespace Jiminy.Classes
+﻿using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
+
+namespace Jiminy.Classes
 {
     public class AppSettings
     {
@@ -11,6 +14,15 @@
         public LogSettings LogSettings { get; set; } = new LogSettings();
 
         public List<string> IgnoreFileSpecifications { get; set; } = new();
+
+        [JsonIgnore]
+        internal List<Regex> IgnoredFilesRegexList = new();
+
+        [JsonIgnore]
+        internal bool IsValid { get; set; }
+
+        [JsonIgnore]
+        internal DateTime? SettingsFileDateTime { get; set; }
 
         /// <summary>
         /// The directories that will be monitored by the system
