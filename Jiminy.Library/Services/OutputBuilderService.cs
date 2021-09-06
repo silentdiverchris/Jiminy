@@ -87,12 +87,13 @@ namespace Jiminy.Utilities
                     string? titlesHtml = GenerateTitlesHtml(itemRegistry, of);
                     string? warningsHtml = GenerateWarningsHtml(itemRegistry);
                     string? ticklersHtml = GenerateTicklersHtml(itemRegistry);
+                    string? footerHtml = GenerateFooterHtml(itemRegistry);
 
                     sbContent.Append(html.AsSpan(0, contentStartIdx));
                     sbContent.Append($"<div class='container'>{titlesHtml}{warningsHtml}{ticklersHtml}<div class='tab-wrap'>");
                     sbContent.Append(sbTabHeaders);
                     sbContent.Append(sbTabContent);
-                    sbContent.Append("</div></div>");
+                    sbContent.Append($"</div></div>{footerHtml}");
                     sbContent.Append(html.AsSpan(contentEndIdx));
 
                     if (File.Exists(of.HtmlPath))
@@ -151,20 +152,40 @@ namespace Jiminy.Utilities
             return sb.ToString();
         }
 
+        private string? GenerateFooterHtml(ItemRegistry itemRegistry)
+        {
+            StringBuilder sb = new();
+
+            sb.Append("<div class='footer'>");
+
+            sb.Append($"<div>Generated {DateTime.Now.ToString(Constants.DATE_FORMAT_DATE_TIME_LONGER_SECONDS)}, {itemRegistry.Items.Count} items found in {itemRegistry.SourceFileNames.Count} files</div>");
+
+            sb.Append("</div>");
+
+            return sb.ToString();
+        }
+
         private string? GenerateWarningsHtml(ItemRegistry itemRegistry)
         {
             StringBuilder sb = new();
 
             var list = itemRegistry.Items.Where(_ => _.Warnings.Any());
 
-            if (list.Any())
+            if (list.Any() || itemRegistry.Duplicates.Any())
             {
                 sb.Append("<div class='header-warnings'>");
+
+                foreach (var item in itemRegistry.Duplicates)
+                {
+                    sb.Append("<div class='item'>");
+                    sb.Append($"<div>Duplicate item in {item.SourceFileName} line {item.SourceLineNumber} - {item.AssociatedText.TruncateWithEllipsis(50)}</div>");
+                    sb.Append("</div>");
+                }
 
                 foreach (var item in list)
                 {
                     sb.Append("<div class='item'>");
-                    sb.Append($"<div>{item.SourceFileName} line {item.SourceLineNumber} {(item.RawTagSet.IsEmpty() ? ", no inline tags" : ", inline tags '" + item.RawTagSet)}.</div>");
+                    sb.Append($"<div>{item.SourceFileName} line {item.SourceLineNumber} {(item.OriginalTagText.IsEmpty() ? ", no inline tags" : ", inline tags '" + item.OriginalTagText)}.</div>");
 
                     foreach (var warn in item.Warnings)
                     {
@@ -183,6 +204,8 @@ namespace Jiminy.Utilities
         internal async Task<Result> BuildOutputs(ItemRegistry itemRegistry, List<LogEntry> recentLogEntries)
         {
             Result result = new("BuildOutputs");
+
+            itemRegistry.CheckForDuplicates();
 
             foreach (var outputSpec in _appSettings.OutputSettings.Outputs.Where(_ => _.IsEnabled))
             {
@@ -826,13 +849,13 @@ namespace Jiminy.Utilities
             {
                 List<string> diags = new();
 
-                if (item.RawTagSet.IsEmpty())
+                if (item.OriginalTagText.IsEmpty())
                 {
                     diags.Add($"Raw TagSet is empty, context-only");
                 }
                 else
                 {
-                    diags.Add($"Raw TagSet '{item.RawTagSet}'");
+                    diags.Add($"Raw TagSet '{item.OriginalTagText}'");
                 }
 
                 diags.AddRange(item.Diagnostics);

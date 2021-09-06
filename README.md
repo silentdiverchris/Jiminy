@@ -149,6 +149,29 @@ Or if I want to override the project and mark it as needing a phone call;
 
 ..gives me an enhancement item for the other project instead with a phone tag as well as the document tag from the context.
 
+### Contexts are additive
+Setting a second context while one is in place will add to and replace the tags in the context, so;
+
+```
+ =ctx-prj:Jiminy-enh-p:1=
+ =ctx-docu-p:2=
+ ```
+ 
+Will leave the current context as project Jiminy, priority 2 (having over-written the priority 1) with custom tags Enhancement and Document.
+
+Clearing the context with 'xctx', 'clearcontext' or whatever you have defined will get rid of all current context.
+
+### Tagless items
+If you have set a context already and just want an item to use that context, use;
+
+```
+ == Just add an item with whatever context is in place
+```
+
+This assumes the start and end delimiters are both equals signs as per the defaults, if not, use whatever delimiters you have defined.
+
+A warning will be generated if there isn't any context at that point, though the item will still be created.
+
 ### Tagging multiple lines
 A tag set can apply to more than one line, for example;
 
@@ -167,7 +190,7 @@ Another way to do mutiple lines, especially for when you have a few similar ones
 Please note that I have prefixed the starting delimiters below with a space so they don't keep showing up as items in my Jiminy output. To be recognised, all tag sets must start at the beginning of a line.
 
 ```
- =ctx-prj:SomeProject-enh=
+=ctx-prj:Jiminy-enh=
 
 ...
 
@@ -249,7 +272,7 @@ On startup, if any names or synonyms clash, it will complain and refuse to run.
 
 ## Custom tags
 
-A fe standard custom tags are pre-defined such as bug, enhancement, document, phone call, video call and conversation (for an in-person chat).
+A few standard custom tags are pre-defined such as bug, enhancement, document, phone call, video call and conversation (for an in-person chat).
 
 Any of these can be removed or altered, and any number of custom tags can be added, some of the standard custom tags are shown in the settings fragment below.
 
@@ -367,6 +390,8 @@ This does not alter the source files or item properties in any way. If you resta
 |Promote|Moves the item to the beginning of the set.|
 |Demote|Moves the item to the end of the set.|
 |Hide|Moves the item to the 'Hidden Items' tab under the top-level 'Other' tab.|
+
+Currently the hide button invalidates the item count in the tag header, and it probably always will :).
 
 ## Source files
 By default it only looks at '*.md' files but you can tell it to look in any files you like, according to the settings fragment below. Currently you can only have one file specification per directory, but can have multiple entries for a directory with a different file specification for each.
@@ -549,7 +574,7 @@ On startup it takes a few seconds as it completely regenerates the item data, th
 
 Currently the code is half event based and half timer based, I need to clear that up so it's entirely event based.
 
-=p:1-b:n-enh= Ditch the timer loop in the monitor.
+=p:1-b:eve-enh= Ditch the timer loop in the monitor.
 
 There is a LatencySeconds setting that is intended to make it hang back for a second or few so as to allow for somebody saving a file repeatedly in a short period and not have Jiminy regenerate the output every single time.
 
@@ -1234,22 +1259,33 @@ I've set the json serialiser that generates it to include all values in the belo
 =>
 Re-read appsettings.json before scanning files
 <=
+
 =>
-Make it read in source files and record 'TODO' items, maybe just report counts or specific texts.
+Make it find tags in source file comments too.
 <=
 
 ### Bugs
 
 ### Enhancements
-=b:eve= Implement delete clearing tags
-=b:eve= Open Ghostwriter from Jiminy.html
-=b:n= Make it do the 'Create view for this tag' thing, adding custom tabs for each marked custom tag<br>Use a new top-level tab 'Custom' or something.
-=b:n= Add a duration tag (and time start ?)
-=b:n= Implement times for reminders and dues, not just dates
+=prj:Jiminy-enh-b:eve-ctx=
+=>
+Implement delete clearing tags
+<=
+=> 
+Open Ghostwriter from Jiminy.html
+<=
+=>
+Add a duration tag (and time start ?)
+<=
+=>
+Implement times for reminders and dues, not just dates
+<=
+=>
+Make contexts additive rather than replace
+<=
 
 ### Documentation
-=prj:Jiminy-ctx=
-=b:eve= Fill out tag customisation section.
-=b:eve= Add documentation of the various tags
+=prj:Jiminy-docu-ctx=
+
 
 

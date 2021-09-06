@@ -14,7 +14,7 @@ namespace Jiminy.Utilities
             _appSettings = appSettings;
         }
 
-        internal Result InterpretLineContent(FileLine fileLine, out Item? item)
+        internal Result InterpretLineContent(FileLine line, out Item? item)
         {
             // TODO test with multi-character prefix and suffix
 
@@ -26,64 +26,69 @@ namespace Jiminy.Utilities
             int idxEnd = -1;
             string tagString = "";
 
-            if (fileLine.Text.Length == 2 && fileLine.Text == $"{_appSettings.TagSettings.Prefix}{_appSettings.TagSettings.FromHere}")
+            if (line.Text == _appSettings.TagSettings.Prefix + _appSettings.TagSettings.FromHere)
             {
                 // Beginning of a multi-line item with no properties (all coming from context)
                 item = new Item
                 {
-                    IncludeSubsequentLines = true,
-                    SourceLineNumber = fileLine.LineNumber
+                    IncludeSubsequentLines = true
                 };
             }
-            else if (fileLine.Text.StartsWith(_appSettings.TagSettings.Prefix))
+            else if (line.Text.StartsWith(_appSettings.TagSettings.Prefix + _appSettings.TagSettings.Suffix))
+            {
+                // Context-only item, associated text is whatever is after this prefix
+                item = new Item
+                {
+                    AssociatedText = line.Text.Substring((_appSettings.TagSettings.Prefix + _appSettings.TagSettings.Suffix).Length).Trim()
+                };
+            }
+            else if (line.Text.StartsWith(_appSettings.TagSettings.Prefix))
             {
                 // Beginning of an item with inline preoperties
 
-                idxStart = fileLine.Text.IndexOf(_appSettings.TagSettings.Prefix);
-                idxEnd = fileLine.Text.IndexOf(_appSettings.TagSettings.Suffix, idxStart + _appSettings.TagSettings.Prefix.Length);
+                idxStart = line.Text.IndexOf(_appSettings.TagSettings.Prefix);
+                idxEnd = line.Text.IndexOf(_appSettings.TagSettings.Suffix, idxStart + _appSettings.TagSettings.Prefix.Length);
             }
-            else if (fileLine.Text.EndsWith(_appSettings.TagSettings.Suffix))
+            else if (line.Text.EndsWith(_appSettings.TagSettings.Suffix))
             {
                 // Beginning of an item with inline preoperties at the end of the line... not sure this actually works !
 
-                idxEnd = fileLine.Text.Length - 1;
-                idxStart = fileLine.Text[..^1].LastIndexOf(_appSettings.TagSettings.Prefix);
+                idxEnd = line.Text.Length - 1;
+                idxStart = line.Text[..^1].LastIndexOf(_appSettings.TagSettings.Prefix);
             }
 
             if (idxStart >= 0 && idxEnd >= 0)
             {
                 if (idxEnd > 0)
                 {
-                    tagString = fileLine.Text.Substring(idxStart + 1, idxEnd - idxStart - 1);
+                    tagString = line.Text.Substring(idxStart + 1, idxEnd - idxStart - 1);
                 }
                 else
                 {
-                    tagString = fileLine.Text[(idxStart + 1)..];
+                    tagString = line.Text[(idxStart + 1)..];
                 }
 
                 string[] tagParts = tagString.Trim().Split(_appSettings.TagSettings.Separator);
 
                 result.SubsumeResult(ExtractTags(tagParts, out item));
 
-                item.SourceLineNumber = fileLine.LineNumber;
-
-                if (fileLine.Text.EndsWith(_appSettings.TagSettings.FromHere))
+                if (line.Text.EndsWith(_appSettings.TagSettings.FromHere))
                 {
                     item.IncludeSubsequentLines = true;
                 }
 
-                item.RawTagSet = tagString;
+                item.OriginalTagText = tagString;
 
                 if (idxEnd > 0)
                 {
-                    string lineWithoutTags = fileLine.Text.Replace(fileLine.Text[idxStart..(idxEnd + 1)], "").Trim();
+                    string lineWithoutTags = line.Text.Replace(line.Text[idxStart..(idxEnd + 1)], "").Trim();
                     string lineWithoutMarkdown = StripMarkdown(lineWithoutTags);
 
                     item.AssociatedText = lineWithoutMarkdown;
                 }
                 else
                 {
-                    string lineWithoutTags = fileLine.Text.Replace(fileLine.Text[idxStart..], "").Trim();
+                    string lineWithoutTags = line.Text.Replace(line.Text[idxStart..], "").Trim();
                     string lineWithoutMarkdown = StripMarkdown(lineWithoutTags);
 
                     item.AssociatedText = lineWithoutMarkdown;
@@ -497,7 +502,7 @@ namespace Jiminy.Utilities
                         {
                             if (ti.Definition.IconFileName is not null)
                             {
-                                iconText = ti.Definition.Description;
+                                iconText = ti.Definition.Description ?? ti.Definition.Name;
                                 colourStr = ti.Definition.Colour;
                                 svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
                             }

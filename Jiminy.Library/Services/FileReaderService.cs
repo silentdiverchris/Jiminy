@@ -64,6 +64,7 @@ namespace Jiminy.Services
 
                 if (item is not null)
                 {
+                    item.SourceLineNumber = fileLine.LineNumber;
                     item.Id = GenerateItemId(fileContent.FullFileName, fileLine.LineNumber);
 
                     if (item.IncludeSubsequentLines)
@@ -75,7 +76,7 @@ namespace Jiminy.Services
                     {
                         item.Diagnostics.Add("Setting context");
 
-                        contextItem = item;
+                        contextItem = UpdateContext(contextItem, item);
                     }
                     else if (item.ClearsContext)
                     {
@@ -116,6 +117,30 @@ namespace Jiminy.Services
             //}
 
             return result;
+        }
+
+        private Item UpdateContext(Item? contextItem, Item item)
+        {
+            if (contextItem is null)
+            {
+                return item;
+            }
+            else
+            {
+                foreach (var ti in item.TagInstances)
+                {
+                    var existing = contextItem.TagInstances.SingleOrDefault(_ => _.DefinitionName == ti.DefinitionName);
+
+                    if (existing is not null)
+                    {
+                        contextItem.RemoveTagInstance(ti.DefinitionName);
+                    }
+
+                    contextItem.AddTagInstance(ti);
+                }
+            }
+
+            return contextItem;
         }
 
         private string? GenerateItemId(string? fullFileName, int lineNumber)

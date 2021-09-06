@@ -19,10 +19,16 @@ namespace Jiminy.Classes
         //public string? FullText { get; set; }
 
         [JsonIgnore]
+        public int? Hash { get; private set; }
+
+        [JsonIgnore]
         public string? Id { get; set; }
 
         [JsonIgnore]
-        public string? RawTagSet { get; set; }
+        public string? OriginalTagText { get; set; }
+
+        [JsonIgnore]
+        public string? CurrentTagSet => this.ToString();
 
         [JsonIgnore]
         public bool IncludeSubsequentLines { get; set; } = false;
@@ -69,6 +75,11 @@ namespace Jiminy.Classes
 
         internal IReadOnlyList<TagInstance> TagInstances => _tagInstances.Tags.AsReadOnly();
 
+        internal void GenerateHash()
+        {
+            Hash = this.ToString(includeSourceDetails: false).GetHashCode();
+        }
+
         internal TagInstance? GetTagInstance(enTagType type)
         {
             return _tagInstances.Tags.SingleOrDefault(_ => _.Type == type);
@@ -77,6 +88,11 @@ namespace Jiminy.Classes
         internal bool HasTagInstance(enTagType type)
         {
             return _tagInstances.Tags.Any(_ => _.Type == type);
+        }
+
+        internal void RemoveTagInstance(string definitionName)
+        {
+            _tagInstances.Tags.RemoveAll(_ => _.DefinitionName == definitionName);
         }
 
         internal void AddTagInstance(TagInstance? ti, bool fromContext = false)
@@ -163,30 +179,59 @@ namespace Jiminy.Classes
             }
         }
 
-        internal new string ToString()
+        internal string ToString(bool includeSourceDetails = true)
         {
-            string str = $"Repeat:{RepeatName}, Pri:{PriorityName}, Bucket:{BucketName}";
+            List<string> str = new();
+            
+            if (RepeatName.NotEmpty())
+            {
+                str.Add($"Repeat: {RepeatName}");
+            }
+
+            if (PriorityName.NotEmpty())
+            {
+                str.Add($"Priority: {PriorityName}");
+            }
+            
+            if (BucketName.NotEmpty())
+            {
+                str.Add($"Bucket: {BucketName}");
+            }
 
             if (ProjectName.NotEmpty())
             {
-                str += ", Project:" + ProjectName;
+                str.Add($"Project: {ProjectName}");
             }
 
             if (ReminderDateTime is not null)
             {
-                str += $", Reminder:{((DateTime)ReminderDateTime).ToString(Constants.DATE_FORMAT_DATE_TIME_LONG_SECONDS)}";
+                str.Add($"Reminder:{((DateTime)ReminderDateTime).ToString(Constants.DATE_FORMAT_DATE_TIME_LONG_SECONDS)}");
             }
 
             if (DueDateTime is not null)
             {
-                str += $", Due:{((DateTime)DueDateTime).ToString(Constants.DATE_FORMAT_DATE_TIME_LONG_SECONDS)}";
+                str.Add($"Due:{((DateTime)DueDateTime).ToString(Constants.DATE_FORMAT_DATE_TIME_LONG_SECONDS)}");
             }
 
-            str += ", Text:" + AssociatedText;
+            foreach (var ti in TagInstances.Where(_ => _.Type == enTagType.Custom))
+            {
+                str.Add(ti.DefinitionName);
+            }
 
-            str += ", File:" + SourceFileName;
+            if (AssociatedText.NotEmpty())
+            {
+                str.Add("Text:" + AssociatedText);
+            }
 
-            return str;
+            if (includeSourceDetails)
+            {
+                if (SourceFileName.NotEmpty())
+                {
+                    str.Add($"File: {SourceFileName} line {SourceLineNumber}");
+                }
+            }
+
+            return string.Join(", ", str);
         }
 
         private enDateStatus GetReminderStatus(out string colour)

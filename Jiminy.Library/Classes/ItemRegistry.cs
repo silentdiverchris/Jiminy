@@ -7,8 +7,6 @@ namespace Jiminy.Classes
     {
         static readonly object _lock = new();
 
-        //private ProjectRegistry _projectRegistry = new();
-
         private List<Item> _items = new();
 
         public ItemRegistry()
@@ -22,6 +20,9 @@ namespace Jiminy.Classes
         }
 
         public List<Item> Items => _items;
+
+        // Gets populated on request just before building outputs
+        public List<Item> Duplicates = new();
 
         // Some items get read an awful lot when generating the
         // report, so we cache filtered lists for them
@@ -79,10 +80,28 @@ namespace Jiminy.Classes
         internal ItemSubSet SoonItems => new(DatedItems.Items.Where(_ => _.MostUrgentDateStatus == enDateStatus.Soon));
         internal ItemSubSet FutureItems => new(DatedItems.Items.Where(_ => _.MostUrgentDateStatus == enDateStatus.Future));
 
-        //internal ProjectRegistry ProjectRegistry => _projectRegistry;
-        //internal List<string> ProjectNames => _projectRegistry.Projects.Select(_ => _.Name).ToList();
+        internal List<string> SourceFileNames => _items.Select(_ => _.SourceFileName!).Distinct().ToList();
 
-        //internal List<string> FoundInFiles => _items.Select(_ => _.FullFileName).Distinct().OrderBy(_ => _).Select(_ => new Item { FullFileName = _ });
+        internal void CheckForDuplicates()
+        {
+            foreach (var it in _items)
+            {
+                it.GenerateHash();
+            }
+
+            Duplicates = new();
+
+            var duplicateHashes = _items
+                .Where(_ => _.ClearsContext == false & _.SetsContext == false)
+                .GroupBy(_ => _.Hash)
+                .Where(g => g.Count() > 1)
+                .Select(y => y.Key).ToList();
+
+            foreach (var dupHash in duplicateHashes)
+            {
+                Duplicates.AddRange(_items.Where(_ => _.Hash == dupHash));
+            }
+        }
 
         internal ItemRegistry GenerateRegistryForOutputFile(OutputSpecification of)
         {

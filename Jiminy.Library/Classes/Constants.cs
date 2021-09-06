@@ -2,6 +2,7 @@
 {
     internal class Constants
     {
+        internal const string DATE_FORMAT_DATE_TIME_LONGER_SECONDS = "dddd d MMMM yyyy HH:mm:ss";
         internal const string DATE_FORMAT_DATE_TIME_LONG_SECONDS = "d MMM yyyy HH:mm:ss";
         internal const string DATE_FORMAT_DATE_TIME_YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
         internal const string DATE_FORMAT_TIME_ONLY_SECONDS = "HH:mm:ss";

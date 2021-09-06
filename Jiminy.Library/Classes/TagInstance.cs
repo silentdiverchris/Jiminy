@@ -86,6 +86,11 @@ namespace Jiminy.Classes
     {
         public List<TagInstance> Tags { get; private set; } = new();
 
+        public new string ToString()
+        {
+            return string.Join(", ", Tags.Select(_ => _.DefinitionName));
+        }
+
         public bool Exists(string name)
         {
             return Tags.Any(_ => _.DefinitionName == name);

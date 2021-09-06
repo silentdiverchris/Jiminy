@@ -41,7 +41,7 @@ namespace Jiminy.Utilities
                 },
                 OutputSettings = new OutputSettings
                 {
-                    ShowDiagnostics = true,
+                    ShowDiagnostics = false,
                     VerboseDiagnostics = false,
                     HtmlTemplateFileName = @"C:\Personal\Jiminy\HtmlTemplate.html",
                     Outputs = new List<OutputSpecification>
