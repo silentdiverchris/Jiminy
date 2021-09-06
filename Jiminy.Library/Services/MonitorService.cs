@@ -12,7 +12,7 @@ namespace Jiminy.Services
 
         private readonly AppSettings _appSettings;
 
-        private List<FileSystemWatcher> _fileWatchers = new();
+        private List<FileSystemWatcher> _fileSystemWatchers = new();
 
         private Queue<string> _filesToScanQueue = new();
 
@@ -20,7 +20,7 @@ namespace Jiminy.Services
         private Dictionary<string, MonitoredDirectory> _monitoredDirectories = new();
 
         private bool _queueChanged = false;
-        private bool _regenerationRequired = true;
+        private bool _regenerationRequired = false;
 
         private ItemRegistry _itemRegistry = new();
 
@@ -57,67 +57,62 @@ namespace Jiminy.Services
 
                 PrefillFilesToScan(_appSettings.MonitoredDirectories.Where(_ => _.IsActive).ToList());
 
+                InitialiseFileSystemWatchers();
+
                 await DoMainLoop();
             }
 
             return result;
         }
 
+        private void InitialiseFileSystemWatchers()
+        {
+            LogEntry log = new($"Initialising file watchers");
+
+            _recentLogEntries.Add(log);
+            _logService.LogToConsole(log);
+
+            if (_fileSystemWatchers.Any())
+            {
+                foreach (var fw in _fileSystemWatchers)
+                {
+                    fw.EnableRaisingEvents = false;
+                    fw.Dispose();
+                }
+
+                _fileSystemWatchers = new();
+            }
+
+            foreach (var dir in _appSettings.MonitoredDirectories.Where(_ => _.Exists && _.IsActive))
+            {
+                CreateFileSystemWatchers(dir);
+            }
+        }
+
         private async Task DoMainLoop()
         {
-            bool initialising = true;
             bool keepRunning = true;
 
             while (keepRunning)
             {
-                //_logService.LogToConsole(new LogEntry("Checking queue"));
-
                 int queueItemCount = _filesToScanQueue.Count;
 
                 if (queueItemCount > 0)
                 {
                     _queueChanged = false;
 
-                    //LogEntry log = new($"Queue has {queueItemCount} item{IntHelpers.PluralSuffix(queueItemCount)}");
-
-                    //_recentLogEntries.Add(log);
-                    //_logService.LogToConsole(log);
-
-                    if (!initialising && !_regenerationRequired)
-                    {
-                        // Tiny pause to allow a source file to be released by
-                        // something that might still be hanging on to it
-
-                        Thread.Sleep(200);
-                    }
-
                     while (_filesToScanQueue.Count > 0)
                     {
-                        string fileName = _filesToScanQueue.Dequeue();
-
-                        await ReadFile(fileName);
-
-                        _regenerationRequired = true;
-                    }
-                }
-
-                if (initialising)
-                {
-                    LogEntry log = new($"Initialising file watchers");
-
-                    _recentLogEntries.Add(log);
-                    _logService.LogToConsole(log);
-
-                    foreach (var dir in _appSettings.MonitoredDirectories.Where(_ => _.Exists && _.IsActive))
-                    {
-                        CreateFileSystemWatchers(dir);
+                        await ReadFile(_filesToScanQueue.Dequeue());
                     }
 
-                    initialising = false;
+                    _regenerationRequired = true;
                 }
 
                 if (_regenerationRequired)
                 {
+                    _regenerationRequired = false;
+
                     Result htmlBuildResult = new();
 
                     if (File.Exists(_appSettings.OutputSettings.HtmlTemplateFileName))
@@ -139,12 +134,8 @@ namespace Jiminy.Services
                     await _logService.ProcessResult(htmlBuildResult);
                 }
 
-#if DEBUG
-                //int pauseMs = 1000;
                 int pauseMs = _appSettings.LatencySeconds * 1000;
-#else
-                int pauseMs = _appSettings.LatencySeconds * 1000;
-#endif
+
                 for (int i = 1; i < 10; i++)
                 {
                     Thread.Sleep(pauseMs / 10);
@@ -247,7 +238,7 @@ namespace Jiminy.Services
                 watcher.IncludeSubdirectories = dir.Recursive;
                 watcher.EnableRaisingEvents = true;
 
-                _fileWatchers.Add(watcher);
+                _fileSystemWatchers.Add(watcher);
             }
             else
             {
