@@ -273,7 +273,7 @@ namespace Jiminy.Services
             return false;
         }
 
-        private void EnqueueFileToScan(string fullFileName)
+        private void EnqueueFileToScan(string fullFileName, string? reason = null)
         {
             if (FileIsIgnorable(fullFileName))
             {
@@ -291,7 +291,7 @@ namespace Jiminy.Services
                 {
                     _filesToScanQueue.Enqueue(fullFileName);
 
-                    var log = new LogEntry($"File '{fullFileName}' marked to be read");
+                    var log = new LogEntry($"File '{fullFileName}' {reason ?? "enqueued"}");
 
                     _recentLogEntries.Add(log);
                     _logService.LogToConsole(log);
@@ -389,7 +389,7 @@ namespace Jiminy.Services
 
             //_recentLogEntries.Add(new LogEntry($"File '{e.FullPath}' updated"));
 
-            EnqueueFileToScan(e.FullPath);
+            EnqueueFileToScan(e.FullPath, "changed");
         }
 
         private async Task ReadFile(string fullFileName)

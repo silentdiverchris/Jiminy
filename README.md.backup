@@ -56,7 +56,7 @@ Tags are the way you tell Jiminy everything about an item. There will be a full 
  =b:n-p:2-enh-pho= Call Fred about making it do XYZ in a better way
 ```
 
-Tags start and end with a selected string, by default both are '=' as they seem unused by Markdown but they could be any characters or strings; say '>=>' and '<!=' or 'tagstart' and 'tagend' if you prefer.
+Tags start and end with a selected string, by default both are '=' as I don't personally use them with Markdown, but they could be any characters or strings; say '>=>' and '<!=' or 'tagstart' and 'tagend' if you prefer.
 
 Tags are separated by hyphens and parameters are delimited by colons but again, any alternative strings can be defined instead. 
 

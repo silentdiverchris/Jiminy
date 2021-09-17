@@ -104,13 +104,14 @@ namespace Jiminy.Utilities
                             new ProjectDefinition { Name = "Jiminy", Description = "Developing Jiminy", DisplayOrder = 103, IconFileName = "umbrella.svg", Colour = "crimson" },
                             new ProjectDefinition { Name = "Archivist", Description = "Developing Archivist", DisplayOrder = 102, IconFileName = "archivist.svg", Colour = "indigo" },
                             new ProjectDefinition { Name = "Writing", Description = "Writing English stuff", DisplayOrder = 101, IconFileName = "writing.svg", Colour = "saddlebrown" },
-                            new ProjectDefinition { Name = "Hardware", DisplayOrder = 110, Description = "Hardware matters to fix or do", IconFileName = "hardware.svg", Colour = "darkblue" },
+                            new ProjectDefinition { Name = "Hardware", DisplayOrder = 85, Description = "Hardware matters to fix or do", IconFileName = "hardware.svg", Colour = "darkblue" },
                             new ProjectDefinition { Name = "Games", DisplayOrder = 150, IconFileName = "games.svg", Colour = "purple" },
                             new ProjectDefinition { Name = "Marc", DisplayOrder = 180, Colour = "darkgrey" },
                             new ProjectDefinition { Name = "Respondent", DisplayOrder = 30, Colour = "darkblue" },
                             new ProjectDefinition { Name = "SingLink", DisplayOrder = 10, Colour = "darkblue" },
                             new ProjectDefinition { Name = "Contract", DisplayOrder = 20, Colour = "darkblue" },
-                            new ProjectDefinition { Name = "Household", DisplayOrder = 90, Colour = "pink" },
+                            new ProjectDefinition { Name = "Household", DisplayOrder = 90, IconFileName = "houshold.svg", Colour = "pink", Description = "Fixes and tasks at home" },
+                            new ProjectDefinition { Name = "Software", DisplayOrder = 80, Colour = "orange", Description = "Software issues on home machines" },
                         }
                     }
                 },
