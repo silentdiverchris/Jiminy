@@ -1,6 +1,11 @@
 ﻿using Jiminy.Classes;
 using Jiminy.Helpers;
 using Jiminy.Utilities;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Services
@@ -29,9 +34,9 @@ namespace Jiminy.Services
         {
             Result result = new("FileReaderService.ReadFile");
 
-            if (File.Exists(mf.FullName))
+            if (mf.FullName.IsExistingFileName())
             {
-                FileContent fileContent = new(mf.FullName);
+                FileContent fileContent = new(mf.FullName!);
 
                 _logService.LogToConsole($"Read {fileContent.LineCount} lines from {fileContent.FullFileName}");
 

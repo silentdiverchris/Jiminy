@@ -1,6 +1,7 @@
 ﻿using Jiminy.Helpers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Jiminy.Classes
         {
             _fullFileName = fullFileName;
 
-            if (File.Exists(fullFileName))
+            if (fullFileName.IsExistingFileName())
             {
                 _lines = File.ReadAllLines(fullFileName);
                 _lineCount = _lines.Length;

@@ -1,10 +1,14 @@
-﻿namespace Jiminy.Classes
+﻿using Jiminy.Helpers;
+using System;
+using System.IO;
+
+namespace Jiminy.Classes
 {
     public class MonitoredFile
     {
         public MonitoredFile(string fullName)
         {
-            if (fullName is not null && File.Exists(fullName))
+            if (fullName.IsExistingFileName())
             {
                 FullName = fullName;
                 Exists = true;

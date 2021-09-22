@@ -1,4 +1,5 @@
-﻿using static Jiminy.Classes.Enumerations;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Jiminy.Classes
 {
