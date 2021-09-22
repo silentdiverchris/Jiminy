@@ -82,6 +82,7 @@ namespace Jiminy.Services
             settingsChanged = false;
 
             Result result = new("LoadConfiguration");
+
             // Create default appsettings.json if it does not exist, this happens at first run, and if the
             // user deletes or moves it to generate a fresh one that they can customise.
 
@@ -368,7 +369,8 @@ namespace Jiminy.Services
 
             _regenerationRequired = true;
         }
-
+        
+        // Handled by OnChanged
         //private void OnCreated(object sender, FileSystemEventArgs e)
         //{
         //    Result result = new("Monitor.OnCreated");

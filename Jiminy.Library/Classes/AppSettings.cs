@@ -54,7 +54,7 @@ namespace Jiminy.Classes
         public RepeatSettings RepeatSettings { get; set; } = new RepeatSettings();
 
         /// <summary>
-        /// Setting relating to building the HTML and JSON output files
+        /// Settings relating to building the HTML and JSON output files
         /// </summary>
         public OutputSettings OutputSettings { get; set; } = new OutputSettings();
 
@@ -62,6 +62,7 @@ namespace Jiminy.Classes
         /// All SVG file definitions are loaded into here on startup for fast 
         /// re-use, keyed on file name 
         /// </summary>
-        public Dictionary<string, string> SvgCache = new();
+        [JsonIgnore]
+        public SvgCache SvgCache = new();
     }
 }

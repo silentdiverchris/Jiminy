@@ -643,9 +643,7 @@ Each tag and some properties within tags can have an icon associated with them, 
 
 The icons must be SVG files, the reason being that they are read in by the system and added to the output in html '\<svg>...svg stuff...\</svg>' form, so the SVG files are not needed to view the output, only when it is generated.
 
-The SVG files are looked for in a local directory indicated by the MediaDirectoryPath setting and named in the settings. If one or more are not found or the directory is not there, Jiminy will complain and stop, which on reflection is a bit draconian.
-
-=b:n-p:2-enh= Not finding an icon should generate a warning, not an error
+The SVG files are looked for in a local directory indicated by the MediaDirectoryPath setting and named in the settings. If one or more are not found or the directory is not there, Jiminy will generate a warmning and use a default question mark icon incomplain and stop, which on reflection is a bit draconian.
 
 The fill colour of the icons is set or left as-is according to the properties of the item. For example, in the standard settings the priority icon defaults to colour 'blue' but there are overrides for this in each specific priority so the icon for high priority items is automatically filled with colour 'orange' but filled with 'darkgrey' for medium and low priority. If the specific priority had no colour, the default 'blue' would be used.
 
@@ -1257,17 +1255,13 @@ I've set the json serialiser that generates it to include all values in the belo
 =ctx-prj:Jiminy-b:next-enh= 
 
 =>
-Re-read appsettings.json before scanning files
-<=
-
-=>
 Make it find tags in source file comments too.
 <=
 
 ### Bugs
 
 ### Enhancements
-=prj:Jiminy-enh-b:eve-ctx=
+=ctx-pri:low-prj:Jiminy-enh-b:eve=
 => 
 Open Ghostwriter from Jiminy.html
 <=

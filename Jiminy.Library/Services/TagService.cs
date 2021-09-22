@@ -506,7 +506,7 @@ namespace Jiminy.Utilities
                             {
                                 iconText = ti.Definition.Description.IfEmpty(ti.Definition.Name, ifBothEmpty: "No description");
                                 colourStr = ti.Definition.Colour;
-                                svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
+                                svgHtml = _appSettings.SvgCache.Get(ti.Definition.IconFileName!);
                             }
 
                             break;
@@ -518,7 +518,7 @@ namespace Jiminy.Utilities
                                 iconText = "Link to " + ti.Url.GetUrlDomain(35) ?? "Missing Url"; // $"<a class='card-link' href='{ti.Url}' target='_blank'>{ti.Url ?? "Missing URL"}</a>";
                                 linkUrl = linkUrl ?? ti.Url;
                                 colourStr = ti.Definition.Colour;
-                                svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
+                                svgHtml = _appSettings.SvgCache.Get(ti.Definition.IconFileName!);
                             }
 
                             break;
@@ -534,7 +534,7 @@ namespace Jiminy.Utilities
 
                                 if (pri?.IconFileName is not null)
                                 {
-                                    svgHtml = _appSettings.SvgCache[pri.IconFileName!];
+                                    svgHtml = _appSettings.SvgCache.Get(pri.IconFileName!);
                                 }
                             }
 
@@ -551,7 +551,7 @@ namespace Jiminy.Utilities
 
                                 if (rep?.IconFileName is not null)
                                 {
-                                    svgHtml = _appSettings.SvgCache[rep.IconFileName!];
+                                    svgHtml = _appSettings.SvgCache.Get(rep.IconFileName!);
                                 }
                             }
                             else
@@ -569,7 +569,7 @@ namespace Jiminy.Utilities
 
                             if (ti.DateTimeValue is not null)
                             {
-                                svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
+                                svgHtml = _appSettings.SvgCache.Get(ti.Definition.IconFileName!);
                             }
                             else
                             {
@@ -586,7 +586,7 @@ namespace Jiminy.Utilities
 
                             if (ti.DateTimeValue is not null)
                             {
-                                svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
+                                svgHtml = _appSettings.SvgCache.Get(ti.Definition.IconFileName!);
                             }
                             else
                             {
@@ -606,7 +606,7 @@ namespace Jiminy.Utilities
 
                                 if (bucket?.IconFileName is not null)
                                 {
-                                    svgHtml = _appSettings.SvgCache[bucket.IconFileName!];
+                                    svgHtml = _appSettings.SvgCache.Get(bucket.IconFileName!);
                                 }
                             }
 
@@ -621,7 +621,7 @@ namespace Jiminy.Utilities
 
                             if (iconFileName is not null)
                             {
-                                svgHtml = _appSettings.SvgCache[iconFileName];
+                                svgHtml = _appSettings.SvgCache.Get(iconFileName);
                             }
 
                             break;
@@ -633,7 +633,7 @@ namespace Jiminy.Utilities
 
                             if (ti.Definition.IconFileName is not null)
                             {
-                                svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
+                                svgHtml = _appSettings.SvgCache.Get(ti.Definition.IconFileName!);
                             }
 
                             break;
@@ -648,7 +648,7 @@ namespace Jiminy.Utilities
             {
                 if (fileName is not null)
                 {
-                    svgHtml = _appSettings.SvgCache[fileName!];
+                    svgHtml = _appSettings.SvgCache.Get(fileName);
                 }
             }
 

@@ -256,19 +256,16 @@ namespace Jiminy.Utilities
 
                         if (ffn.IsExistingFileName())
                         {
-                            if (!settings.SvgCache.ContainsKey(fn))
-                            {
-                                settings.SvgCache.Add(fn, File.ReadAllText(ffn));
-                            }
+                            settings.SvgCache.Add(fn, File.ReadAllText(ffn));
                         }
                         else
                         {
-                            result.AddError($"Icon file '{ffn}' does not exist");
+                            result.AddWarning($"Icon file '{ffn}' does not exist, a default icon will be used instead");
                         }
                     }
                     else
                     {
-                        result.AddError($"Icon file '{fn}' is not an svg");
+                        result.AddWarning($"Icon file '{fn}' is not an svg file, a default icon will be used instead");
                     }
                 }
 
