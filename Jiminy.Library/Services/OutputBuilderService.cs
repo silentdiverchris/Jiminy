@@ -1,8 +1,13 @@
 ﻿using Jiminy.Classes;
 using Jiminy.Helpers;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Utilities
@@ -26,9 +31,9 @@ namespace Jiminy.Utilities
 
             string? templateFile = of.OverrideHtmlTemplateFileName ?? _appSettings.OutputSettings.HtmlTemplateFileName;
 
-            if (File.Exists(templateFile))
+            if (templateFile.IsExistingFileName())
             {
-                string html = await File.ReadAllTextAsync(templateFile);
+                string html = await File.ReadAllTextAsync(templateFile!);
                 int contentStartIdx = html.IndexOf(Constants.HTML_PLACEHOLDER_CONTENT);
                 int contentEndIdx = contentStartIdx + Constants.HTML_PLACEHOLDER_CONTENT.Length;
 
@@ -96,8 +101,10 @@ namespace Jiminy.Utilities
                     sbContent.Append($"</div></div>{footerHtml}");
                     sbContent.Append(html.AsSpan(contentEndIdx));
 
-                    if (File.Exists(of.HtmlPath))
-                        File.Delete(of.HtmlPath);
+                    if (of.HtmlPath.IsExistingFileName())
+                    {
+                        File.Delete(of.HtmlPath!);
+                    }
 
                     await File.WriteAllTextAsync(of.HtmlPath!, sbContent.ToString());
                 }
@@ -253,7 +260,7 @@ namespace Jiminy.Utilities
         {
             Result result = new("BuildJson");
 
-            if (File.Exists(jsonPath))
+            if (jsonPath.IsExistingFileName())
             {
                 File.Delete(jsonPath);
             }

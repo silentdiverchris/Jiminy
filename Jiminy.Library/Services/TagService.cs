@@ -1,5 +1,7 @@
 ﻿using Jiminy.Classes;
 using Jiminy.Helpers;
+using System;
+using System.Linq;
 using System.Text;
 using static Jiminy.Classes.Enumerations;
 
@@ -502,7 +504,7 @@ namespace Jiminy.Utilities
                         {
                             if (ti.Definition.IconFileName is not null)
                             {
-                                iconText = ti.Definition.Description ?? ti.Definition.Name;
+                                iconText = ti.Definition.Description.IfEmpty(ti.Definition.Name, ifBothEmpty: "No description");
                                 colourStr = ti.Definition.Colour;
                                 svgHtml = _appSettings.SvgCache[ti.Definition.IconFileName!];
                             }

@@ -5,7 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <RootNamespace>Jiminy</RootNamespace>
-    <Version>$(VersionPrefix) 1.0.2</Version>
+    <Version>$(VersionPrefix) 1.0.3</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/silentdiverchris/Jiminy</RepositoryUrl>
   </PropertyGroup>

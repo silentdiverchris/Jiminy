@@ -1,4 +1,7 @@
 ﻿using Jiminy.Utilities;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Jiminy.Helpers
@@ -6,6 +9,32 @@ namespace Jiminy.Helpers
     internal static class StringHelpers
     {
         private const string ELLIPSIS = "...";
+
+        internal static bool IsExistingFileName(this string? value)
+        {
+            return value.NotEmpty() && File.Exists(value);
+        }
+
+        internal static bool NoSuchFileName(this string? value)
+        {
+            return value.IsEmpty() || !File.Exists(value);
+        }
+
+        /// <summary>
+        /// Return the value, or the alternativeValue if it's empty, or the ifBothEmpty if both are empty
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="alternativeValue"></param>
+        /// <param name="ifBothEmpty"></param>
+        /// <returns></returns>
+        internal static string IfEmpty(this string? value, string? alternativeValue, string ifBothEmpty = "")
+        {
+            return value.NotEmpty()
+                ? value!
+                : alternativeValue.NotEmpty()
+                    ? alternativeValue!
+                    : ifBothEmpty;
+        }
 
         internal static bool NotEmpty(this string? value)
         {

@@ -1,7 +1,13 @@
 ﻿using Jiminy.Classes;
 using Jiminy.Helpers;
 using Jiminy.Utilities;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using static Jiminy.Classes.Delegates;
 using static Jiminy.Classes.Enumerations;
 
@@ -10,7 +16,7 @@ namespace Jiminy.Services
     public class MonitorService : IDisposable
     {
 #if DEBUG
-        private const bool _alwaysCreateAppSettingsOnStartup = true;
+        private const bool _alwaysCreateAppSettingsOnStartup = false;
 #else
         private const bool _alwaysCreateAppSettingsOnStartup = false;
 #endif
@@ -79,7 +85,7 @@ namespace Jiminy.Services
             // Create default appsettings.json if it does not exist, this happens at first run, and if the
             // user deletes or moves it to generate a fresh one that they can customise.
 
-            if (!File.Exists(_appSettingsFileName) || (_alwaysCreateAppSettingsOnStartup && _appSettings is null))
+            if (_appSettingsFileName.NoSuchFileName() || (_alwaysCreateAppSettingsOnStartup && _appSettings is null))
             {
                 _consoleDelegate.Invoke(new LogEntry($"Recreating appSettings '{_appSettingsFileName}'"));
 
@@ -196,7 +202,7 @@ namespace Jiminy.Services
 
                     Result htmlBuildResult = new();
 
-                    if (File.Exists(_appSettings.OutputSettings.HtmlTemplateFileName))
+                    if (_appSettings.OutputSettings.HtmlTemplateFileName.IsExistingFileName())
                     {
                         htmlBuildResult.AddInfo($"Reading template from '{_appSettings.OutputSettings.HtmlTemplateFileName}'");
 
@@ -280,7 +286,7 @@ namespace Jiminy.Services
                 return;
             }
 
-            if (File.Exists(fullFileName))
+            if (fullFileName.IsExistingFileName())
             {
                 if (!_monitoredFiles.ContainsKey(fullFileName))
                 {
@@ -507,7 +513,7 @@ namespace Jiminy.Services
 
         private MonitoredFile RegisterNewFile(string fullFileName)
         {
-            if (File.Exists(fullFileName))
+            if (fullFileName.IsExistingFileName())
             {
                 if (!_monitoredFiles.ContainsKey(fullFileName))
                 {

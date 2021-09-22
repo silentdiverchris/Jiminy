@@ -1,5 +1,8 @@
 ﻿using Jiminy.Classes;
 using Jiminy.Helpers;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static Jiminy.Classes.Enumerations;
@@ -16,7 +19,7 @@ namespace Jiminy.Utilities
         /// <param name="fileName"></param>
         public static void CreateDefaultAppSettings(string fileName)
         {
-            if (File.Exists(fileName))
+            if (fileName.IsExistingFileName())
             {
                 File.Delete(fileName);
             }
@@ -182,7 +185,7 @@ namespace Jiminy.Utilities
                             new TagDefinition { Type = enTagType.Custom, Name = "Question", DisplayOrder = 10, Description = "Question", IconFileName = "question.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Document", DisplayOrder = 10, Description = "Involves writing", Colour ="SlateGray", IconFileName = "document.svg" },
                             new TagDefinition { Type = enTagType.Custom, Name = "Video Call", DisplayOrder = 10, Description = "Video call", IconFileName = "video-call.svg" },
-                            new TagDefinition { Type = enTagType.Custom, Name = "Spiked", DisplayOrder = 10, IconFileName = "spiked.svg", Colour = "magenta" }
+                            new TagDefinition { Type = enTagType.Custom, Name = "Spiked", DisplayOrder = 10, IconFileName = "spiked.svg", Description = "Spiked Online", Colour = "magenta" }
                         }
                     }
                 }
@@ -251,7 +254,7 @@ namespace Jiminy.Utilities
                     {
                         string ffn = Path.Combine(settings.MediaDirectoryPath, fn);
 
-                        if (File.Exists(ffn))
+                        if (ffn.IsExistingFileName())
                         {
                             if (!settings.SvgCache.ContainsKey(fn))
                             {
@@ -269,14 +272,14 @@ namespace Jiminy.Utilities
                     }
                 }
 
-                if (settings.OutputSettings.HtmlTemplateFileName.IsEmpty() || !File.Exists(settings.OutputSettings.HtmlTemplateFileName))
+                if (settings.OutputSettings.HtmlTemplateFileName.IsEmpty() || settings.OutputSettings.HtmlTemplateFileName.NoSuchFileName())
                 {
                     result.AddError($"Template file '{settings.OutputSettings.HtmlTemplateFileName}' does not exist");
                 }
 
                 foreach (var tfn in settings.OutputSettings.Outputs.Where(_ => _.IsEnabled).Select(_ => _.OverrideHtmlTemplateFileName))
                 {
-                    if (tfn.NotEmpty() && !File.Exists(tfn))
+                    if (tfn.IsExistingFileName())
                     {
                         result.AddError($"Override template file '{tfn}' does not exist");
                     }
@@ -322,7 +325,7 @@ namespace Jiminy.Utilities
 
             Result result = new("AppSettingsUtilities.LoadFile");
 
-            if (File.Exists(fileName))
+            if (fileName.IsExistingFileName())
             {
                 string json = File.ReadAllText(fileName);
 
