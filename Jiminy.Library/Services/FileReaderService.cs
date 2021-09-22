@@ -101,7 +101,7 @@ namespace Jiminy.Services
                     }
                     else if (!item.TagInstances.Any())
                     {
-                        item.Warnings.Add($"Item has no inline tags or pre-defined context");
+                        item.Warnings.Add($"Item has no inline tags or pre-defined context, either add some tags to the item or set a context above it in the same file.");
                     }
 
                     if (extractResult.Messages.Any())

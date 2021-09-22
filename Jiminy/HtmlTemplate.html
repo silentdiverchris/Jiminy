@@ -30,6 +30,7 @@
             var card = target.parentNode.parentNode.parentNode;
             document.getElementById('hidden-items').appendChild(card);
             target.remove();
+            removeCounts(card);
         }
 
         function demoteCard(event) {
@@ -42,6 +43,23 @@
             var target = (event.target) ? event.target : event.srcElement;
             var card = target.parentNode.parentNode.parentNode;
             card.parentNode.insertBefore(card, card.parentNode.firstChild);
+        }
+
+        function removeCounts(card) {
+            var tabContent = card.closest('.tab__content');
+            console.log("tabContent=" + tabContent);
+            if (tabContent) {
+                var tabBodyHeader = tabContent.querySelector('.tab-body-header');
+                console.log("tabBodyHeader=" + tabBodyHeader);
+                if (tabBodyHeader) {
+                    var counterEl = tabBodyHeader.querySelector('.count'); // Why on earth does this not work ?!?!?!? TODO
+                    console.log("counterEl=" + counterEl);
+                    if (counterEl) {
+                        console.log("removing");
+                        counterEl.remove();
+                    }
+                }
+            }
         }
 
         document.addEventListener("DOMContentLoaded", (event) => {
@@ -189,18 +207,21 @@
 
             .tab-body-header .icon {
                 margin-right: 5px;
+                align-self: baseline;
             }
 
             .tab-body-header.sub-header {
                 font-size: 1.0em;
-                /*color: darkgray;*/
             }
 
+            .tab-body-header.sub-header .icon {
+                margin-right: 5px;
+                align-self: center;
+            }
 
             .tab-body-header.sub-header .count {
-/*                align-self: flex-end;
-                margin-left: 5px;
-*/
+                align-self: center;
+                margin-left: 15px;
                 font-size: 0.9em;
             }
 

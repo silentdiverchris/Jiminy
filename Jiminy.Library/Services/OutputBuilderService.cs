@@ -195,7 +195,7 @@ namespace Jiminy.Utilities
                 foreach (var item in list)
                 {
                     sb.Append("<div class='item'>");
-                    sb.Append($"<div>{item.SourceFileName} line {item.SourceLineNumber} {(item.OriginalTagText.IsEmpty() ? ", no inline tags" : ", inline tags '" + item.OriginalTagText)}.</div>");
+                    sb.Append($"<div>{item.SourceFileName} line {item.SourceLineNumber}{(item.OriginalTagText.IsEmpty() ? " has no inline tags" : ", inline tags '" + item.OriginalTagText)}.</div>");
 
                     foreach (var warn in item.Warnings)
                     {
@@ -566,6 +566,8 @@ namespace Jiminy.Utilities
 
             foreach (var bucket in _appSettings.BucketSettings.Definitions.Items.OrderBy(_ => _.DisplayOrder))
             {
+                var iconHtml = _appSettings.SvgCache.Get(bucket.IconFileName);
+
                 sb.Append(GenerateItemCardSet(
                     title: bucket.Name,
                     items: items,
@@ -575,7 +577,7 @@ namespace Jiminy.Utilities
                     showPriority: true,
                     showLinks: true,
                     suppressProjectDisplay: project is not null,
-                    subHeaderHtml: GenerateTabBodyHeader(bucket.Name, subHeader: true)));
+                    subHeaderHtml: GenerateTabBodyHeader(bucket.Name, subHeader: true, iconHtml: iconHtml)));
             }
 
             var noBucketItems = new ItemSubSet(items.Items.Where(_ => _.BucketName is null));
@@ -987,9 +989,9 @@ namespace Jiminy.Utilities
                 ? null
                 : $"<div class='suffix'>{titleSuffix}</div>";
 
-            string? countHtml = null; // = itemCount is null
-                //? null
-                //: $"<div class='count'>{itemCount} {"item".Pluralise((int)itemCount)}</div>";
+            string? countHtml = itemCount is null
+                ? null
+                : $"<div class='count'>{itemCount} {"item".Pluralise((int)itemCount)}</div>";
 
             iconHtml = iconHtml is null
                 ? null
