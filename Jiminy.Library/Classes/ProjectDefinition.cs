@@ -2,15 +2,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Jiminy.Classes
 {
+    /// <summary>
+    /// Represents a project
+    /// </summary>
     public class ProjectDefinition : BaseDefinition
     {
         public short Number { get; set; } = 0;
     }
 
+    /// <summary>
+    /// Stores and manages the register of projects known to the system
+    /// </summary>
     public class ProjectDefinitionList
     {
         public List<ProjectDefinition> Items { get; set; } = new();

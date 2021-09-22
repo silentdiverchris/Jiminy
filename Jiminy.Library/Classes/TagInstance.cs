@@ -8,6 +8,11 @@ using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Classes
 {
+    /// <summary>
+    /// An instance of a tag definition, one of these is created for each part 
+    /// of the set of tags applied to a jiminy item, eg. one for the priority, one 
+    /// for the project, one for each custom tag type etc.
+    /// </summary>
     public class TagInstance
     {
         public TagInstance(

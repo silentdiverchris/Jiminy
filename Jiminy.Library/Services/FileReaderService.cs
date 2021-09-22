@@ -3,14 +3,15 @@ using Jiminy.Helpers;
 using Jiminy.Utilities;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Services
 {
-
+    /// <summary>
+    /// Handles the reading of source files and digging the items and their tags from the contant
+    /// </summary>
     internal class FileReaderService : IDisposable
     {
         private readonly TagService _tagService;
@@ -44,7 +45,7 @@ namespace Jiminy.Services
             }
             else
             {
-                result.AddError($"File {mf.FullName} does not exist");
+                result.AddError($"File '{mf.FullName}' does not exist");
             }
 
             foreach (var tagSet in _tagSets)
@@ -55,6 +56,11 @@ namespace Jiminy.Services
             return result;
         }
 
+        /// <summary>
+        /// The main function that extracts items from source files via the FileContent abstraction
+        /// </summary>
+        /// <param name="fileContent"></param>
+        /// <returns></returns>
         private async Task<Result> InterpretFileContent(FileContent fileContent)
         {
             Result result = new("InterpretLines");

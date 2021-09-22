@@ -1,15 +1,13 @@
 ﻿using Jiminy.Helpers;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Jiminy.Classes
 {
     /// <summary>
-    /// Represents the content of a file
+    /// Represents the content of a file and provides an abstraction layer to the records for use
+    /// by the FileReaderService when extracting items from it
     /// </summary>
     internal class FileContent
     {

@@ -12,6 +12,9 @@ using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Utilities
 {
+    /// <summary>
+    /// Responsible for generating the output files
+    /// </summary>
     internal class OutputBuilderService : IDisposable
     {
         private readonly AppSettings _appSettings;

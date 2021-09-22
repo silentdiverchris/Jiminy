@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace Jiminy.Classes
 {
+    /// <summary>
+    /// Represents a subset of items, usually as the result of filtering the main set
+    /// </summary>
     internal class ItemSubSet
     {
         private List<Item> _items = new();

@@ -6,9 +6,19 @@ using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Classes
 {
+    /// <summary>
+    /// Generic result object to be returned by every interface which does some work and wants to tell 
+    /// the caller how it went. Contains lists of errors, warnings and info messages. Used extensively by
+    /// the logging service to output progress and diagnostics.
+    /// </summary>
     public class ResultMessage
     {
-        public ResultMessage(string text, enSeverity severity = enSeverity.Info, Exception? ex = null, string? functionName = null, bool alwaysWriteToEventLog = false)
+        public ResultMessage(
+            string text, 
+            enSeverity severity = enSeverity.Info, 
+            Exception? ex = null, 
+            string? functionName = null, 
+            bool alwaysWriteToEventLog = false)
         {
             CreatedUtc = DateTime.UtcNow;
             Text = text;
@@ -34,15 +44,18 @@ namespace Jiminy.Classes
         public List<ResultMessage> Messages { get; set; } = new();
         public string? FunctionName { get; private set; }
 
+        /// <summary>
+        /// Messages in this result that haven't yet been committed to somewhere
+        /// </summary>
         public List<ResultMessage> UnprocessedMessages => Messages.Where(_ => _.HasBeenWritten == false).ToList();
-
-        public int? ReturnedInt { get; set; }
-        public string? ReturnedString { get; set; }
 
         public int ItemsFound { get; set; }
         public int ItemsProcessed { get; set; }
         public long BytesProcessed { get; set; }
 
+        /// <summary>
+        /// The most serious message severity in this result
+        /// </summary>
         public enSeverity HighestSeverity => Messages.Any() ? Messages.OrderBy(_ => _.Severity).First().Severity : enSeverity.Debug;
 
         public bool HasErrors => Messages.Any(_ => _.Severity == enSeverity.Error);
@@ -53,7 +66,10 @@ namespace Jiminy.Classes
 
         }
 
-        public Result(string? functionName, bool addStartingItem = false, string? appendText = null)
+        public Result(
+            string? functionName, 
+            bool addStartingItem = false, 
+            string? appendText = null)
         {
             FunctionName = functionName;
 
@@ -124,7 +140,8 @@ namespace Jiminy.Classes
         }
 
         /// <summary>
-        /// Copies the messages and optionally, item counts from the result into the caller
+        /// Copies the messages from the supplied result into this one, optionally also copying item counts and 
+        /// other statisticcal information
         /// </summary>
         /// <param name="result"></param>
         /// <param name="AddItemCounts">Whether to add the ItemsFound, ItemsProcessed and BytesProcessed to the ones in the caller</param>
@@ -155,6 +172,9 @@ namespace Jiminy.Classes
             BytesProcessed += 0;
         }
 
+        /// <summary>
+        /// Gneerates a fairly presentable form of the messages stored in this result
+        /// </summary>
         public string TextSummary
         {
             get

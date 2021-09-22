@@ -361,7 +361,7 @@ namespace Jiminy.Services
         {
             Result result = new("Monitor.OnDeleted");
 
-            _itemRegistry.DeleteItemsFromFile(e.FullPath);
+            _itemRegistry.DeleteItemsFoundInFile(e.FullPath);
 
             result.AddInfo($"File '{e.FullPath}' deleted");
 

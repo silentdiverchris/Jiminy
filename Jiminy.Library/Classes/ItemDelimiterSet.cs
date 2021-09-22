@@ -1,5 +1,8 @@
 ﻿namespace Jiminy.Classes
 {
+    /// <summary>
+    /// Stores the delimiters that are used to pull apart sets of tags and defines their default values
+    /// </summary>
     public class ItemDelimiterSet
     {
         public ItemDelimiterSet(string startDelim, string endDelim, string sepDelim, string qualDelim)

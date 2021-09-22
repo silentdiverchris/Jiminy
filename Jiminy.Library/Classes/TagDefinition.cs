@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Classes
@@ -71,7 +70,7 @@ namespace Jiminy.Classes
                 result.AddError($"Duplicate tag name '{dn}'");
             }
 
-            // TODO check for duplicate synonyms
+            // TODO check for duplicate synonyms and synonyms matching existing names
 
             return result;
         }

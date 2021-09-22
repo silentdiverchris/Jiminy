@@ -7,6 +7,7 @@ namespace Jiminy.Classes
     public class RepeatDefinition : BaseDefinition
     {
         // The total of the four NumberOf... is used - though no functionality for this exists yet
+        // TODO make it so
 
         public int NumberOfDays { get; set; } = 0;
         public int NumberOfWeeks { get; set; } = 0;

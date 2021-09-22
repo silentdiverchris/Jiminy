@@ -5,6 +5,9 @@ using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Classes
 {
+    /// <summary>
+    /// Stores and manages the set of jiminy items that have been gathered from all the monitored files
+    /// </summary>
     internal class ItemRegistry
     {
         static readonly object _lock = new();
@@ -105,41 +108,47 @@ namespace Jiminy.Classes
             }
         }
 
-        internal ItemRegistry GenerateRegistryForOutputFile(OutputSpecification of)
+        /// <summary>
+        /// Gneerates the set of items for a specific output file according to the 
+        /// filters specified for that output.
+        /// </summary>
+        /// <param name="spec"></param>
+        /// <returns></returns>
+        internal ItemRegistry GenerateRegistryForOutputFile(OutputSpecification spec)
         {
             // If there are no filters, just return the whole registry, otherwise
             // build up a subset of this one
 
-            if (of.ItemSelection is not null)
+            if (spec.ItemSelection is not null)
             {
                 IEnumerable<Item>? items = null;
 
-                if (of.ItemSelection.MustMatchAll)
+                if (spec.ItemSelection.MustMatchAll)
                 {
                     items = _items
                         .Where(it =>
                             (
-                                !of.ItemSelection.IncludeProjectNames.Any()
+                                !spec.ItemSelection.IncludeProjectNames.Any()
                                 ||
-                                of.ItemSelection.IncludeProjectNames.Contains(it.ProjectName!)
+                                spec.ItemSelection.IncludeProjectNames.Contains(it.ProjectName!)
                             )
                             &&
                             (
-                                !of.ItemSelection.IncludeTagNames.Any()
+                                !spec.ItemSelection.IncludeTagNames.Any()
                                 ||
-                                of.ItemSelection.IncludeTagNames.Any(tn => it.TagInstances.Select(ti => ti.Type.ToString()).Contains(tn))
+                                spec.ItemSelection.IncludeTagNames.Any(tn => it.TagInstances.Select(ti => ti.Type.ToString()).Contains(tn))
                             ));
                 }
                 else
                 {
                     items = _items
                         .Where(it =>
-                            of.ItemSelection.IncludeProjectNames.Contains(it.ProjectName!)
+                            spec.ItemSelection.IncludeProjectNames.Contains(it.ProjectName!)
                             ||
-                            of.ItemSelection.IncludeTagNames.Any(tn => it.TagInstances.Select(ti => ti.DefinitionName).Contains(tn)));
+                            spec.ItemSelection.IncludeTagNames.Any(tn => it.TagInstances.Select(ti => ti.DefinitionName).Contains(tn)));
                 }
 
-                ItemRegistry newReg = new ItemRegistry(new ItemSubSet(items));
+                ItemRegistry newReg = new(new ItemSubSet(items));
 
                 newReg.RefreshCaches();
 
@@ -189,10 +198,6 @@ namespace Jiminy.Classes
 
         private void RefreshCaches()
         {
-            //var projectNames = _items.Where(_ => _.ProjectName.NotEmpty()).Select(_ => _.ProjectName).Distinct().ToList();
-
-            //_projectRegistry = new(projectNames!);
-
             // Force regeneration of cached lists
 
             _openItems = null;
@@ -200,7 +205,11 @@ namespace Jiminy.Classes
             _reminderItems = null;
         }
 
-        internal void DeleteItemsFromFile(string fullPath)
+        /// <summary>
+        /// Used when a source file is deleted, clears out any items that came from that file
+        /// </summary>
+        /// <param name="fullPath"></param>
+        internal void DeleteItemsFoundInFile(string fullPath)
         {
             _items.RemoveAll(_ => _.SourceFileName == fullPath);
         }

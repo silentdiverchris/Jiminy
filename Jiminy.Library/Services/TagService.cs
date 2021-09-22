@@ -7,6 +7,10 @@ using static Jiminy.Classes.Enumerations;
 
 namespace Jiminy.Utilities
 {
+    /// <summary>
+    /// Something of a catch-all for functionality involved in processing tags, some 
+    /// of this might well be suitable for extracting to static helpers TODO
+    /// </summary>
     internal class TagService
     {
         private readonly AppSettings _appSettings;

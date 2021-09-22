@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Jiminy.Classes
 {
     /// <summary>
-    /// A directory to be monitored, this is non-recursive, only the root files are monitored
+    /// A directory to be monitored by a file watcher
     /// </summary>
     public class MonitoredDirectory
     {
