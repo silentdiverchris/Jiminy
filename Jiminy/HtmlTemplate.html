@@ -28,9 +28,10 @@
         function hideCard(event) {
             var target = (event.target) ? event.target : event.srcElement;
             var card = target.parentNode.parentNode.parentNode;
+            var cardParent = card.parentNode;
             document.getElementById('hidden-items').appendChild(card);
             target.remove();
-            removeCounts(card);
+            updateCount(cardParent);
         }
 
         function demoteCard(event) {
@@ -45,20 +46,18 @@
             card.parentNode.insertBefore(card, card.parentNode.firstChild);
         }
 
-        function removeCounts(card) {
-            var tabContent = card.closest('.tab__content');
-            console.log("tabContent=" + tabContent);
-            if (tabContent) {
-                var tabBodyHeader = tabContent.querySelector('.tab-body-header');
-                console.log("tabBodyHeader=" + tabBodyHeader);
-                if (tabBodyHeader) {
-                    var counterEl = tabBodyHeader.querySelector('.count'); // Why on earth does this not work ?!?!?!? TODO
-                    console.log("counterEl=" + counterEl);
-                    if (counterEl) {
-                        console.log("removing");
-                        counterEl.remove();
-                    }
-                }
+        function updateCount(cardParent) {
+            var counter = cardParent.parentNode.parentNode.childNodes[0].childNodes[2];
+            var cntStr = counter.innerText.substr(0, counter.innerText.indexOf(' '));
+            var cnt = parseInt(cntStr) - 1;
+            if (cnt == 0) {
+                counter.innerText = 'Nothing left';
+            }
+            else if (cnt == 1) {
+                counter.innerText = '1 item left';
+            }
+            else {
+                counter.innerText = cnt + ' items left';
             }
         }
 
@@ -200,7 +199,7 @@
             }
 
             .tab-body-header .count {
-                align-self: baseline;
+                align-self: center;
                 margin-left: 15px;
                 font-size: 0.6em;
             }

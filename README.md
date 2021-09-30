@@ -1272,6 +1272,8 @@ Add a duration tag (and time start ?)
 Implement times for reminders and dues, not just dates
 <=
 
+== Fix removal of counts on hiding item, or maybe grey the counter out, perhaps better.
+
 ### Documentation
 =prj:Jiminy-docu-ctx=
 
