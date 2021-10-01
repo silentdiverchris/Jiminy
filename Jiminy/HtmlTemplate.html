@@ -31,7 +31,7 @@
             var cardParent = card.parentNode;
             document.getElementById('hidden-items').appendChild(card);
             target.remove();
-            updateCount(cardParent);
+            updateCounts(cardParent);
         }
 
         function demoteCard(event) {
@@ -46,18 +46,64 @@
             card.parentNode.insertBefore(card, card.parentNode.firstChild);
         }
 
-        function updateCount(cardParent) {
-            var counter = cardParent.parentNode.parentNode.childNodes[0].childNodes[2];
-            var cntStr = counter.innerText.substr(0, counter.innerText.indexOf(' '));
-            var cnt = parseInt(cntStr) - 1;
-            if (cnt == 0) {
-                counter.innerText = 'Nothing left';
-            }
-            else if (cnt == 1) {
-                counter.innerText = '1 item left';
+        function updateCounts(cardParent) {
+            // Two different counters, update whichever exist
+            updateCounter(getTopCounter(cardParent));
+            updateCounter(getNearCounter(cardParent));
+        }
+
+        // TODO cut out some diag code when stablised
+
+        function getTopCounter(cardParent) {
+            var el1 = cardParent.parentNode.parentNode.childNodes[0];
+            //identifyElement(el1, 'gtc el1');
+            var el2 = el1.querySelector('.count')
+            //identifyElement(el2, 'gtc el2');
+            return el2;
+        }
+
+        function getNearCounter(cardParent) {
+            var el1 = cardParent.previousSibling;
+            //identifyElement(el1, 'gnc el1');
+            var el2 = el1.querySelector('.count')
+            //identifyElement(el2, 'gnc el2');
+            return el2;
+        }
+
+        function identifyElement(el, name) {
+            if (el) {
+                console.log('element ' + name + ' has classes ' + el.classList + ' text ' + el.innerText);
             }
             else {
-                counter.innerText = cnt + ' items left';
+                console.log('element ' + name + ' is null');
+            }
+        }
+
+        function updateCounter(el) {
+            if (el) {
+                var cnt = extractCount(el);
+                el.innerText = generateCountText(cnt - 1);
+            }
+            //else {
+            //    console.log('el is null, which is fine');
+            //}
+        }
+
+        function extractCount(el) {
+            var cntStr = el.innerText.substr(0, el.innerText.indexOf(' '));
+            var cnt = parseInt(cntStr);
+            return cnt;
+        }
+
+        function generateCountText(cnt) {
+            if (cnt == 0) {
+                return 'Nothing left';
+            }
+            else if (cnt == 1) {
+                return '1 item left';
+            }
+            else {
+                return cnt + ' items left';
             }
         }
 
@@ -213,16 +259,20 @@
                 font-size: 1.0em;
             }
 
-            .tab-body-header.sub-header .icon {
-                margin-right: 5px;
-                align-self: center;
-            }
+                .tab-body-header.sub-header .icon {
+                    margin-right: 5px;
+                    align-self: center;
+                }
 
-            .tab-body-header.sub-header .count {
-                align-self: center;
-                margin-left: 15px;
-                font-size: 0.9em;
-            }
+                .tab-body-header.sub-header .name {
+                    font-size: 1.2em;
+                }
+
+                .tab-body-header.sub-header .count {
+                    align-self: center;
+                    margin-left: 15px;
+                    font-size: 0.9em;
+                }
 
         .no-bottom-margin {
             margin-bottom: 0px;
@@ -245,8 +295,8 @@
         }
 
         .footer {
-            margin-top:10px;
-            display:flex;
+            margin-top: 10px;
+            display: flex;
             flex-direction: row;
             justify-content: space-evenly;
         }
