@@ -7,7 +7,7 @@
         internal const string DATE_FORMAT_DATE_TIME_YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
         internal const string DATE_FORMAT_TIME_ONLY_SECONDS = "HH:mm:ss";
         internal const string DATE_FORMAT_TIME_ONLY_SECONDS_FRACTION = "HH:mm:ss.f";
-        internal const string DATE_FORMAT_DATE_TIME_REMINDER_DATE_ONLY = "dddd d MMMM";
+        internal const string DATE_FORMAT_DATE_TIME_REMINDER_DATE_ONLY = "ddd d MMM";
         internal const string DATE_FORMAT_DATE_TIME_REMINDER_DATE_TIME = DATE_FORMAT_DATE_TIME_REMINDER_DATE_ONLY + " HH:mm";
 
         internal const int STREAM_BUFFER_SIZE = 81920;

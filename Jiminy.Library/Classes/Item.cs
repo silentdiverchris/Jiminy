@@ -207,12 +207,12 @@ namespace Jiminy.Classes
 
             if (ReminderDateTime is not null)
             {
-                str.Add($"Reminder:{((DateTime)ReminderDateTime).ToString(Constants.DATE_FORMAT_DATE_TIME_LONG_SECONDS)}");
+                str.Add($"Reminder:{((DateTime)ReminderDateTime).ToString(Constants.DATE_FORMAT_DATE_TIME_REMINDER_DATE_ONLY)}");
             }
 
             if (DueDateTime is not null)
             {
-                str.Add($"Due:{((DateTime)DueDateTime).ToString(Constants.DATE_FORMAT_DATE_TIME_LONG_SECONDS)}");
+                str.Add($"Due:{((DateTime)DueDateTime).ToString(Constants.DATE_FORMAT_DATE_TIME_REMINDER_DATE_ONLY)}");
             }
 
             foreach (var ti in TagInstances.Where(_ => _.Type == enTagType.Custom))
