@@ -8,7 +8,12 @@ namespace Jiminy.Classes
         public bool ShowDiagnostics { get; set; }
         public bool VerboseDiagnostics { get; set; }
         public string? HtmlTemplateFileName { get; set; }
-        
+
+        /// <summary>
+        /// Create empty tabs for projects with no items
+        /// </summary>
+        public bool CreateEmptyProjectTabs { get; set; }
+
         public List<OutputSpecification> Outputs { get; set; } = new();
     }
 

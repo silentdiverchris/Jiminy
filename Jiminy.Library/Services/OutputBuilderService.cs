@@ -298,7 +298,7 @@ namespace Jiminy.Utilities
                 showText: true,
                 showLinks: true,
                 suppressProjectDisplay: false,
-                overrideSubHeaderHtml: GenerateTabBodyHeader("Overdue", subHeader: true, itemCount:itemRegistry.OverdueItems.Count)));
+                overrideSubHeaderHtml: GenerateTabBodyHeader("Overdue", subHeader: true, itemCount: itemRegistry.OverdueItems.Count)));
 
             sb.Append(GenerateItemCardSet(
                 title: "Today",
@@ -418,15 +418,18 @@ namespace Jiminy.Utilities
 
             foreach (var project in _appSettings.ProjectSettings.Definitions.Items.OrderBy(_ => _.DisplayOrder).ThenBy(_ => _.Name))
             {
-                sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_PROJECT, project.Name, activeTab));
+                if (_appSettings.OutputSettings.CreateEmptyProjectTabs || itemRegistry.Items.Any(_ => _.ProjectName == project.Name && _.SetsContext == false))
+                {
+                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_PROJECT, project.Name, activeTab));
 
-                string? projectIconHtml = project.IconFileName is null
-                    ? defaultIconHtml
-                    : _tagService.GenerateIconItem(fileName: project.IconFileName, overrideColour: project.Colour ?? projectTagDef?.Colour);
+                    string? projectIconHtml = project.IconFileName is null
+                        ? defaultIconHtml
+                        : _tagService.GenerateIconItem(fileName: project.IconFileName, overrideColour: project.Colour ?? projectTagDef?.Colour);
 
-                sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project, overrideIconHtml: projectIconHtml));
+                    sbTabContent.Append(GenerateProjectTabContent(itemRegistry, project, overrideIconHtml: projectIconHtml));
 
-                activeTab = false;
+                    activeTab = false;
+                }
             }
 
             sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_PROJECT, "All Projects", false));
@@ -550,8 +553,8 @@ namespace Jiminy.Utilities
         /// <param name="overrideIconHtml"></param>
         /// <returns></returns>
         private string GenerateProjectTabContent(
-            ItemRegistry itemRegistry, 
-            ProjectDefinition? project, 
+            ItemRegistry itemRegistry,
+            ProjectDefinition? project,
             string? overrideIconHtml = null)
         {
             string projectName = project?.Name ?? "All projects";

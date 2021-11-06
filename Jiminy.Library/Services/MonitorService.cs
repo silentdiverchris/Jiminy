@@ -33,7 +33,6 @@ namespace Jiminy.Services
         private Dictionary<string, MonitoredFile> _monitoredFiles = new();
         private Dictionary<string, MonitoredDirectory> _monitoredDirectories = new();
 
-        private bool _queueChanged = false;
         private bool _regenerationRequired = false;
 
         private ItemRegistry _itemRegistry = new();
@@ -165,17 +164,9 @@ namespace Jiminy.Services
 
             while (keepRunning)
             {
-                int queueItemCount = _filesToScanQueue.Count;
-
-                if (queueItemCount > 0)
+                while (_filesToScanQueue.Any())
                 {
-                    _queueChanged = false;
-
-                    while (_filesToScanQueue.Count > 0)
-                    {
-                        await ReadFile(_filesToScanQueue.Dequeue());
-                    }
-
+                    await ReadFile(_filesToScanQueue.Dequeue());
                     _regenerationRequired = true;
                 }
 
@@ -224,13 +215,7 @@ namespace Jiminy.Services
 
                 int pauseMs = _appSettings.LatencySeconds * 1000;
 
-                for (int i = 1; i < 10; i++)
-                {
-                    Thread.Sleep(pauseMs / 10);
-
-                    if (_queueChanged)
-                        break;
-                }
+                Thread.Sleep(pauseMs);
             }
         }
 
@@ -302,8 +287,6 @@ namespace Jiminy.Services
 
                     _recentLogEntries.Add(log);
                     _logService.LogToConsole(log);
-
-                    _queueChanged = true;
                 }
             }
         }
