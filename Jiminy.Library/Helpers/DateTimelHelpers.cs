@@ -70,7 +70,7 @@ namespace Jiminy.Helpers
                 }
                 else
                 {
-                    dtStr = value.ToString(Constants.DATE_FORMAT_DATE_TIME_REMINDER_DATE_ONLY);
+                    dtStr = value.ToString(Constants.DATE_FORMAT_DATE_TIME_REMINDER_DATE_TIME);
                 }
 
                 if (showInAgo)
@@ -106,6 +106,5 @@ namespace Jiminy.Helpers
 
             return dtStr;
         }
-
     }
 }

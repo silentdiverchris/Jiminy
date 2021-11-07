@@ -16,7 +16,7 @@ namespace Jiminy.Classes
             }
             else
             {
-                throw new Exception($"MonitoredFile constructor wa given null or invalid fullName '{fullName}'");
+                throw new Exception($"MonitoredFile constructor was given null or invalid fullName '{fullName}'");
             }
         }
 

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System;
 
 namespace Jiminy.Helpers
 {
@@ -140,7 +141,7 @@ namespace Jiminy.Helpers
                     idxNextSlash = text.IndexOf("/", idx);
                 }
 
-                text = text.Substring(idxDomainStarts, idx - idxDomainStarts) + ELLIPSIS;
+                text = string.Concat(text.AsSpan(idxDomainStarts, idx - idxDomainStarts), ELLIPSIS);
             }
             else
             {

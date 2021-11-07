@@ -10,7 +10,7 @@ using static Jiminy.Classes.Enumerations;
 namespace Jiminy.Services
 {
     /// <summary>
-    /// Handles the reading of source files and digging the items and their tags from the contant
+    /// Handles the reading of source files and digging the items and their tags from the content
     /// </summary>
     internal class FileReaderService : IDisposable
     {
@@ -130,7 +130,7 @@ namespace Jiminy.Services
             return result;
         }
 
-        private Item UpdateContext(Item? contextItem, Item item)
+        private static Item UpdateContext(Item? contextItem, Item item)
         {
             if (contextItem is null)
             {
@@ -154,12 +154,12 @@ namespace Jiminy.Services
             return contextItem;
         }
 
-        private string? GenerateItemId(string? fullFileName, int lineNumber)
+        private static string? GenerateItemId(string? fullFileName, int lineNumber)
         {
             return Math.Abs((fullFileName + lineNumber.ToString()).GetHashCode()).ToString();
         }
 
-        private void ApplyContext(Item item, Item contextItem)
+        private static void ApplyContext(Item item, Item contextItem)
         {
             if (item.ProjectTag is null && contextItem.ProjectTag is not null)
             {

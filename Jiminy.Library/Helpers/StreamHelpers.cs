@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Jiminy.Helpers
 {
-    // Fairly shamelessly copied and slightly adapted from https://www.codeproject.com/Tips/5274597/An-Improved-Stream-CopyToAsync-That-Reports-Progre as per MIT licence.
-    // Thanks to the curously named author 'Honey the code witch' https://www.codeproject.com/script/Membership/View.aspx?mid=11540398
+    // Fairly shamelessly adapted from https://www.codeproject.com/Tips/5274597/An-Improved-Stream-CopyToAsync-That-Reports-Progre as per MIT licence.
+    // Thanks to 'Honey the code witch' https://www.codeproject.com/script/Membership/View.aspx?mid=11540398
 
     internal static class StreamHelpers
     {

@@ -19,7 +19,7 @@ namespace Jiminy.Classes
         public string? IconFileName { get; set; } = null;
 
         /// <summary>
-        /// This is the name of a colur that icons and text will be shown in for this priority, eg 'red', 'orange' etc
+        /// This is the name of a colour that icons and text will be shown in for this priority, eg 'red', 'orange' etc
         /// </summary>
         public string? Colour { get; set; }
 

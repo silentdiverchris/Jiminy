@@ -47,10 +47,10 @@ namespace Jiminy.Utilities
 
                 if (result.HasNoErrorsOrWarnings)
                 {
-                    // TODO this is happening per output, just do it once when the item is generated
+                    // TODO this is happening per output, ideally just do it once when the item is generated
                     foreach (var item in itemRegistry.Items)
                     {
-                        _tagService.ProcessEmbeddedUrls(item, "", false); // "<span class='card-text-link-placeholder'>[link]</span>", false);
+                        _tagService.ProcessEmbeddedUrls(item, "", false);
                     }
 
                     StringBuilder sbTabHeaders = new(1000);
@@ -457,10 +457,6 @@ namespace Jiminy.Utilities
 
             bool activeTab = true;
 
-            //string? defaultIconHtml = projectTagDef is not null
-            //    ? _tagService.GenerateIconItem(fileName: projectTagDef.IconFileName, overrideColour: projectTagDef.Colour)
-            //    : null;
-
             foreach (var tagDef in _appSettings.TagSettings.Definitions.Items.Where(_ => _.Type == enTagType.Custom && _.GenerateView).OrderBy(_ => _.DisplayOrder).ThenBy(_ => _.Name))
             {
                 if (_appSettings.OutputSettings.CreateEmptyTabs || itemRegistry.Items.Any(_ => _.TagInstances.Any(_ => _.Definition.Name == tagDef.Name)))
@@ -688,13 +684,7 @@ namespace Jiminy.Utilities
         {
             StringBuilder sb = new(2000);
 
-            //var priTagDef = _appSettings.TagSettings.Defintions.Get("Priority");
-
-            //string? iconHtml = priTagDef is not null
-            //    ? _tagService.GenerateIconItem(fileName: priTagDef.IconFileName, overrideColour: priTagDef.Colour)
-            //    : null;
-
-            sb.Append(GenerateTabBodyHeader("Priorities")); //, iconHtml: iconHtml));
+            sb.Append(GenerateTabBodyHeader("Priorities"));
 
             sb.Append("<div class='card-grid-container'>");
 
@@ -708,7 +698,7 @@ namespace Jiminy.Utilities
                     showText: true,
                     showLinks: true,
                     suppressProjectDisplay: false,
-                    overrideSubHeaderHtml: null)); // GenerateTabBodyHeader(pri.Name, subHeader: true, titleSuffix: "priority", itemCount: itemRegistry.OpenItems.Count)));
+                    overrideSubHeaderHtml: null));
             }
 
             sb.Append("</div>");
@@ -740,7 +730,7 @@ namespace Jiminy.Utilities
                     showText: true,
                     showLinks: true,
                     suppressProjectDisplay: false,
-                    overrideSubHeaderHtml: null)); // GenerateTabBodyHeader(rep.Name, subHeader: true, itemCount: itemRegistry.OpenItems.Count)));
+                    overrideSubHeaderHtml: null)); 
             }
 
             sb.Append("</div>");

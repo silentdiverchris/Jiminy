@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using static Jiminy.Classes.Delegates;
@@ -22,24 +21,23 @@ namespace Jiminy.Services
 #endif
         private readonly LogService _logService;
 
-        private AppSettings _appSettings;
+        private readonly string _appSettingsFileName = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
 
-        private string _appSettingsFileName = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
+        private readonly Queue<string> _filesToScanQueue = new();
 
-        private List<FileSystemWatcher> _fileSystemWatchers = new();
+        private readonly Dictionary<string, MonitoredFile> _monitoredFiles = new();
 
-        private Queue<string> _filesToScanQueue = new();
+        private readonly ItemRegistry _itemRegistry = new();
 
-        private Dictionary<string, MonitoredFile> _monitoredFiles = new();
-        private Dictionary<string, MonitoredDirectory> _monitoredDirectories = new();
-
-        private bool _regenerationRequired = false;
-
-        private ItemRegistry _itemRegistry = new();
+        private readonly ConsoleDelegate _consoleDelegate;
 
         private List<LogEntry> _recentLogEntries = new();
 
-        private ConsoleDelegate _consoleDelegate;
+        private AppSettings _appSettings;
+
+        private List<FileSystemWatcher> _fileSystemWatchers = new();
+
+        private bool _regenerationRequired = false;
 
         public bool IsInitialised => _appSettings.IsValid;
 
@@ -82,7 +80,7 @@ namespace Jiminy.Services
 
             Result result = new("LoadConfiguration");
 
-            // Create default appsettings.json if it does not exist, this happens at first run, and if the
+            // Create default appsettings.json if it does not exist, this happens on the first run, and if the
             // user deletes or moves it to generate a fresh one that they can customise.
 
             if (_appSettingsFileName.NoSuchFileName() || (_alwaysCreateAppSettingsOnStartup && _appSettings is null))
@@ -204,6 +202,8 @@ namespace Jiminy.Services
                         {
                             htmlBuildResult.SubsumeResult(await builder.BuildOutputs(_itemRegistry, _recentLogEntries));
                         }
+
+                        _recentLogEntries = new();
                     }
                     else
                     {

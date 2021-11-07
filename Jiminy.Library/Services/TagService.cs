@@ -112,6 +112,7 @@ namespace Jiminy.Utilities
             }
 
             // If no project, set to 'None'
+
             if (!item.HasTagInstance(enTagType.Project))
             {
                 var td = _appSettings.TagSettings.Definitions.Get("Project");
@@ -129,6 +130,7 @@ namespace Jiminy.Utilities
             }
 
             // If not in a bucket, put it in the incoming one, if it exists
+
             if (!item.HasTagInstance(enTagType.Bucket))
             {
                 var td = _appSettings.TagSettings.Definitions.Get("Bucket");
@@ -139,7 +141,8 @@ namespace Jiminy.Utilities
                 }
             }
 
-            // If no priority item, add one with the lowest defined priority
+            // If no priority, set the lowest defined priority
+
             if (!item.HasTagInstance(enTagType.Priority))
             {
                 var td = _appSettings.TagSettings.Definitions.Get("Priority");
@@ -293,7 +296,6 @@ namespace Jiminy.Utilities
                                         }
                                         else
                                         {
-                                            // Less standard date/time, TODO
                                             result.AddWarning($"Cannot extract date/time as the value cannot be parsed, assuming today. try 'd/mmm' format, eg. 'r:3/sep'");
                                             item.Diagnostics.Add($"Date not readable");
                                             dt = DateTime.Now;
@@ -301,7 +303,8 @@ namespace Jiminy.Utilities
                                     }
                                     else
                                     {
-                                        //result.AddWarning($"TagPart '{tagPart}' cannot extract reminder date/time as none supplied, assuming today");
+                                        // No reminder date/time supplied, assuming today
+
                                         item.Diagnostics.Add($"No date supplied");
                                         dt = DateTime.Now;
                                     }
@@ -491,8 +494,16 @@ namespace Jiminy.Utilities
             return $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-x-lg\" viewBox=\"0 0 16 16\"><path d=\"M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z\"/></svg>";
         }
 
-        internal string GenerateIconItem(TagInstance? ti = null, string? fileName = null, int width = 24, int height = 24, string? overrideColour = null, string? linkUrl = null, string? overrideText = null)
+        internal string GenerateIconItem(
+            TagInstance? ti = null, 
+            string? fileName = null, 
+            int width = 24, 
+            int height = 24, 
+            string? overrideColour = null, 
+            string? linkUrl = null, 
+            string? overrideText = null)
         {
+            // This will be an SVG in source form, tending to be between 500 and 850 characters
             StringBuilder sb = new(1000);
 
             string svgHtml = "";
@@ -661,7 +672,7 @@ namespace Jiminy.Utilities
                 svgHtml = GetDefaultIconHtml();
             }
 
-            // TODO do this properly
+            // Do this properly, it assumes the default values and will fail to size or colour the icon if that's not the case TODO
 
             svgHtml = svgHtml.Replace("width=\"16\"", $"width=\"{width}\"");
             svgHtml = svgHtml.Replace("height=\"16\"", $"width=\"{height}\"");
