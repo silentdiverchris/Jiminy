@@ -418,7 +418,7 @@ namespace Jiminy.Utilities
 
             foreach (var project in _appSettings.ProjectSettings.Definitions.Items.OrderBy(_ => _.DisplayOrder).ThenBy(_ => _.Name))
             {
-                if (_appSettings.OutputSettings.CreateEmptyProjectTabs || itemRegistry.Items.Any(_ => _.ProjectName == project.Name && _.SetsContext == false))
+                if (_appSettings.OutputSettings.CreateEmptyTabs || itemRegistry.Items.Any(_ => _.ProjectName == project.Name && _.SetsContext == false))
                 {
                     sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_PROJECT, project.Name, activeTab));
 
@@ -463,15 +463,18 @@ namespace Jiminy.Utilities
 
             foreach (var tagDef in _appSettings.TagSettings.Definitions.Items.Where(_ => _.Type == enTagType.Custom && _.GenerateView).OrderBy(_ => _.DisplayOrder).ThenBy(_ => _.Name))
             {
-                sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_TAGS, tagDef.Name, activeTab));
+                if (_appSettings.OutputSettings.CreateEmptyTabs || itemRegistry.Items.Any(_ => _.TagInstances.Any(_ => _.Definition.Name == tagDef.Name)))
+                {
+                    sbTabHeaders.Append(GenerateTabLeafHtml(Constants.TAB_GROUP_TAGS, tagDef.Name, activeTab));
 
-                string? iconHtml = tagDef.IconFileName is null
-                    ? null
-                    : _tagService.GenerateIconItem(fileName: tagDef.IconFileName, overrideColour: tagDef.Colour);
+                    string? iconHtml = tagDef.IconFileName is null
+                        ? null
+                        : _tagService.GenerateIconItem(fileName: tagDef.IconFileName, overrideColour: tagDef.Colour);
 
-                sbTabContent.Append(GenerateTagTabContent(itemRegistry, tagDef.Name, overrideIconHtml: iconHtml));
+                    sbTabContent.Append(GenerateTagTabContent(itemRegistry, tagDef.Name, overrideIconHtml: iconHtml));
 
-                activeTab = false;
+                    activeTab = false;
+                }
             }
 
             sb.Append("<div class='container'><div class='tab-wrap'>");

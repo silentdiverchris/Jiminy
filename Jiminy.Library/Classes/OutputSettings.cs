@@ -12,7 +12,7 @@ namespace Jiminy.Classes
         /// <summary>
         /// Create empty tabs for projects with no items
         /// </summary>
-        public bool CreateEmptyProjectTabs { get; set; }
+        public bool CreateEmptyTabs { get; set; }
 
         public List<OutputSpecification> Outputs { get; set; } = new();
     }
