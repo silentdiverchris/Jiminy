@@ -21,7 +21,7 @@ namespace Jiminy.Services
 #endif
         private readonly LogService _logService;
 
-        private readonly string _appSettingsFileName = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
+        private readonly string _appSettingsFileName = @"C:\\Personal\\Jiminy\\JiminySettings.json"; // Path.Join(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
 
         private readonly Queue<string> _filesToScanQueue = new();
 

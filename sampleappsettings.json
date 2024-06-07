@@ -1,0 +1,581 @@
+{
+  "LatencySeconds": 3,
+  "MediaDirectoryPath": "C:\\Personal\\Jiminy\\Media",
+  "TagSettings": {
+    "Prefix": "=",
+    "Suffix": "=",
+    "Separator": "-",
+    "Delimiter": ":",
+    "FromHere": "\u003E",
+    "ToHere": "\u003C=",
+    "Definitions": {
+      "Items": [
+        {
+          "Type": 9,
+          "GenerateView": true,
+          "Synonyms": [
+            "closed",
+            "x"
+          ],
+          "Code": "completed",
+          "IsCustomTag": false,
+          "IsStandardTag": true,
+          "Name": "Completed",
+          "IconFileName": "completed.svg",
+          "Colour": null,
+          "DisplayOrder": 1,
+          "Description": "This item is completed"
+        },
+        {
+          "Type": 10,
+          "GenerateView": true,
+          "Synonyms": [
+            "url"
+          ],
+          "Code": "link",
+          "IsCustomTag": false,
+          "IsStandardTag": true,
+          "Name": "Link",
+          "IconFileName": "link.svg",
+          "Colour": "blue",
+          "DisplayOrder": 2,
+          "Description": "A link to a URL"
+        },
+        {
+          "Type": 5,
+          "GenerateView": true,
+          "Synonyms": [
+            "b"
+          ],
+          "Code": "bucket",
+          "IsCustomTag": false,
+          "IsStandardTag": true,
+          "Name": "Bucket",
+          "IconFileName": "bucket.svg",
+          "Colour": null,
+          "DisplayOrder": 3,
+          "Description": "This item is in a bucket (in, next, waiting, maybe)"
+        },
+        {
+          "Type": 2,
+          "GenerateView": true,
+          "Synonyms": [
+            "p"
+          ],
+          "Code": "priority",
+          "IsCustomTag": false,
+          "IsStandardTag": true,
+          "Name": "Priority",
+          "IconFileName": "priority-medium.svg",
+          "Colour": null,
+          "DisplayOrder": 3,
+          "Description": "The priority of this item"
+        },
+        {
+          "Type": 6,
+          "GenerateView": true,
+          "Synonyms": [
+            "prj"
+          ],
+          "Code": "project",
+          "IsCustomTag": false,
+          "IsStandardTag": true,
+          "Name": "Project",
+          "IconFileName": "project.svg",
+          "Colour": "green",
+          "DisplayOrder": 3,
+          "Description": "This item relates to a project"
+        },
+        {
+          "Type": 4,
+          "GenerateView": true,
+          "Synonyms": [],
+          "Code": "due",
+          "IsCustomTag": false,
+          "IsStandardTag": true,
+          "Name": "Due",
+          "IconFileName": "due.svg",
+          "Colour": null,
+          "DisplayOrder": 4,
+          "Description": "There is a due date for this item"
+        },
+        {
+          "Type": 3,
+          "GenerateView": true,
+          "Synonyms": [
+            "r"
+          ],
+          "Code": "reminder",
+          "IsCustomTag": false,
+          "IsStandardTag": true,
+          "Name": "Reminder",
+          "IconFileName": "reminder.svg",
+          "Colour": null,
+          "DisplayOrder": 5,
+          "Description": "There is a reminder for this item"
+        },
+        {
+          "Type": 7,
+          "GenerateView": true,
+          "Synonyms": [],
+          "Code": "repeating",
+          "IsCustomTag": false,
+          "IsStandardTag": true,
+          "Name": "Repeating",
+          "IconFileName": "repeating.svg",
+          "Colour": null,
+          "DisplayOrder": 6,
+          "Description": "This item repeats"
+        },
+        {
+          "Type": 8,
+          "GenerateView": true,
+          "Synonyms": [
+            "context",
+            "ctx",
+            "setctx"
+          ],
+          "Code": "setcontext",
+          "IsCustomTag": false,
+          "IsStandardTag": true,
+          "Name": "SetContext",
+          "IconFileName": null,
+          "Colour": null,
+          "DisplayOrder": 7,
+          "Description": "An abstract property that sets the context of subsequent tags"
+        },
+        {
+          "Type": 11,
+          "GenerateView": true,
+          "Synonyms": [
+            "clear",
+            "xctx"
+          ],
+          "Code": "clearcontext",
+          "IsCustomTag": false,
+          "IsStandardTag": true,
+          "Name": "ClearContext",
+          "IconFileName": null,
+          "Colour": null,
+          "DisplayOrder": 7,
+          "Description": "An abstract property that sets the context of subsequent tags"
+        },
+        {
+          "Type": 1,
+          "GenerateView": true,
+          "Synonyms": [],
+          "Code": "bug",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Bug",
+          "IconFileName": "bug.svg",
+          "Colour": null,
+          "DisplayOrder": 8,
+          "Description": "Bug"
+        },
+        {
+          "Type": 1,
+          "GenerateView": true,
+          "Synonyms": [],
+          "Code": "enhancement",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Enhancement",
+          "IconFileName": "enhancement.svg",
+          "Colour": null,
+          "DisplayOrder": 8,
+          "Description": "Enhancement"
+        },
+        {
+          "Type": 1,
+          "GenerateView": true,
+          "Synonyms": [],
+          "Code": "conversation",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Conversation",
+          "IconFileName": "conversation.svg",
+          "Colour": null,
+          "DisplayOrder": 9,
+          "Description": "Talk to somebody"
+        },
+        {
+          "Type": 1,
+          "GenerateView": true,
+          "Synonyms": [],
+          "Code": "phonecall",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Phone Call",
+          "IconFileName": "phone.svg",
+          "Colour": null,
+          "DisplayOrder": 10,
+          "Description": "Phone call required"
+        },
+        {
+          "Type": 1,
+          "GenerateView": true,
+          "Synonyms": [],
+          "Code": "question",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Question",
+          "IconFileName": "question.svg",
+          "Colour": null,
+          "DisplayOrder": 10,
+          "Description": "Question"
+        },
+        {
+          "Type": 1,
+          "GenerateView": true,
+          "Synonyms": [],
+          "Code": "document",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Document",
+          "IconFileName": "document.svg",
+          "Colour": "SlateGray",
+          "DisplayOrder": 10,
+          "Description": "Involves writing"
+        },
+        {
+          "Type": 1,
+          "GenerateView": true,
+          "Synonyms": [],
+          "Code": "videocall",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Video Call",
+          "IconFileName": "video-call.svg",
+          "Colour": null,
+          "DisplayOrder": 10,
+          "Description": "Video call"
+        },
+        {
+          "Type": 1,
+          "GenerateView": true,
+          "Synonyms": [],
+          "Code": "spiked",
+          "IsCustomTag": true,
+          "IsStandardTag": false,
+          "Name": "Spiked",
+          "IconFileName": "spiked.svg",
+          "Colour": "magenta",
+          "DisplayOrder": 10,
+          "Description": "Spiked Online"
+        }
+      ]
+    }
+  },
+  "LogSettings": {
+    "VerboseConsole": true,
+    "VerboseEventLog": false,
+    "LogDirectoryPath": "C:\\Personal\\Jiminy\\Logs",
+    "SqlConnectionString": null
+  },
+  "IgnoreFileSpecifications": [
+    "LICENCE.*"
+  ],
+  "MonitoredDirectories": [
+    {
+      "Recursive": true,
+      "IncludeFileSpecification": "*.md",
+      "IsActive": false,
+      "Path": "C:\\Personal"
+    },
+    {
+      "Recursive": true,
+      "IncludeFileSpecification": "*.md",
+      "IsActive": false,
+      "Path": "C:\\Work"
+    },
+    {
+      "Recursive": false,
+      "IncludeFileSpecification": "*.md",
+      "IsActive": true,
+      "Path": "C:\\Dev\\Archivist"
+    },
+    {
+      "Recursive": false,
+      "IncludeFileSpecification": "*.md",
+      "IsActive": true,
+      "Path": "C:\\Dev\\Jiminy"
+    },
+    {
+      "Recursive": false,
+      "IncludeFileSpecification": "*.md",
+      "IsActive": true,
+      "Path": "C:\\Hermes"
+    }
+  ],
+  "BucketSettings": {
+    "Definitions": {
+      "Items": [
+        {
+          "Synonyms": [],
+          "Name": "Incoming",
+          "IconFileName": "inbox.svg",
+          "Colour": "red",
+          "DisplayOrder": 1,
+          "Description": "The place where new items go when they have no home"
+        },
+        {
+          "Synonyms": [],
+          "Name": "Next",
+          "IconFileName": "next.svg",
+          "Colour": "purple",
+          "DisplayOrder": 2,
+          "Description": "Items to do next"
+        },
+        {
+          "Synonyms": [],
+          "Name": "Soon",
+          "IconFileName": "soon.svg",
+          "Colour": "blue",
+          "DisplayOrder": 3,
+          "Description": "Items to do soon"
+        },
+        {
+          "Synonyms": [],
+          "Name": "Waiting",
+          "IconFileName": "waiting.svg",
+          "Colour": "darkgrey",
+          "DisplayOrder": 4,
+          "Description": "Items that are waiting on other items or something else"
+        },
+        {
+          "Synonyms": [],
+          "Name": "Maybe",
+          "IconFileName": "maybe.svg",
+          "Colour": "green",
+          "DisplayOrder": 5,
+          "Description": "Items that may or may not end up happening"
+        },
+        {
+          "Synonyms": [],
+          "Name": "Eventually",
+          "IconFileName": "eventually.svg",
+          "Colour": "darkgrey",
+          "DisplayOrder": 6,
+          "Description": "Items to do eventually"
+        }
+      ]
+    }
+  },
+  "PrioritySettings": {
+    "Definitions": {
+      "Items": [
+        {
+          "Number": 1,
+          "Name": "High",
+          "IconFileName": "priority-high.svg",
+          "Colour": "orange",
+          "DisplayOrder": 100,
+          "Description": ""
+        },
+        {
+          "Number": 2,
+          "Name": "Medium",
+          "IconFileName": "priority-medium.svg",
+          "Colour": "darkgrey",
+          "DisplayOrder": 100,
+          "Description": ""
+        },
+        {
+          "Number": 3,
+          "Name": "Low",
+          "IconFileName": "priority-low.svg",
+          "Colour": "darkgrey",
+          "DisplayOrder": 100,
+          "Description": ""
+        }
+      ]
+    }
+  },
+  "ProjectSettings": {
+    "Definitions": {
+      "Items": [
+        {
+          "Number": 0,
+          "Name": "PokerDev",
+          "IconFileName": "no-project.svg",
+          "Colour": "crimson",
+          "DisplayOrder": 1,
+          "Description": "PokerDev general issues"
+        },
+        {
+          "Number": 0,
+          "Name": "AceHigh",
+          "IconFileName": "no-project.svg",
+          "Colour": "red",
+          "DisplayOrder": 2,
+          "Description": "AceHigh specific issues"
+        },
+        {
+          "Number": 0,
+          "Name": "PokerBros",
+          "IconFileName": "no-project.svg",
+          "Colour": "red",
+          "DisplayOrder": 3,
+          "Description": "AceHigh specific issues"
+        },
+        {
+          "Number": 0,
+          "Name": "PPPoker",
+          "IconFileName": "no-project.svg",
+          "Colour": "orange",
+          "DisplayOrder": 4,
+          "Description": "PPPoker specific issues"
+        },
+        {
+          "Number": 0,
+          "Name": "Jiminy",
+          "IconFileName": "umbrella.svg",
+          "Colour": "crimson",
+          "DisplayOrder": 103,
+          "Description": "Developing Jiminy"
+        },
+        {
+          "Number": 0,
+          "Name": "Archivist",
+          "IconFileName": "archivist.svg",
+          "Colour": "indigo",
+          "DisplayOrder": 102,
+          "Description": "Developing Archivist"
+        },
+        {
+          "Number": 0,
+          "Name": "Writing",
+          "IconFileName": "writing.svg",
+          "Colour": "saddlebrown",
+          "DisplayOrder": 101,
+          "Description": "Writing English stuff"
+        },
+        {
+          "Number": 0,
+          "Name": "Hardware",
+          "IconFileName": "hardware.svg",
+          "Colour": "darkblue",
+          "DisplayOrder": 110,
+          "Description": "Hardware matters to fix or do"
+        },
+        {
+          "Number": 0,
+          "Name": "Household",
+          "IconFileName": "household.svg",
+          "Colour": "orange",
+          "DisplayOrder": 90,
+          "Description": ""
+        }
+      ]
+    }
+  },
+  "RepeatSettings": {
+    "Defintions": {
+      "Items": [
+        {
+          "NumberOfDays": 1,
+          "NumberOfWeeks": 0,
+          "NumberOfMonths": 0,
+          "NumberOfYears": 0,
+          "Name": "Daily",
+          "IconFileName": "repeating.svg",
+          "Colour": "red",
+          "DisplayOrder": 1,
+          "Description": "This item repeats daily"
+        },
+        {
+          "NumberOfDays": 0,
+          "NumberOfWeeks": 1,
+          "NumberOfMonths": 0,
+          "NumberOfYears": 0,
+          "Name": "Weekly",
+          "IconFileName": "repeating.svg",
+          "Colour": "green",
+          "DisplayOrder": 2,
+          "Description": "This item repeats weekly"
+        },
+        {
+          "NumberOfDays": 0,
+          "NumberOfWeeks": 0,
+          "NumberOfMonths": 1,
+          "NumberOfYears": 0,
+          "Name": "Monthly",
+          "IconFileName": "repeating.svg",
+          "Colour": "green",
+          "DisplayOrder": 3,
+          "Description": "This item repeats monthly"
+        },
+        {
+          "NumberOfDays": 0,
+          "NumberOfWeeks": 0,
+          "NumberOfMonths": 0,
+          "NumberOfYears": 1,
+          "Name": "Yearly",
+          "IconFileName": "repeating.svg",
+          "Colour": "green",
+          "DisplayOrder": 4,
+          "Description": "This item repeats yearly"
+        }
+      ]
+    }
+  },
+  "OutputSettings": {
+    "ShowDiagnostics": false,
+    "VerboseDiagnostics": false,
+    "HtmlTemplateFileName": "C:\\Personal\\Jiminy\\HtmlTemplate.html",
+    "Outputs": [
+      {
+        "IsEnabled": true,
+        "Title": "All Items",
+        "HtmlPath": "C:\\Personal\\Jiminy\\Output.html",
+        "JsonPath": "C:\\Personal\\Jiminy\\Output.json",
+        "OverrideHtmlTemplateFileName": null,
+        "ItemSelection": null
+      },
+      {
+        "IsEnabled": false,
+        "Title": "SingLink Items",
+        "HtmlPath": "C:\\Personal\\Jiminy\\SingLink.html",
+        "JsonPath": null,
+        "OverrideHtmlTemplateFileName": null,
+        "ItemSelection": {
+          "MustMatchAll": false,
+          "IncludeTagNames": [],
+          "IncludeProjectNames": [
+            "SingLink"
+          ]
+        }
+      },
+      {
+        "IsEnabled": false,
+        "Title": "Jiminy Items",
+        "HtmlPath": "C:\\Personal\\Jiminy\\Jiminy.html",
+        "JsonPath": null,
+        "OverrideHtmlTemplateFileName": null,
+        "ItemSelection": {
+          "MustMatchAll": false,
+          "IncludeTagNames": [],
+          "IncludeProjectNames": [
+            "Jiminy"
+          ]
+        }
+      },
+      {
+        "IsEnabled": false,
+        "Title": "Bugs and Enhancements",
+        "HtmlPath": "C:\\Personal\\Jiminy\\BugsEnhancements.html",
+        "JsonPath": null,
+        "OverrideHtmlTemplateFileName": "C:\\Personal\\Jiminy\\BugsEnhancementsTemplate.html",
+        "ItemSelection": {
+          "MustMatchAll": false,
+          "IncludeTagNames": [
+            "Bug",
+            "Enhancement"
+          ],
+          "IncludeProjectNames": []
+        }
+      }
+    ]
+  }
+}
